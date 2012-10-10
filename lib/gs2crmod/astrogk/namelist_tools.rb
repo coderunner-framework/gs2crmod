@@ -7,7 +7,7 @@
 #
 
 class CodeRunner
-class Astrogk
+class Gs2::Astrogk
 
 
 end

@@ -13,7 +13,7 @@
 
 
 class CodeRunner
-class Astrogk 
+class Gs2::Astrogk 
 
 	def read_transfers
 		Dir.chdir(@directory) do

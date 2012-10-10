@@ -48,7 +48,7 @@ class CodeRunner
 
 
 CodeRunner.setup_run_class('gs2')
-class Astrogk  < Gs2
+class Gs2::Astrogk  < Gs2
 
 ASTROGK_CRMOD_VERSION = Version.new('0.3.0')
 
@@ -172,8 +172,8 @@ folder = File.dirname(File.expand_path(__FILE__)) # i.e. the directory this file
 
 def self.transfer_gs2_docs
 	CodeRunner.setup_run_class('gs2')
-	p CodeRunner::Astrogk.ancestors
-	intersection = (CodeRunner::Gs2.rcp.namelists.keys&CodeRunner::Astrogk.rcp.namelists.keys)
+	p CodeRunner::Gs2::Astrogk.ancestors
+	intersection = (CodeRunner::Gs2.rcp.namelists.keys&CodeRunner::Gs2::Astrogk.rcp.namelists.keys)
 	gs2namelists=CodeRunner::Gs2.rcp.namelists
 	intersection.each do | namelist |
 		p namelist
@@ -193,7 +193,7 @@ def self.transfer_gs2_docs
 
 	end
 end
-	end # class Astrogk
+	end # class Gs2::Astrogk
 	# For backwards compatibility
 
 end # class CodeRunner

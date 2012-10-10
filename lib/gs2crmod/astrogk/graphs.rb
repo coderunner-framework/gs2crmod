@@ -1,7 +1,7 @@
 
 
 class CodeRunner
-class Astrogk 
+class Gs2::Astrogk 
 
 module AGKGraphKits 
 		

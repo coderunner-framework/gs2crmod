@@ -1,5 +1,5 @@
 class CodeRunner
-class Astrogk 
+class Gs2::Astrogk 
 
  def ingen
 

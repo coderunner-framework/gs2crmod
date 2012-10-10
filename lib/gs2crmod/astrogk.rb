@@ -47,7 +47,7 @@ class CodeRunner
 	# * Automatically plot a huge variety of different graphs, ranging from simple plots of heat flux versus time to three-dimensional plots of the spectrum and potential.
 
 
-class Astrogk  < Gs2
+class Gs2::Astrogk  < Gs2
 
 
 
@@ -193,6 +193,7 @@ def self.transfer_gs2_docs
 end
 	end # class Astrogk
 	# For backwards compatibility
+  Astrogk = Gs2::Astrogk
 
 end # class CodeRunner
 

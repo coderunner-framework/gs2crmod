@@ -1,5 +1,5 @@
 class CodeRunner
-	class Astrogk
+	class Gs2::Astrogk
 		module AstrogkGSLVectors
 			def etrans_by_kfrom_by_kto_over_time_gsl_vector(options)
 				read_transfers unless FileTest.exist? "energy_transfer.rb"
