@@ -15,17 +15,20 @@ Gem::Specification.new do |s|
   s.extensions = ["ext/extconf.rb"]
   s.extra_rdoc_files = [
     "LICENSE.txt",
+    "README.md",
     "README.rdoc"
   ]
   s.files = [
     ".document",
     "Gemfile",
     "LICENSE.txt",
+    "README.md",
     "README.rdoc",
     "Rakefile",
     "VERSION",
     "ext/extconf.rb",
     "ext/gs2crmod_ext.c",
+    "gs2crmod.gemspec",
     "include/gs2crmod_ext.h",
     "lib/gs2crmod.rb",
     "lib/gs2crmod/astrogk.rb",
