@@ -5,6 +5,16 @@
 #
 
 #
+
+class NumRu::NetCDF
+	aliold :var
+	def var(*args)
+		if args[0].kind_of? Symbol
+			args[0] = args[0].to_s
+		end
+		return old_var(*args)
+	end
+end
 class CodeRunner
 class Gs2 
 
