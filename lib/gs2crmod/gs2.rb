@@ -20,6 +20,11 @@
 
 #
 
+begin     
+	require "numru/netcdf"
+rescue LoadError
+    eputs "Error: No NetCDF: data analysis for gs2 not possible"
+end
 
 
 class CodeRunner
@@ -1081,11 +1086,6 @@ end # class CodeRunner
 
 # ep CodeRunner::Gs2CycloneRun.ancestors
 
-begin     
-	require "numru/netcdf"
-rescue LoadError
-    eputs "Error: No NetCDF: data analysis for gs2 not possible"
-end
 
 class Float
       def <=>(other) # necessary because of netcdf quirks
