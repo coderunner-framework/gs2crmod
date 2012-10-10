@@ -1,0 +1,76 @@
+{:stir_mode_amplitude=>
+  {:should_include=>"true",
+   :description=>nil,
+   :help=>nil,
+   :tests=>["Tst::FLOAT"],
+   :code_name=>:stir_mode_amplitude,
+   :must_pass=>
+    [{:test=>"kind_of? Numeric",
+      :explanation=>
+       "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+   :type=>:Float},
+ :stir_kx=>
+  {:should_include=>"true",
+   :description=>nil,
+   :help=>" Mode number for stirring\n",
+   :tests=>["Tst::INT"],
+   :code_name=>:stir_kx,
+   :must_pass=>
+    [{:test=>"kind_of? Integer",
+      :explanation=>"This variable must be an integer."}],
+   :type=>:Integer},
+ :stir_ky=>
+  {:should_include=>"true",
+   :description=>nil,
+   :help=>" Mode number for stirring\n",
+   :tests=>["Tst::INT"],
+   :code_name=>:stir_ky,
+   :must_pass=>
+    [{:test=>"kind_of? Integer",
+      :explanation=>"This variable must be an integer."}],
+   :type=>:Integer},
+ :stir_kz=>
+  {:should_include=>"true",
+   :description=>nil,
+   :help=>" Mode number for stirring\n",
+   :tests=>["Tst::INT"],
+   :code_name=>:stir_kz,
+   :must_pass=>
+    [{:test=>"kind_of? Integer",
+      :explanation=>"This variable must be an integer."}],
+   :type=>:Integer},
+ :stir_travel=>
+  {:should_include=>"true",
+   :description=>nil,
+   :help=>" Launches traveling wave (or standing wave if F). \n",
+   :tests=>["Tst::FORTRAN_BOOL"],
+   :code_name=>:stir_travel,
+   :must_pass=>
+    [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+      :explanation=>
+       "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+   :type=>:Fortran_Bool},
+ :stir_a=>
+  {:should_include=>"true",
+   :description=>nil,
+   :help=>
+    " Initial amplitude of right-moving component. It is not necessary to set a and b unless you are\ndoing restarts, which are rather clunky at the moment with the antenna included. \n",
+   :tests=>["Tst::FLOAT"],
+   :code_name=>:stir_a,
+   :must_pass=>
+    [{:test=>"kind_of? Numeric",
+      :explanation=>
+       "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+   :type=>:Float},
+ :stir_b=>
+  {:should_include=>"true",
+   :description=>nil,
+   :help=>
+    " Initial amplitude of left-moving component. It is not necessary to set a and b unless you are\ndoing restarts, which are rather clunky at the moment with the antenna included. \n",
+   :tests=>["Tst::FLOAT"],
+   :code_name=>:stir_b,
+   :must_pass=>
+    [{:test=>"kind_of? Numeric",
+      :explanation=>
+       "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+   :type=>:Float}}
