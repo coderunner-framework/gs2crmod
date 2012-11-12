@@ -59,7 +59,7 @@ def agk?
 	false
 end
 
-MODULE_FOLDER = File.dirname(File.expand_path(__FILE__))
+CODE_SCRIPT_FOLDER = MODULE_FOLDER = File.dirname(File.expand_path(__FILE__))
 
 # Include the other files
 @code_module_folder = folder = File.dirname(File.expand_path(__FILE__)) # i.e. the directory this file is in
