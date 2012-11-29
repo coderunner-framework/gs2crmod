@@ -79,6 +79,10 @@ NaN = GSL::NAN
 
 def code_run_environment
 	case CodeRunner::SYS
+	when /iridis/
+		<<EOF
+module load openmpi
+EOF
 	when /helios/
 		<<EOF
 module load intel
