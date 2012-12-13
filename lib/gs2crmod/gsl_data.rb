@@ -455,7 +455,7 @@ module GSLVectors
 # 					jump = 0	
 			#end
 			ep 'stride', stride, 'nlinks', nlinks, 'theta0', theta0
-			p GSL::Vector.indgen(nlinks / 2,  nkx + theta0 - nlinks / 2 * stride, stride).connect(GSL::Vector.indgen(nlinks / 2, theta0, stride)).reverse
+			p GSL::Vector.indgen(nlinks / 2,  nkx + theta0 - nlinks / 2 * stride, stride).connect(GSL::Vector.indgen(nlinks / 2, theta0, stride)).reverse if nlinks > 1
 			#return [7,5,3,1,34].to_gslv
 			return GSL::Vector.alloc([theta0 % jtwist]) if nlinks ==1
 			return GSL::Vector.indgen(nlinks / 2,  nkx + theta0 - nlinks / 2 * stride, stride).connect(GSL::Vector.indgen(nlinks / 2, theta0, stride)).reverse
