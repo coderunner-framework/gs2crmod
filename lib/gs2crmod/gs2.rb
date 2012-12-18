@@ -812,6 +812,20 @@ def actual_number_of_processors
 	@nprocs.split('x').map{|n| n.to_i}.inject(1){|ntot, n| ntot*n}
 end
 
+alias :anop :actual_number_of_processors
+
+def approximate_grid_size
+	case @grid_option
+	when "box"
+	(2*(@nx-1)/3+1).to_i * (@naky||(@ny-1)/3+1).to_i * @ntheta * (2 * @ngauss + @ntheta/2).to_i * @negrid * 2 * @nspec
+	else
+		@ntheta * (2 * @ngauss + @ntheta/2).to_i * @negrid * 2 * @nspec
+	end
+end
+
+alias :agridsze :approximate_grid_size
+																
+
 
 def parameter_string
 		return "#{@run_name}.in"
