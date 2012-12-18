@@ -824,6 +824,23 @@ def approximate_grid_size
 end
 
 alias :agridsze :approximate_grid_size
+
+# Gives a guess as to the maximum number of meshpoints which
+# can be parallelized (i.e. excluding ntheta)
+#
+def parallelizable_meshpoints
+	approximate_grid_size / ntheta
+end
+
+# Gives a guess as to the maximum number of nodes which can be
+# can be utilized on the current system
+#
+def estimated_nodes
+	parallelizable_meshpoints / max_ppn
+end
+
+alias :estnod :estimated_nodes
+
 																
 
 
