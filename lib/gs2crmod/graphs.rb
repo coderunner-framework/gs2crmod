@@ -69,7 +69,7 @@ def axiskit(name, options={})
 	when 'es_heat_flux'
 		type = species_type(options[:species_index]).capitalize
 		units = ''
-		return GraphKit::AxisKit.autocreate(data: gsl_vector('es_heat_flux', options), title: "#{type} Heat Flux", units: units)
+		return GraphKit::AxisKit.autocreate(data: gsl_vector('es_heat_flux_over_time', options), title: "#{type} Heat Flux", units: units)
 # 	when 'spectrum_by_ky'
 # 		return AxisKit.autocreate(data: gsl_vector('spectrum_by_ky', options), title: "Phi^2 at t = #{list(:t)[options[:t_index]]}", units: '')
 	end
