@@ -214,10 +214,6 @@ end
 
 module GraphKits
 		
-	def apar2_by_mode_vs_time_graphkit(options={})
-		options[:direction] = :mode
-		apar2_by_kxy_or_mode_vs_time_graphkit(options)
-	end
 
 	def apar2_by_kx_vs_time_graphkit(options={})
 		options[:direction] = :kx
@@ -808,6 +804,12 @@ module GraphKits
 		end
 	end
 	def phi_real_space_poloidal_plane_graphkit(options={})
+		return field_real_space_poloidal_plane_graphkit(options.absorb(field_name: :phi))
+	end
+	def density_real_space_poloidal_plane_graphkit(options={})
+		return field_real_space_poloidal_plane_graphkit(options.absorb(phi: field_real_space_gsl_tensor(field: moment_gsl_tensor(options.absorb(moment_name: :density)))))
+	end
+	def field_real_space_poloidal_plane_graphkit(options={})
 		case options[:command]
 		when :help
 			return  "The potential as a function of cartesian coordinates showing a cut at one toroidal angle, with multiple periodic copies of the flux tube used to fill the whole circle.."
@@ -828,7 +830,7 @@ module GraphKits
 			#carts = cartesian_coordinates_gsl_tensor(options)
 			#torphiout = 2.6
 			torphiout = options[:torphi]
-			phi = options[:phi] || phi_real_space_gsl_tensor(options)
+			phi = options[:phi] || field_real_space_gsl_tensor(options)
 			torphi_const =  constant_torphi_surface_gsl_tensor(options)
 			cyls = cylindrical_coordinates_gsl_tensor(options.absorb({extra_points: true}))
 			#p torphi_const[0,true].to_a; 

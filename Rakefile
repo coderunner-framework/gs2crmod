@@ -20,7 +20,7 @@ Jeweler::Tasks.new do |gem|
   gem.summary = %Q{Module to allow CodeRunner to run and analyse the GS2 and AstroGK codes.}
   gem.description = %Q{GS2 is a gyrokinetic flux tube initial value turbulence code which can be used for fusion or astrophysical plasmas. CodeRunner is a framework for the automated running and analysis of large simulations. This module allows GS2 (and its sister code AstroGK) to harness the power of the CodeRunner framework.}
   gem.email = "edmundhighcock@sourceforge.net"
-  gem.authors = ["Edmund Highcock"]
+  gem.authors = ["Edmund Highcock", "Ferdinand van Wyk"]
 	gem.extensions = "ext/extconf.rb"
 	gem.files.include('ext/*.c', 'include/*.h', 'ext/*.rb')
 	gem.required_ruby_version = '>= 1.9.1'

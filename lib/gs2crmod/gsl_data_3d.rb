@@ -133,6 +133,25 @@ class CodeRunner::Gs2
 		tensor = send((name.to_s+"_gsl_tensor").to_sym , options)
 	end
 	module GSLTensors
+		def moment_gsl_tensor(options)
+			if options[:t_index]
+				raise ArgumentError.new("Moments are not written out as a function of time currently")
+				#ep options; gets
+				raise CRFatal.new("write_phi_over_time is not enabled so this function won't work") unless @write_phi_over_time
+				arr =  GSL::Tensor.new(netcdf_file.var(options[:field_name].to_s + '_t').get({'start' => [0,(options[:thetamin]||0),0,0, options[:t_index] - 1], 'end' => [-1,(options[:thetamax]||-1),(options[:nakx]||0)-1,(options[:naky]||0)-1, options[:t_index] - 1]}))
+				#ep 'arr.shape', arr.shape
+				arr.reshape!(*arr.shape.slice(1...arr.shape.size))
+				
+			else
+				arr =  GSL::Tensor.new(netcdf_file.var(options[:moment_name]).get({'start' => [0,(options[:thetamin]||0),0,0,options[:species_element]], 'end' => [-1,(options[:thetamax]||-1),(options[:nakx]||0)-1,(options[:naky]||0)-1,options[:species_element]]}))
+				#ep 'arr.shape', arr.shape
+			end
+			arr.reshape!(*arr.shape.slice(1...arr.shape.size))
+			arr[0, true, true, true] = 0.0 if options[:no_zonal]
+			#arr = arr[options[:nakx] ? 0...options[:nakx] : true, options[:naky] ? 0...options[:naky] : true, true, true] if options[:nakx] or options[:naky]
+			return arr
+
+		end
 		def field_gsl_tensor(options)
 			if options[:t_index]
 				#ep options; gets

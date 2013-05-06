@@ -93,7 +93,12 @@ VALUE gs2crmod_tensor_field_gsl_tensor(VALUE self, VALUE options)
 	cgsl_tensor = RGET_CLASS(cgsl, "Tensor");
 	/*cgsl_vector = RGET_CLASS(cgsl, "Vector");*/
 
-	field = RFCALL_11("field_gsl_tensor", options);
+	if(RTEST(RFCALL_11_ON(options, "[]", rb_intern("field")))){
+		field = RFCALL_11_ON(options, "[]", rb_intern("field"));
+	}
+	else {
+	 field = RFCALL_11("field_gsl_tensor", options);
+	}
 	field_narray = RFCALL_10_ON(field, "narray");
 	shape = RFCALL_10_ON(field, "shape");
 
@@ -123,7 +128,7 @@ VALUE gs2crmod_tensor_field_gsl_tensor(VALUE self, VALUE options)
 	{
 		for (i=0; i<c_shape[0]; i++) /*ky loop*/
 		{
-			for (k=0; k<c_shape[1]; k++) /*ky loop*/
+			for (k=0; k<c_shape[1]; k++) /*kx loop*/
 			{
 				/*First copy the field onto the 
 				 * x workspace, Fourier transform
