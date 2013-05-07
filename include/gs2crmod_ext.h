@@ -48,6 +48,12 @@
 			NUM2INT(RARRAY_PTR(array)[cr_internal_xaa11]);\
 		}
 					
+#define CR_CHECK_CLASS(obj,cls){\
+	if(!RTEST(rb_obj_is_kind_of(obj,cls))){\
+		rb_raise(RGET_CLASS_TOP("TypeError"), "Expecting an instance of %s", StringValueCStr(cls));\
+	}\
+}
+
 
 static VALUE cgsl; 
 static VALUE ccode_runner; 

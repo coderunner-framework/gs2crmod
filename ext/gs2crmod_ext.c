@@ -93,8 +93,10 @@ VALUE gs2crmod_tensor_field_gsl_tensor(VALUE self, VALUE options)
 	cgsl_tensor = RGET_CLASS(cgsl, "Tensor");
 	/*cgsl_vector = RGET_CLASS(cgsl, "Vector");*/
 
-	if(RTEST(RFCALL_11_ON(options, "[]", rb_intern("field")))){
-		field = RFCALL_11_ON(options, "[]", rb_intern("field"));
+	Check_Type(options, T_HASH);
+	if(RTEST(CR_HKS(options, "field"))){
+		field = CR_HKS(options, "field");
+		CR_CHECK_CLASS(field, cgsl_tensor);
 	}
 	else {
 	 field = RFCALL_11("field_gsl_tensor", options);
