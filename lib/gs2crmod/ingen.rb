@@ -130,6 +130,10 @@ def ingen
 
 	error("delt (#@delt) < delt_minimum") if @delt and @delt_minimum and @delt < @delt_minimum
 
+	# negrid
+	#
+	warning('negrid < 8 is not a good idea!') if @negrid and @negrid < 8
+
 	# Parallelisation Errors
 	
 		
