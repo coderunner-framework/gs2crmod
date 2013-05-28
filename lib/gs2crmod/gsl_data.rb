@@ -810,7 +810,6 @@ module GSLVectorComplexes
 					a = netcdf_file.var('phi').get({'start' => [0, 0, 0, options[:ky_index] - 1], 'end' => [-1, -1, -1, options[:ky_index] - 1]})
 					#temp =  GSL::Vector.alloc(a.to_a[0].values_at(*kx_elements).flatten)
 					temp =  GSL::Vector.alloc(a.to_a[0][0].flatten)
-				end
 				when "box"
 					ep 'kx_elements', kx_elements = gsl_vector('linked_kx_elements', options).to_a
 					a = netcdf_file.var('phi').get({'start' => [0, 0, 0, options[:ky_index] - 1], 'end' => [-1, -1, -1, options[:ky_index] - 1]})
