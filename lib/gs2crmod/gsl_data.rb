@@ -556,7 +556,7 @@ module GSLVectors
 	def theta_along_field_line_gsl_vector(options)
 		Dir.chdir(@directory) do
 			case @grid_option
-			when "single"
+			when "single", "range"
 				theta_vector = gsl_vector(:theta)
 			when "box"
 				#eputs "Start theta_along_field_line"
@@ -814,7 +814,10 @@ module GSLVectorComplexes
 					ep 'kx_elements', kx_elements = gsl_vector('linked_kx_elements', options).to_a
 					a = netcdf_file.var('phi').get({'start' => [0, 0, 0, options[:ky_index] - 1], 'end' => [-1, -1, -1, options[:ky_index] - 1]})
 					temp =  GSL::Vector.alloc(a.to_a[0].values_at(*kx_elements).flatten)
+				else
+					raise "invalid grid option"
 				end
+				
 				vector = GSL::Vector::Complex.alloc(temp.subvector_with_stride(0, 2), temp.subvector_with_stride(1, 2))
 				#ep 'vector', vector.real
 				return vector
