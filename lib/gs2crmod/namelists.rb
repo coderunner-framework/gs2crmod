@@ -1478,7 +1478,7 @@
        :module=>:dist_fn},
      :nonad_zero=>
       {:should_include=>"true",
-       :description=>"If true, new boundary conditions g_wesson=0",
+       :description=>"If true, new boundary conditions g_wesson = 0",
        :help=>
         "If true, new boundary conditions g_wesson=0. If false, g_gs2 = 0",
        :tests=>["Tst::FORTRAN_BOOL"],

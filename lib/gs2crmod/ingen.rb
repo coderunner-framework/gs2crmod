@@ -188,7 +188,9 @@ def ingen
 
 	warning("The system will abort with rapid timestep changes...") if !@abort_rapid_time_step_change or @abort_rapid_time_step_change.fortran_true?
 
-
+	# Boundary Condition Errors
+	
+	warning("The correct BC is not being implemented. Prefereably specify nonad_zero = true in input file.") if not (@nonad_zero and @nonad_zero.fortran_true?)
 
 end
 
