@@ -190,7 +190,7 @@ def ingen
 
 	# Boundary Condition Errors
 	
-	warning("The correct BC is not being implemented. Prefereably specify nonad_zero = true in input file.") if not (@nonad_zero and @nonad_zero.fortran_true?)
+	warning("The correct BC is not being implemented. Preferably specify nonad_zero = true in input file.") if not (@nonad_zero and @nonad_zero.fortran_true?)
 
 end
 
