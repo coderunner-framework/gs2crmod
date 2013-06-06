@@ -2885,6 +2885,18 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float},
+     :clean_init=>
+      {:help=>"Makes sure phi = 0 at either ends of paralle domain. Only works when chop_side is also true",
+       :should_include=>"true",
+       :description=>"phi = 0 at either end of domain.",
+       :tests=>["Tst::STRING"],
+       :autoscanned_defaults=>[".true."],
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :autoscanned_defaults=>[".true."],
+       :type=>:Fortran_Bool},
      :chop_side=>
       {:help=>"Rarely needed.  Forces asymmetry into initial condition.",
        :should_include=>"true",

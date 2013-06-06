@@ -133,6 +133,9 @@ def ingen
 
 	# negrid
 	warning('negrid < 8 is not a good idea!') if @negrid and @negrid < 8
+
+    # nakx
+	warning("You have set both nx and ntheta0; ntheta0 will override nx.") if @nx and @ntheta0
 	
 	#################################
 	# Parallelisation/Layout Errors #
