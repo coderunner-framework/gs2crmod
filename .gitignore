@@ -43,6 +43,7 @@ pkg
 
 # For vim:
 *.swp
+*.swo
 *.orig
 
 # For redcar:
