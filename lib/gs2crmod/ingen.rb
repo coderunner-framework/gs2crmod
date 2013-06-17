@@ -109,9 +109,10 @@ def ingen
 		end
 	end
 
-	
-	# Grid Errors
-	
+	###############
+	# Grid Errors #
+	###############	
+
 	# naky
 	warning("Setting naky when non-linear mode is on is not recommended.") if @naky and @nonlinear_mode == "on"
 	
@@ -131,18 +132,28 @@ def ingen
 	error("delt (#@delt) < delt_minimum") if @delt and @delt_minimum and @delt < @delt_minimum
 
 	# negrid
-	#
 	warning('negrid < 8 is not a good idea!') if @negrid and @negrid < 8
 
-	# Parallelisation Errors
+    # nakx
+	warning("You have set both nx and ntheta0; ntheta0 will override nx.") if @nx and @ntheta0
 	
-		
+	#################################
+	# Parallelisation/Layout Errors #
+	#################################
+	
+	# Best linear run layout is lexys
+	warning("The best layout for linear runs is usually lexys.") if @nonlinear_mode=="off" and not @layout=="lexys"
+
+	# Best nonlinear run layout is xyles
+        warning("The best layout for nonlinear runs is usually xyles.") if @nonlinear_mode=="on" and not @layout=="xyles"
+
 	# Check whether we are parallelising over x
 	warning("Parallelising over x: suggest total number of processors should be: #{max_nprocs_no_x}") if actual_number_of_processors > max_nprocs_no_x and not @grid_option == "single"
 
-	
-	# Initialisation Errors
-	
+	#########################
+	# Initialisation Errors #
+	#########################
+
 	# Check if restart folder exists
 	if @restart_file and  @restart_file =~ /^(?<folder>[^\/]+)\//
 		folder = $~[:folder]
@@ -153,8 +164,10 @@ def ingen
 
 	error("ginit_option is 'many' but is_a_restart is false") if @ginit_option == "many" and not @is_a_restart
 
-	#Diagnostic errors
-	#
+	#####################
+	# Diagnostic errors #
+	#####################	
+
 	#Check whether useful diagnostics have been omitted.
 
 	not_set = [:write_verr, :save_for_restart, :write_nl_flux, :write_final_fields, :write_final_moments].find_all do  |diagnostic|
@@ -178,8 +191,10 @@ def ingen
 	
 	warning("You will write out diagnostics less than 50 times") if @nstep/@nwrite < 50
 	
-	#Miscellaneous errors.
-	
+	########################
+	# Miscellaneous errors #
+	########################	
+
 	error("The run name for this run is too long. Please move some of the variable settings to the local defaults file.") if @relative_directory.size + @run_name.size > MAX_NAME_SIZE
 
 	warning("You are submitting a nonlinear run with no dissipation.") if @nonlinear_mode == "on" and @hyper_option=="none" and @collision_model=="none"
@@ -188,7 +203,11 @@ def ingen
 
 	warning("The system will abort with rapid timestep changes...") if !@abort_rapid_time_step_change or @abort_rapid_time_step_change.fortran_true?
 
+	#############################
+	# Boundary Condition Errors #
+	#############################
 
+	warning("The correct BC is not being implemented. Preferably specify nonad_zero = true in input file.") if not (@nonad_zero and @nonad_zero.fortran_true?)
 
 end
 

@@ -804,10 +804,24 @@ module GraphKits
 		end
 	end
 	def phi_real_space_poloidal_plane_graphkit(options={})
-		return field_real_space_poloidal_plane_graphkit(options.absorb(field_name: :phi))
+		case options[:command]
+		when :help
+			return  "The potential as a function of cartesian coordinates showing a cut at one toroidal angle, with multiple periodic copies of the flux tube used to fill the whole circle.."
+		when :options
+			return  [:Rgeo, :n0, :rho_star, :t_index, :nakx, :naky,  :xmax, :xmin, :thetamax, :thetamin, :torphi]
+		else
+			return field_real_space_poloidal_plane_graphkit(options.absorb(field_name: :phi))
+		end
 	end
 	def density_real_space_poloidal_plane_graphkit(options={})
-		return field_real_space_poloidal_plane_graphkit(options.absorb(phi: field_real_space_gsl_tensor(field: moment_gsl_tensor(options.absorb(moment_name: :density)))))
+		case options[:command]
+		when :help
+			return  "The density as a function of cartesian coordinates showing a cut at one toroidal angle, with multiple periodic copies of the flux tube used to fill the whole circle.."
+		when :options
+			return  [:Rgeo, :n0, :rho_star, :t_index, :nakx, :naky,  :xmax, :xmin, :thetamax, :thetamin, :torphi]
+		else
+			return field_real_space_poloidal_plane_graphkit(options.absorb(phi: field_real_space_gsl_tensor(field: moment_gsl_tensor(options.absorb(moment_name: :density)))))
+		end
 	end
 	def field_real_space_poloidal_plane_graphkit(options={})
 		case options[:command]
