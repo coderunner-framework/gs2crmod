@@ -1325,7 +1325,7 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool},
-     :D_hyperres=>
+     :d_hyperres=>
       {:should_include=>"true",
        :description=>nil,
        :help=>nil,
@@ -1336,7 +1336,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float},
-     :D_hypervisc=>
+     :d_hypervisc=>
       {:should_include=>"true",
        :description=>nil,
        :help=>nil,
@@ -1347,7 +1347,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float},
-     :D_hyper=>
+     :d_hyper=>
       {:should_include=>"true",
        :description=>nil,
        :help=>nil,

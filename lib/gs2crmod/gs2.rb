@@ -850,7 +850,7 @@ end
 
 
 def self.list_code_commands
-	puts (methods - superclass.methods).sort
+	puts (methods - Run.methods).sort
 end
 
 def self.add_variable_to_namelist(namelist, var, value)
@@ -874,6 +874,8 @@ def input_file_header
 !  of large simulations. 
 !
 !  	See http://coderunner.sourceforge.net
+!
+!  Created on #{Time.now.to_s}
 !      by CodeRunner version #{CodeRunner::CODE_RUNNER_VERSION.to_s}
 !
 !==============================================================================
