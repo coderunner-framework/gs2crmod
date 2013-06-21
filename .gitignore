@@ -54,6 +54,8 @@ pkg
 #
 Gemfile.lock
 
+#Binaries for testing
+*.so
 
 #For CodeRunner
 #

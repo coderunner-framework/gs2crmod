@@ -28,9 +28,39 @@ Jeweler::Tasks.new do |gem|
 end
 Jeweler::RubygemsDotOrgTasks.new
 
+require 'rake/clean'
+
+NAME = 'gs2crmod'
+
+# rule to build the extension: this says
+# that the extension should be rebuilt
+# after any change to the files in ext
+file "lib/#{NAME}_ext.so" =>
+    Dir.glob("ext/*{.rb,.c}") do
+  Dir.chdir("ext") do
+    # this does essentially the same thing
+    # as what RubyGems does
+    ruby "extconf.rb"
+    sh "make"
+  end
+  cp "ext/#{NAME}_ext.so", "lib/#{NAME}_ext.so"
+end
+
+# make the :test task depend on the shared
+# object, so it will be built automatically
+# before running the tests
+task :test => "lib/#{NAME}_ext.so"
+
+# use 'rake clean' and 'rake clobber' to
+# easily delete generated files
+CLEAN.include('ext/**/*{.o,.log,.so}')
+CLEAN.include('ext/**/Makefile')
+CLOBBER.include('lib/**/*.so')
+CLOBBER.include('lib/*.so')
+
 require 'rake/testtask'
 Rake::TestTask.new(:test) do |test|
-  test.libs << 'lib' << 'test'
+  test.libs << 'lib' << 'test' << 'ext'
   test.pattern = 'test/**/test_*.rb'
   test.verbose = true
 end
