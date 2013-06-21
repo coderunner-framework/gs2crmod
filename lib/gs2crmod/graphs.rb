@@ -33,6 +33,7 @@ def auto_axiskits(name, options)
 	        'spectrum_over_kx' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
 	        'zonal_spectrum' => ["Zonal spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
 	        'spectrum_over_ky' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
+	        'es_heat_over_ky' => ["Heat Flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", 'Q_gB', 1],
 	        'growth_rate_over_ky_over_kx' => ["Growth Rate", "v_th#{species_letter}/a", 2],
 	       	'es_heat_flux_over_ky_over_kx' => ["Heat flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
 	       	'spectrum_over_kpar' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
@@ -339,14 +340,14 @@ module GraphKits
 
 	alias :eigenfunction_graphkit :efn_graphkit
 		
-	def es_heat_flux_vs_ky_vs_kx_graphkit(options={})
+	def es_heat_vs_ky_vs_kx_graphkit(options={})
 		case options[:command]
 		when :help
 			return  "Graph of electrostatic contribution to heat flux at a given time vs kx and ky"
 		when :options
 			return [:with]
 		else
-			zaxis = axiskit('es_heat_flux_over_ky_over_kx', options)
+			zaxis = axiskit('es_heat_over_ky_over_kx', options)
 			zaxis.data = zaxis.data.transpose
 			kit = GraphKit.autocreate({y: axiskit('ky', options), x: axiskit('kx', options), z: zaxis})
 			kit.title = "Heat flux"
@@ -355,6 +356,35 @@ module GraphKits
 			return kit
 		end
 	end
+
+	def es_heat_flux_vs_ky_graphkit(options={})
+		case options[:command]
+		when :help
+			return "Heat flux vs ky"
+		when :options
+			return [:ky_index, :species_index]
+		else
+			return es_heat_flux_vs_kxy_graphkit(options.absorb({direction: :ky}))
+		end
+	end
+
+	def es_heat_flux_vs_kxy_graphkit(options={})
+		case options[:command]
+		when :help
+			return "Heat flux vs options[:direction]  (kx or ky)"
+		when :options
+			return [:ky_index, :species_index]
+		else
+			kxy = options[:direction]||options[:kxy] 
+			kit = GraphKit.autocreate({x: axiskit(kxy.to_s, options), y: axiskit("es_heat_flux_vs_#{kxy}", options)})
+			kit.title  = "Heat flux vs #{kxy} for species #{options[:species_index]}"
+			kit.file_name = options[:graphkit_name] + options[:t_index].to_s
+			kit.data[0].with = 'lp'
+			#kit.ylabel = "Phi^2 #{kxy}^2"
+			kit.pointsize = 2.0
+		end
+	end
+
 
 	def es_heat_flux_vs_time_graphkit(options={})
 		case options[:command]

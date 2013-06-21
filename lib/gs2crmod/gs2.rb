@@ -52,7 +52,8 @@ class CodeRunner
 
 class Gs2 < Run::FortranNamelist
 
-GS2_CRMOD_VERSION = Version.new(Gem.loaded_specs['gs2crmod'].version.to_s)
+#GS2_CRMOD_VERSION = Version.new(Gem.loaded_specs['gs2crmod'].version.to_s)
+GS2_CRMOD_VERSION = Version.new('0.5.0')
 
 
 def agk?
