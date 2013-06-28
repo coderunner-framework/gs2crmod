@@ -135,4 +135,35 @@ class TestAnalysis < Test::Unit::TestCase
 	end
 end
 
+AGK_SLAB_ITG_LOW_KPERP_FOLDER = 'test/agk_slab_itg_low_kperp'
 
+if ENV['AGK_EXEC']
+	class TestAstrogkSubmission < Test::Unit::TestCase
+		def setup
+			CodeRunner.setup_run_class('gs2', modlet: 'astrogk')
+			CodeRunner::Gs2::Astrogk.make_new_defaults_file('test_gs2crmod_astrogk', 'test/agk_slab_itg_low_kperp.in')
+			FileUtils.mv('test_gs2crmod_astrogk_defaults.rb', CodeRunner::Gs2::Astrogk.rcp.user_defaults_location + '/.')
+			FileUtils.makedirs(tfolder)
+		end
+		def tfolder
+			AGK_SLAB_ITG_LOW_KPERP_FOLDER
+		end
+		def teardown
+			FileUtils.rm(CodeRunner::Gs2::Astrogk.rcp.user_defaults_location + '/' + 'test_gs2crmod_astrogk_defaults.rb')
+			FileUtils.rm(tfolder + '/.CODE_RUNNER_TEMP_RUN_LIST_CACHE')
+			FileUtils.rm(tfolder + '/v/id_1/.code_runner_run_data')
+			FileUtils.rm(tfolder + '/v/id_1/code_runner_results.rb')
+			 #Don't uncomment the line below unless you *really* know what you are doing! Replacing the test archive will break many of the tests
+			Dir.chdir('test'){system "tar -czf agk_slab_itg_low_kperp.tgz agk_slab_itg_low_kperp/" unless FileTest.exist?('agk_slab_itg_low_kperp.tgz')}
+			FileUtils.rm_r(tfolder)
+		end
+		def test_submission
+			CodeRunner.submit(C: 'gs2', X: ENV['AGK_EXEC'], D: 'test_gs2crmod_astrogk', n: '4', Y: tfolder, m: 'astrogk')
+			
+			CodeRunner.status(Y: tfolder)
+		end
+	end
+else
+	puts "\n************************************\nWarning: agk submission tests not run. Please specify the evironment variable AGK_EXEC (the path to the agk executable) if you wish to test submission.\n************************************\n"
+	sleep 0.1
+end
