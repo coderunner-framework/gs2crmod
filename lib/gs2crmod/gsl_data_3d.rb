@@ -164,6 +164,21 @@ class CodeRunner::Gs2
 				arr =  GSL::Tensor.new(netcdf_file.var(options[:field_name]).get({'start' => [0,(options[:thetamin]||0),0,0], 'end' => [-1,(options[:thetamax]||-1),(options[:nakx]||0)-1,(options[:naky]||0)-1]}))
 				#ep 'arr.shape', arr.shape
 			end
+			if options[:interpolate_x]
+				shape = arr.narray.shape
+				#p 'shape', shape
+				shape[2] = (shape[2]-1)*options[:interpolate_x] + 1
+				#p shape
+				arr = GSL::Tensor.new(arr.narray.expand(*shape, 0.0))
+			end
+			if options[:interpolate_y]
+				shape = arr.narray.shape
+				#p 'shape', shape
+				shape[3] = (shape[3]-1)*options[:interpolate_y] + 1
+				#p shape
+				arr = GSL::Tensor.new(arr.narray.expand(*shape, 0.0))
+			end
+
 			arr[0, true, true, true] = 0.0 if options[:no_zonal]
 			#arr = arr[options[:nakx] ? 0...options[:nakx] : true, options[:naky] ? 0...options[:naky] : true, true, true] if options[:nakx] or options[:naky]
 			return arr
@@ -496,7 +511,7 @@ class CodeRunner::Gs2
 			#return torphi_const
 		#end
 
-		FIELD_VALUES = [:phi]
+		FIELD_VALUES = [:phi, :density, :apar, :bpar]
 		TRIVIAL_INDICES = [:graphkit_name]
 		TIME_VARYING_INDICES = [:t_index, :begin_element, :end_element, :frame_index, :t_index_window]
 		IRRELEVANT_INDICES  = FIELD_VALUES + TRIVIAL_INDICES + TIME_VARYING_INDICES

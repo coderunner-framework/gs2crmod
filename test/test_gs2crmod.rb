@@ -29,8 +29,7 @@ if ENV['GS2_EXEC']
 			FileUtils.rm(tfolder + '/.CODE_RUNNER_TEMP_RUN_LIST_CACHE')
 			FileUtils.rm(tfolder + '/v/id_1/.code_runner_run_data')
 			FileUtils.rm(tfolder + '/v/id_1/code_runner_results.rb')
-			# Don't uncomment the line below unless you *really* know what you are doing!
-			# Replacing the test archive will break many of the tests
+			# Don't uncomment the line below unless you *really* know what you are doing! Replacing the test archive will break many of the tests
 			#Dir.chdir('test'){system "tar -czf cyclone_low_res.tgz cyclone_low_res/" unless FileTest.exist?('cyclone_low_res.tgz')}
 			FileUtils.rm_r(tfolder)
 		end
@@ -47,6 +46,7 @@ class TestAnalysis < Test::Unit::TestCase
 	def setup
 		Dir.chdir('test'){assert(system "tar -xzf cyclone_low_res.tgz")}
 		@runner = CodeRunner.fetch_runner(Y: tfolder)
+		@run = @runner.run_list[1]
 	end
 	def test_analysis
 		assert_equal(1, @runner.run_list.size)
@@ -54,13 +54,60 @@ class TestAnalysis < Test::Unit::TestCase
 		assert_equal(0.13066732664774272, @runner.run_list[1].growth_rate_at_ky[0.5])
 		assert_equal(:Complete, @runner.run_list[1].status)
 	end
+	def test_interpolation
+		assert_equal(5, @run.gsl_vector('kx').size)
+		assert_equal(17, @run.gsl_vector('kx', interpolate_x: 4).size)
+		kxvec = @run.gsl_vector('kx', interpolate_x: 4)
+		assert_equal(0.0, kxvec[(kxvec.size-1)/2])
+		xvec4 = @run.gsl_vector('x', interpolate_x: 4)
+		s = kxvec.size
+		assert_equal((-(s-1)/2..(s-1)/2).to_a.map{|i| i.to_f * kxvec.to_box_order[1]}.to_gslv, kxvec)
+		#p xvec4.to_a
+		xvec = @run.gsl_vector('x')
+		# The vectors don't contain the periodic point, but we can construct them 
+		# and they should be equal
+		assert_equal(xvec[-1] + xvec[-1] - xvec[-2], xvec4[-1] + xvec4[-1] - xvec4[-2])
+		#p  @run.gsl_vector('kx', interpolate_x: 4).to_a
+		kyvec4 = @run.gsl_vector('ky', interpolate_y: 4)
+		#p kyvec4
+		s = kyvec4.size
+		assert_equal((0...s).to_a.map{|i| i.to_f * kyvec4[1]}.to_gslv, kyvec4)
+		yvec4 = @run.gsl_vector('y', interpolate_y: 4)
+		#p yvec4.to_a
+		yvec = @run.gsl_vector('y')
+		assert_equal(yvec[-1] + yvec[-1] - yvec[-2], yvec4[-1] + yvec4[-1] - yvec4[-2])
+		#kit = @runner.run_list[1].graphkit('phi_real_space_poloidal_plane', {n0: 1, Rgeo: 3, interpolate_theta: 8, torphi: Math::PI/4.0, interpolate_x: 8})
+		kit1 = @runner.run_list[1].graphkit('phi_real_space_surface', {n0: 1, Rgeo: 3, gs2_coordinate_factor: 1.0})
+		shape = kit1.data[0].x.data.shape
+		shape = shape.map{|s| (s-1)*2 +1}
+		kit = @runner.run_list[1].graphkit('phi_real_space_surface', {n0: 1, Rgeo: 3, interpolate_theta: 2, interpolate_x: 2, interpolate_y: 2, gs2_coordinate_factor: 1.0})
+		assert_equal(shape, kit.data[0].x.data.shape)
+		assert_equal(shape, kit.data[0].f.data.shape)
+		#kit.gp.view = ["equal xyz", ",,5.0"]
+		#kit.gnuplot 
+	end
 	def test_graphs
 		kit = @runner.run_list[1].graphkit('phi2_by_ky_vs_time', {ky_index: 2})
 		#kit.gnuplot
 		assert_equal(51, kit.data[0].y.data.size)
 		assert_equal(@runner.run_list[1].netcdf_file.var('phi2_by_ky').get('start' => [1,4], 'end' => [1,4]).to_a[0][0], kit.data[0].y.data[4])
-		kit = @runner.run_list[1].graphkit('phi_real_space_surface', {n0: 3, Rgeo: 3, interpolate_theta: 4})
-		kit.gnuplot
+		kit = @runner.run_list[1].graphkit('phi_real_space_surface', {n0: 3, Rgeo: 3, interpolate_theta: 2})
+		assert_equal([5,5,1], kit.data[0].f.data.shape)
+		assert_equal([5,1,17], kit.data[2].f.data.shape)
+		assert_equal(-0.00153, kit.data[0].f.data[1,4,0].round(5))
+		#kit.gnuplot
+		kit = @runner.run_list[1].graphkit('phi_real_space_poloidal_plane', {n0: 1, Rgeo: 3, interpolate_theta: 8, torphi: Math::PI/4.0})
+		assert_equal(-0.00208, kit.data[0].f.data[-1,1].round(5))
+		assert_equal(1.707, kit.data[0].x.data[-1,1].round(3))
+		kit.gp.view = ["equal xyz", ",,4.0"]
+		kit = @runner.run_list[1].graphkit('phi_real_space_standard_representation', {n0: 1, Rgeo: 3, interpolate_theta: 2, torphi_values: [Math::PI/4.0,3.0*Math::PI/4.0], interpolate_y: 2})
+		assert_equal([5,17], kit.data[0].f.data.shape)
+		assert_equal([3,1,17], kit.data[2].f.data.shape)
+		assert_equal([3,1,17], kit.data[2].y.data.shape)
+		assert_equal(-0.00038, kit.data[0].f.data[-1,1].round(5))
+		assert_equal(2.12132, kit.data[2].y.data[2,0,12].round(5))
+		#kit.gnuplot 
+
 	end
 
 	def tfolder
