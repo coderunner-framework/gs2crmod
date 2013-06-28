@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = "gs2crmod"
-  s.version = "0.7.0"
+  s.version = "0.7.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Edmund Highcock", "Ferdinand van Wyk"]
@@ -62,6 +62,8 @@ Gem::Specification.new do |s|
     "lib/gs2crmod/species_dependent_namelists.rb",
     "lib/gs2crmod/test_gs2.rb",
     "lib/gs2crmod_extension.rb",
+    "test/agk_slab_itg_low_kperp.in",
+    "test/agk_slab_itg_low_kperp.tgz",
     "test/cyclone_low_res.in",
     "test/cyclone_low_res.tgz",
     "test/helper.rb",
