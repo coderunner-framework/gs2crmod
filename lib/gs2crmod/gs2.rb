@@ -449,10 +449,18 @@ def get_list_of(*args)
  			next if (cache[list_name] and [:Failed, :Complete].include? status and not refresh)
 			
 			cache[list_name] = {}
-			netcdf_file.var(var.to_s).get.to_a.each_with_index do |value, element|
-# 				print '.'
-				cache[list_name][element+1]=value
+			if netcdf_file.var(var.to_s)
+				netcdf_file.var(var.to_s).get.to_a.each_with_index do |value, element|
+	# 				print '.'
+					cache[list_name][element+1]=value
+				end
+
+			else
+				netcdf_file.dim(var.to_s).length.times.each do |element|
+					cache[list_name][element+1]='unknown'
+				end
 			end
+		
 #			eputs send(var+:_list)
 		end
 	end
@@ -1152,6 +1160,7 @@ class Hash
 	         p self[:ky_index] = ky_element + 1
 					 self[:strongest_non_zonal_mode] = false
 	    end
+		raise "No names specified" if names.size == 0
 
 
 # 		ep run

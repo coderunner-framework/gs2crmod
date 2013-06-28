@@ -91,6 +91,18 @@ class TestAnalysis < Test::Unit::TestCase
 		#kit.gnuplot
 		assert_equal(51, kit.data[0].y.data.size)
 		assert_equal(@runner.run_list[1].netcdf_file.var('phi2_by_ky').get('start' => [1,4], 'end' => [1,4]).to_a[0][0], kit.data[0].y.data[4])
+	end
+	def test_3d_graphs
+		kit = @runner.run_list[1].graphkit('phi_real_space', {n0: 3, Rgeo: 3})
+		assert_equal([5,5,9], kit.data[0].f.data.shape)
+		assert_equal(-0.00402, kit.data[0].f.data[2,3,6].round(5))
+		kit = @runner.run_list[1].graphkit('density_real_space', {n0: 3, Rgeo: 3, species_index: 1, gs2_coordinate_factor: 0.9})
+		#kit.gnuplot
+		assert_equal([5,5,9], kit.data[0].f.data.shape)
+		assert_equal(-0.00985, kit.data[0].f.data[2,3,6].round(5))
+		kit = @runner.run_list[1].graphkit('phi_real_space', {n0: 3, Rgeo: 3, t_index: 2})
+		assert_equal([5,5,9], kit.data[0].f.data.shape)
+		assert_equal(0.00031, kit.data[0].f.data[2,3,6].round(5))
 		kit = @runner.run_list[1].graphkit('phi_real_space_surface', {n0: 3, Rgeo: 3, interpolate_theta: 2})
 		assert_equal([5,5,1], kit.data[0].f.data.shape)
 		assert_equal([5,1,17], kit.data[2].f.data.shape)
@@ -100,6 +112,12 @@ class TestAnalysis < Test::Unit::TestCase
 		assert_equal(-0.00208, kit.data[0].f.data[-1,1].round(5))
 		assert_equal(1.707, kit.data[0].x.data[-1,1].round(3))
 		kit.gp.view = ["equal xyz", ",,4.0"]
+		#kit.gnuplot
+		kit = @runner.run_list[1].graphkit('density_real_space_poloidal_plane', {n0: 1, Rgeo: 3, interpolate_theta: 8, torphi: Math::PI/4.0, species_index: 1})
+		assert_equal(-0.00352, kit.data[0].f.data[-1,1].round(5))
+		assert_equal(1.707, kit.data[0].x.data[-1,1].round(3))
+		kit.gp.view = ["equal xyz", ",,4.0"]
+		#kit.gnuplot
 		kit = @runner.run_list[1].graphkit('phi_real_space_standard_representation', {n0: 1, Rgeo: 3, interpolate_theta: 2, torphi_values: [Math::PI/4.0,3.0*Math::PI/4.0], interpolate_y: 2})
 		assert_equal([5,17], kit.data[0].f.data.shape)
 		assert_equal([3,1,17], kit.data[2].f.data.shape)
@@ -107,7 +125,6 @@ class TestAnalysis < Test::Unit::TestCase
 		assert_equal(-0.00038, kit.data[0].f.data[-1,1].round(5))
 		assert_equal(2.12132, kit.data[2].y.data[2,0,12].round(5))
 		#kit.gnuplot 
-
 	end
 
 	def tfolder

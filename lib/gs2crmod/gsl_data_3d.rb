@@ -152,17 +152,43 @@ class CodeRunner::Gs2
 			return arr
 
 		end
+		def field_netcdf_name(field_name, time_varying = false)
+			#p field_name.to_s
+			name =  case field_name.to_s
+							when /phi/
+								time_varying ? 'phi_t' : 'phi'
+							when /density/
+								time_varying ? raise("") : 'density'
+							end
+			#p name
+			return name
+		end
+		def field_species_element(options)
+			case options[:field_name].to_s
+			when /density/
+				options.convert_to_index(self, :species)
+				ep 'options', options
+				options[:species_index] - 1
+			else
+				nil
+			end
+		end
 		def field_gsl_tensor(options)
+			species_element = field_species_element(options)
+			ep 'species_element', species_element
 			if options[:t_index]
 				#ep options; gets
 				raise CRFatal.new("write_phi_over_time is not enabled so this function won't work") unless @write_phi_over_time
-				arr =  GSL::Tensor.new(netcdf_file.var(options[:field_name].to_s + '_t').get({'start' => [0,(options[:thetamin]||0),0,0, options[:t_index] - 1], 'end' => [-1,(options[:thetamax]||-1),(options[:nakx]||0)-1,(options[:naky]||0)-1, options[:t_index] - 1]}))
+				arr =  GSL::Tensor.new(netcdf_file.var(field_netcdf_name(options[:field_name], true)).get({'start' => [0,(options[:thetamin]||0),0,0, options[:t_index] - 1], 'end' => [-1,(options[:thetamax]||-1),(options[:nakx]||0)-1,(options[:naky]||0)-1, options[:t_index] - 1]}))
 				#ep 'arr.shape', arr.shape
 				arr.reshape!(*arr.shape.slice(1...arr.shape.size))
 				
 			else
-				arr =  GSL::Tensor.new(netcdf_file.var(options[:field_name]).get({'start' => [0,(options[:thetamin]||0),0,0], 'end' => [-1,(options[:thetamax]||-1),(options[:nakx]||0)-1,(options[:naky]||0)-1]}))
+				arr =  GSL::Tensor.new(netcdf_file.var(field_netcdf_name(options[:field_name])).get({'start' => [0,(options[:thetamin]||0),0,0, species_element].compact, 'end' => [-1,(options[:thetamax]||-1),(options[:nakx]||0)-1,(options[:naky]||0)-1, species_element].compact}))
 				#ep 'arr.shape', arr.shape
+			end
+			if species_element
+				arr.reshape!(*arr.shape.slice(1...arr.shape.size))
 			end
 			if options[:interpolate_x]
 				shape = arr.narray.shape
