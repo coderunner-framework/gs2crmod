@@ -161,7 +161,7 @@ class TestAgkAnalysis < Test::Unit::TestCase
 		assert_equal(:Complete, @runner.run_list[1].status)
 	end
 	def teardown
-		#FileUtils.rm_r(tfolder)
+		FileUtils.rm_r(tfolder)
 	end
 end
 
