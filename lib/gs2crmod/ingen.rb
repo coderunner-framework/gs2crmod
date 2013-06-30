@@ -120,8 +120,8 @@ def ingen
 
 	error("Boundary options should not be periodic with finite magnetic shear") if @boundary_option == "periodic" and ((@s_hat_input and @s_hat_input.abs > 1.0e-6) or (@shat and @shat.abs > 1.0e-6))
 
-	error("abs(shat) should not be less that 1.0e-6") if @shat and @shat.abs < 1.0e-6
-	error("abs(s_hat_input) should not be less that 1.0e-6") if @s_hat_input and @s_hat_input.abs < 1.0e-6
+	error("abs(shat) should not be less that 1.0e-6") if @shat and @shat.abs < 1.0e-6 and not agk?
+	error("abs(s_hat_input) should not be less that 1.0e-6") if @s_hat_input and @s_hat_input.abs < 1.0e-6 and not agk?
 	
 	# delt 
 	
