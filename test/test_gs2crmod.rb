@@ -137,6 +137,36 @@ end
 
 AGK_SLAB_ITG_LOW_KPERP_FOLDER = 'test/agk_slab_itg_low_kperp'
 
+class TestAgkAnalysis < Test::Unit::TestCase
+
+	def setup
+		Dir.chdir('test'){assert(system "tar -xzf agk_slab_itg_low_kperp.tgz")}
+		@runner = CodeRunner.fetch_runner(Y: tfolder)
+		@run = @runner.run_list[1]
+	end
+	def tfolder
+		AGK_SLAB_ITG_LOW_KPERP_FOLDER
+	end
+	def test_graphs
+		kit = @runner.run_list[1].graphkit('phi2_by_ky_vs_time', {ky_index: 2})
+		#kit.gnuplot
+		assert_equal(126, kit.data[0].y.data.size)
+		assert_equal(@runner.run_list[1].netcdf_file.var('phi2').get('start' => [4], 'end' => [4]).to_a[0], kit.data[0].y.data[4])
+	end
+	def test_analysis
+		assert_equal(1, @runner.run_list.size)
+		assert_equal(0.03224, @runner.run_list[1].max_growth_rate.round(5))
+		#p @runner.run_list[1].growth_rate_at_ky
+		assert_equal(0.03224, @runner.run_list[1].growth_rate_at_ky[0.01].round(5))
+		assert_equal(:Complete, @runner.run_list[1].status)
+	end
+	def teardown
+		#FileUtils.rm_r(tfolder)
+	end
+end
+
+
+
 if ENV['AGK_EXEC']
 	class TestAstrogkSubmission < Test::Unit::TestCase
 		def setup
