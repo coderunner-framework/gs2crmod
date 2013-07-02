@@ -30,11 +30,11 @@ if ENV['GS2_EXEC']
 			FileUtils.rm(tfolder + '/v/id_1/.code_runner_run_data')
 			FileUtils.rm(tfolder + '/v/id_1/code_runner_results.rb')
 			# Don't uncomment the line below unless you *really* know what you are doing! Replacing the test archive will break many of the tests
-			#Dir.chdir('test'){system "tar -czf cyclone_low_res.tgz cyclone_low_res/" unless FileTest.exist?('cyclone_low_res.tgz')}
+			Dir.chdir('test'){system "tar -czf cyclone_low_res.tgz cyclone_low_res/" unless FileTest.exist?('cyclone_low_res.tgz')}
 			FileUtils.rm_r(tfolder)
 		end
 		def test_submission
-			CodeRunner.submit(C: 'gs2', X: ENV['GS2_EXEC'], D: 'test_gs2crmod', n: '4', Y: tfolder)
+			CodeRunner.submit(C: 'gs2', X: ENV['GS2_EXEC'], D: 'test_gs2crmod', n: '4', Y: tfolder, p: '{write_moments: ".true."}')
 			CodeRunner.status(Y: tfolder)
 		end
 	end
@@ -115,6 +115,11 @@ class TestAnalysis < Test::Unit::TestCase
 		#kit.gnuplot
 		kit = @runner.run_list[1].graphkit('density_real_space_poloidal_plane', {n0: 1, Rgeo: 3, interpolate_theta: 8, torphi: Math::PI/4.0, species_index: 1})
 		assert_equal(-0.00352, kit.data[0].f.data[-1,1].round(5))
+		assert_equal(1.707, kit.data[0].x.data[-1,1].round(3))
+		kit.gp.view = ["equal xyz", ",,4.0"]
+
+		kit = @runner.run_list[1].graphkit('density_real_space_poloidal_plane', {n0: 1, Rgeo: 3, interpolate_theta: 8, torphi: Math::PI/4.0, species_index: 1, t_index: 50})
+		assert_equal(-0.00208, kit.data[0].f.data[-1,1].round(5))
 		assert_equal(1.707, kit.data[0].x.data[-1,1].round(3))
 		kit.gp.view = ["equal xyz", ",,4.0"]
 		#kit.gnuplot

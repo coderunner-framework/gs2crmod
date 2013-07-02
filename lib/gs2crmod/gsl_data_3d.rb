@@ -158,7 +158,7 @@ class CodeRunner::Gs2
 							when /phi/
 								time_varying ? 'phi_t' : 'phi'
 							when /density/
-								time_varying ? raise("") : 'density'
+								time_varying ? 'ntot_t' : 'density'
 							end
 			#p name
 			return name
@@ -179,7 +179,7 @@ class CodeRunner::Gs2
 			if options[:t_index]
 				#ep options; gets
 				raise CRFatal.new("write_phi_over_time is not enabled so this function won't work") unless @write_phi_over_time
-				arr =  GSL::Tensor.new(netcdf_file.var(field_netcdf_name(options[:field_name], true)).get({'start' => [0,(options[:thetamin]||0),0,0, options[:t_index] - 1], 'end' => [-1,(options[:thetamax]||-1),(options[:nakx]||0)-1,(options[:naky]||0)-1, options[:t_index] - 1]}))
+				arr =  GSL::Tensor.new(netcdf_file.var(field_netcdf_name(options[:field_name], true)).get({'start' => [0,(options[:thetamin]||0),0,0, species_element, options[:t_index] - 1].compact, 'end' => [-1,(options[:thetamax]||-1),(options[:nakx]||0)-1,(options[:naky]||0)-1, species_element, options[:t_index] - 1].compact}))
 				#ep 'arr.shape', arr.shape
 				arr.reshape!(*arr.shape.slice(1...arr.shape.size))
 				
