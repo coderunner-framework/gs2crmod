@@ -202,3 +202,20 @@ else
 	puts "\n************************************\nWarning: agk submission tests not run. Please specify the evironment variable AGK_EXEC (the path to the agk executable) if you wish to test submission.\n************************************\n"
 	sleep 0.1
 end
+
+class TestBasicsSpectroGK < Test::Unit::TestCase
+	def setup
+    @runner = CodeRunner.fetch_runner(Y: 'test/slab_itg', C: 'gs2', X: '/dev/null', m: 'spectrogk')
+  end
+  def teardown
+    FileUtils.rm('test/slab_itg/.code_runner_script_defaults.rb')
+    #FileUtils.rm('test/slab_itg/.CODE_RUNNER_TEMP_RUN_LIST_CACHE')
+  end
+  def test_basics
+    assert_equal(@runner.run_class, CodeRunner::Gs2::Spectrogk)
+  end
+	def test_variables
+		assert_equal(Hash, @runner.run_class.rcp.namelists.class)
+		assert_equal(@runner.run_class.rcp.namelists[:layouts_knobs].class, Hash)
+	end
+end
