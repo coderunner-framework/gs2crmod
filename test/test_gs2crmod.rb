@@ -217,5 +217,7 @@ class TestBasicsSpectroGK < Test::Unit::TestCase
 	def test_variables
 		assert_equal(Hash, @runner.run_class.rcp.namelists.class)
 		assert_equal(@runner.run_class.rcp.namelists[:layouts_knobs].class, Hash)
+		assert_equal(@runner.run_class.rcp.namelists[:parameters_knobs].class, Hash)
+		assert_equal(@runner.run_class.rcp.namelists[:parameters_knobs][:variables][:force_5d].class, Hash)
 	end
 end

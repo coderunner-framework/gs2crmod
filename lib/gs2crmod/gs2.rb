@@ -60,6 +60,10 @@ def agk?
 	false
 end
 
+def spectrogk?
+	false
+end
+
 CODE_SCRIPT_FOLDER = MODULE_FOLDER = File.dirname(File.expand_path(__FILE__))
 
 # Include the other files

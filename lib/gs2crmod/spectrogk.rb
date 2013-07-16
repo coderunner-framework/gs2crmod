@@ -51,7 +51,9 @@ CodeRunner.setup_run_class('gs2', modlet: 'astrogk') # SpectroGK Inherits from A
 
 class Gs2::Spectrogk  < Gs2::Astrogk
 
-
+def spectrogk?
+  true
+end
 
 
 # Include the other files

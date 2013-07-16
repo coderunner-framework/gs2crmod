@@ -209,6 +209,16 @@ def ingen
 
 	warning("The correct BC is not being implemented. Preferably specify nonad_zero = true in input file.") if (not (@nonad_zero and @nonad_zero.fortran_true?) and not agk?)
 
+  ###################
+  # Spectrogk tests #
+  ###################
+  #
+  if spectrogk?
+    if @force_5d and @force_5d.fortran_true?
+      warning("Must specify interpolation method with phi_method.") if not (@phi_method)
+    end
+  end
+
 end
 
 #  A hash which gives the actual numbers of gridpoints indexed by their corresponding letters in the layout string.
