@@ -69,6 +69,7 @@ Gem::Specification.new do |s|
     "test/cyclone_low_res.in",
     "test/cyclone_low_res.tgz",
     "test/helper.rb",
+    "test/slab_itg/dummy",
     "test/test_gs2crmod.rb"
   ]
   s.homepage = "http://gs2crmod.sourceforge.net"
