@@ -2675,12 +2675,34 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float},
+     :nu_p=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :tests=>["Tst::FLOAT"],
+       :code_name=>:nu_p,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float},
      :nexp_h=>
       {:should_include=>"true",
        :description=>nil,
        :help=>nil,
        :tests=>["Tst::FLOAT"],
        :code_name=>:nexp_h,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float},
+     :nexp_p=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :tests=>["Tst::FLOAT"],
+       :code_name=>:nexp_p,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
@@ -2763,6 +2785,32 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float}}},
+ :parameters_knobs=>
+  {:description=>"",
+   :should_include=>"true",
+   :variables=>
+    {:force_5d=>
+      {:should_include=>"true",
+       :description=>"Force code to include Hankel space",
+       :help=>nil,
+       :tests=>["Tst::FORTRAN_BOOL"],
+       :code_name=>:force_5d,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+    :phi_method=>
+      {:should_include=>"true",
+       :description=>"Method of determining fields from the distribution in Hankel space",
+       :help=>
+        "Should the nonlinear terms be calculated?\n \n** 'none', 'default', 'off':  Do not include nonlinear terms, i.e. run a linear calculation.\n** 'on' Include nonlinear terms.",
+       :tests=>["Tst::STRING"],
+       :code_name=>:phi_method,
+       :must_pass=>
+        [{:test=>"kind_of? String",
+          :explanation=>"This variable must be a string."}],
+       :type=>:String}}},
  :theta_grid=>
   {:description=>"",
    :should_include=>"true",
