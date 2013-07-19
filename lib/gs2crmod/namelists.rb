@@ -1278,7 +1278,30 @@
        :autoscanned_defaults=>[],
        :type=>:Integer,
        :code_name=>:nterp,
-       :module=>:le_grids}},
+       :module=>:le_grids},
+     :genquad=>
+      {:should_include=>"true",
+       :description=>
+        "If true use generalised quadrature scheme for velocity integrals.",
+       :help=>
+        "If true use generalised quadrature scheme for velocity integrals.",
+       :code_name=>:genquad,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :ne_int_genquad=>
+      {:should_include=>"true",
+       :description=>
+        "Velocity space res used for calculating quadrature scheme. Suggested value: large! (>200).",
+       :help=>
+        "Velocity space res used to calculate moments of the distribution prior to calculating  general quadrature scheme. Suggested value: large! (>200).",
+       :code_name=>:ne_int_genquad,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer}},
    :help=>
     "A concise description of the original GS2 pitch angle and energy grid choices may be found in the article entitled \"Comparison of Initial Value and Eigenvalue Codes for Kinetic Toroidal Plasma Instabilities\" by M. Kotschenreuther, et al., in Computer Physics Communications, Vol. 88, page 128, 1995.\n\nSince then the energy grid has been updated to use the Candy/Waltz grid, but the pitch angle grid remains the same."},
  :dist_fn_knobs=>
@@ -1478,19 +1501,16 @@
        :module=>:dist_fn},
      :nonad_zero=>
       {:should_include=>"true",
-       :description=>"If true, new boundary conditions g_wesson = 0",
+       :description=>
+        "If true switches on new parallel boundary condition where h=0 at incoming boundary instead of g=0.",
        :help=>
-        "If true, new boundary conditions g_wesson=0. If false, g_gs2 = 0",
-       :tests=>["Tst::FORTRAN_BOOL"],
-       :gs2_name=>:nonad_zero,
+        "If true switches on new parallel boundary condition where h=0 at incoming boundary instead of g=0.",
+       :code_name=>:nonad_zero,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :autoscanned_defaults=>[".false."],
-       :type=>:Fortran_Bool,
-       :code_name=>:nonad_zero,
-       :module=>:dist_fn},
+       :type=>:Fortran_Bool},
      :mult_imp=>
       {:should_include=>"true",
        :description=>nil,
@@ -1572,18 +1592,6 @@
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
        :module=>:dist_fn},
-     :nonad_zero=>
-      {:should_include=>"true",
-       :description=>
-        "If true switches on new parallel boundary condition where h=0 at incoming boundary instead of g=0.",
-       :help=>
-        "If true switches on new parallel boundary condition where h=0 at incoming boundary instead of g=0.",
-       :code_name=>:nonad_zero,
-       :must_pass=>
-        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
-          :explanation=>
-           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool},
      :g_exb_start_time=>
       {:should_include=>"true",
        :description=>"Flow shear switched on at this time.",
@@ -1613,7 +1621,27 @@
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float}}},
+       :type=>:Float},
+     :lf_default=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:lf_default,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :lf_decompose=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:lf_decompose,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool}}},
  :fields_knobs=>
   {:description=>"ALGORITHMIC CHOICES",
    :should_include=>"true",
@@ -1947,7 +1975,61 @@
         [{:test=>"kind_of? String",
           :explanation=>"This variable must be a string."}],
        :type=>:String,
-       :module=>:gs2_layouts}}},
+       :module=>:gs2_layouts},
+     :unbalanced_xxf=>
+      {:should_include=>"true",
+       :description=>
+        "An optimised layout made by Adrian Jackson..please add better help!",
+       :help=>"",
+       :code_name=>:unbalanced_xxf,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :max_unbalanced_xxf=>
+      {:should_include=>"true",
+       :description=>
+        "An optimised layout made by Adrian Jackson..please add better help!",
+       :help=>"",
+       :code_name=>:max_unbalanced_xxf,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float},
+     :unbalanced_yxf=>
+      {:should_include=>"true",
+       :description=>
+        "An optimised layout made by Adrian Jackson..please add better help!",
+       :help=>"",
+       :code_name=>:unbalanced_yxf,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :max_unbalanced_yxf=>
+      {:should_include=>"true",
+       :description=>
+        "An optimised layout made by Adrian Jackson..please add better help!",
+       :help=>"",
+       :code_name=>:max_unbalanced_yxf,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float},
+     :opt_local_copy=>
+      {:should_include=>"true",
+       :description=>"A recent optimisation ..please add better help!",
+       :help=>"",
+       :code_name=>:opt_local_copy,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool}}},
  :collisions_knobs=>
   {:description=>"COLLISIONS",
    :should_include=>"true",
@@ -2734,7 +2816,53 @@
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
        :code_name=>:tpar0,
-       :autoscanned_defaults=>[0.0]}}},
+       :autoscanned_defaults=>[0.0]},
+     :source=>
+      {:should_include=>"true",
+       :description=>
+        "Normalised alpha source. If set -ve  automatically adjusted to give specified alpha density.",
+       :help=>
+        "Sets the normalised source for alphas. If set negative will be automatically adjusted to give the specified alpha density.",
+       :code_name=>:source,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float},
+     :sprim=>
+      {:should_include=>"true",
+       :description=>"Gradient of normalised source.",
+       :help=>"Gradient of normalised source.",
+       :code_name=>:sprim,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float},
+     :gamma_ai=>
+      {:should_include=>"true",
+       :description=>
+        "Alpha ion collion rate. Should be roughly the same as nu_ii.",
+       :help=>
+        "Alpha ion collion rate. Normalisation chosen so that this parameter should be roughly the same as nu_ii.",
+       :code_name=>:gamma_ai,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float},
+     :gamma_ae=>
+      {:should_include=>"true",
+       :description=>
+        "Alpha electron collion rate. Should be roughly the same as nu_ee.",
+       :help=>
+        "Alpha electron collion rate. Normalisation chosen so that this parameter should be roughly the same as nu_ee.",
+       :code_name=>:gamma_ae,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float}}},
  :dist_fn_species_knobs=>
   {:description=>"",
    :should_include=>"true",
@@ -2886,7 +3014,8 @@
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float},
      :clean_init=>
-      {:help=>"Makes sure phi = 0 at either ends of paralle domain. Only works when chop_side is also true",
+      {:help=>
+        "Makes sure phi = 0 at either ends of paralle domain. Only works when chop_side is also true",
        :should_include=>"true",
        :description=>"phi = 0 at either end of domain.",
        :tests=>["Tst::STRING"],
@@ -2895,7 +3024,6 @@
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :autoscanned_defaults=>[".true."],
        :type=>:Fortran_Bool},
      :chop_side=>
       {:help=>"Rarely needed.  Forces asymmetry into initial condition.",
@@ -5166,4 +5294,82 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :module=>:parameter_scan}}}}
+       :module=>:parameter_scan}}},
+ :general_f0_parameters=>
+  {:description=>"",
+   :should_include=>"true",
+   :variables=>
+    {:alpha_f0=>
+      {:should_include=>"true",
+       :description=>
+        "Form of the alpha equilibrium distribution function: \"maxwellian\", \"analytic\" or \"external\"",
+       :help=>
+        "The distribution function for alphas can be \"maxwellian\", or it can be \"analytic\" based on a formula generated for the Ti=Te case, or it can be \"external\", i.e. read from an external table.",
+       :code_name=>:alpha_f0,
+       :must_pass=>
+        [{:test=>"kind_of? String",
+          :explanation=>"This variable must be a string."}],
+       :type=>:String},
+     :beam_f0=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"See help for alpha_f0",
+       :code_name=>:beam_f0,
+       :must_pass=>
+        [{:test=>"kind_of? String",
+          :explanation=>"This variable must be a string."}],
+       :type=>:String},
+     :rescale_f0=>
+      {:should_include=>"true",
+       :description=>"Rescale external F0 to a specified density if true.",
+       :help=>
+        "When reading the distribution function from an external table, rescale to a specified density if true.",
+       :code_name=>:rescale_f0,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :main_ion_species=>
+      {:should_include=>"true",
+       :description=>"Index of main ion species.",
+       :help=>
+        "Select the main ion species which will be used to generate the analytical F0.",
+       :code_name=>:main_ion_species,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer},
+     :energy_min=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"Garbage!",
+       :code_name=>:energy_min,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float},
+     :energy_0=>
+      {:should_include=>"true",
+       :description=>"Lower limit of F_alpha for : F_alpha(energy_0)=0.",
+       :help=>
+        "Lower limit of the alpha distribution function for : F_alpha(energy_0)=0.",
+       :code_name=>:energy_0,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float},
+     :print_egrid=>
+      {:should_include=>"true",
+       :description=>
+        "Diagnostic: when true print the energy grid and generalised temperature.",
+       :help=>
+        "Diagnostic: when true print the energy grid and generalised temperature.",
+       :code_name=>:print_egrid,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool}}}}
