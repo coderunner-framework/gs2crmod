@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "gs2crmod"
-  s.version = "0.8.1"
+  s.version = "0.9.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Edmund Highcock", "Ferdinand van Wyk"]
-  s.date = "2013-07-17"
+  s.date = "2013-07-19"
   s.description = "GS2 is a gyrokinetic flux tube initial value turbulence code which can be used for fusion or astrophysical plasmas. CodeRunner is a framework for the automated running and analysis of large simulations. This module allows GS2 (and its sister code AstroGK) to harness the power of the CodeRunner framework."
   s.email = "edmundhighcock@sourceforge.net"
   s.extensions = ["ext/extconf.rb"]
@@ -64,6 +64,8 @@ Gem::Specification.new do |s|
     "lib/gs2crmod/spectrogk/namelists.rb",
     "lib/gs2crmod/test_gs2.rb",
     "lib/gs2crmod_extension.rb",
+    "sync_variables/helper.rb",
+    "sync_variables/sync_variables.rb",
     "test/agk_slab_itg_low_kperp.in",
     "test/agk_slab_itg_low_kperp.tgz",
     "test/cyclone_low_res.in",
