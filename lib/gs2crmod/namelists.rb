@@ -2249,9 +2249,9 @@
        :type=>:String,
        :module=>:hyper},
      :const_amp=>
-      {:help=>nil,
+      {:help=>'Determines whether hyperviscosity includes time dependent amplitude factor when calculating damping rate. Recommend TRUE for linear runs and FALSE for nolinear runs, since amplutide of turbulence grows linearly with time in linear run.',
        :should_include=>"true",
-       :description=>nil,
+       :description=>'Detrmines whether damping rate depends on amplitude variations. Recommend FALSE for nonlinear, TRUE for linear.',
        :tests=>["Tst::STRING"],
        :autoscanned_defaults=>[".false."],
        :must_pass=>

@@ -20,6 +20,7 @@ def auto_axiskits(name, options)
                 'es_heat_by_ky_over_time' => ['Phi^2 by ky', ''],
                  'es_heat_by_kx_over_time' => ['Phi^2 by ky', ''],  
 								 'phi2_by_mode_over_time' => ["Phi^2 by mode", ''],
+								 'tpar2_by_mode_over_time' => ["(delta T_parallel)^2 by mode", '%'],
 						 		 'hflux_tot' => ['Total Heat Flux', ''],
                 'ky' => ['ky', "1/rho_#{species_letter}"],
                 'kx' => ['kx', "1/rho_#{species_letter}"],
@@ -1798,7 +1799,50 @@ module GraphKits
 			kit
 		end
 	end
-	def apar2_vs_time_graphkit(options={})
+
+	def tpar2_by_mode_vs_time_graphkit(options={})
+		case options[:command]
+		when :help
+			return  "'tpar2_by_ky_vs_time' or 'tpar2_by_kx_vs_time': tpar^2 over time for a given kx or ky, integrated over the other direction"
+		when :options
+			return  [:ky, :ky_index, :kx, :kx_index]
+		else
+			kxy = options[:direction]
+	
+			# i.e. tpar2_by_ky_vs_time or tpar2_by_kx_vs_time or tpar2_by_mode_vs_time
+			
+			nt_options = options.dup # 'no time' options
+			nt_options.delete(:t_index) if nt_options[:t_index]
+			nt_options.delete(:frame_index) if nt_options[:frame_index]
+			tparax = axiskit("tpar2_by_#{kxy}_over_time", nt_options)	
+			kit = GraphKit.autocreate({x: axiskit('t', options), y: phiax})
+			kit.data[0].title = "Tpar^2 total: #{kxy} = #{options[kxy]}"	
+			if options[:t_index]
+# 				p 'hello'
+				array_element = options[:t_index_window] ? options[:t_index] - options[:t_index_window][0] : options[:t_index] - 1
+# 				p tparax.data.size, array_element
+# 				p options[:t_index], options[:t_index_window]
+				time = DataKit.autocreate({x: {data: GSL::Vector.alloc([list(:t)[options[:t_index]]])}, y: {data: GSL::Vector.alloc([tparax.data[array_element]]) } })
+				time.pointsize = 3.0
+# 				p time
+# 				kit.data[0].axes[:x].data = -kit.data[0].axes[:x].data
+				kit.data.push time
+			end
+			if options[:norm]
+				xrange, yrange = kit.plot_area_size
+				kit.each_axiskit(:y) do |axiskit|
+					axiskit.data /= yrange[1] / (options[:height] or 1.0)
+				end
+			end
+			kit.log_axis = 'y'
+			#kit.data[0].title = "gs2:#@run_name"
+			kit.data[0].with = "l" #"linespoints"
+			kit.file_name = options[:graphkit_name]
+			kit
+		end
+	end
+	
+    def apar2_vs_time_graphkit(options={})
 		case options[:command]
 		when :help
 			return  "Graph of apar^2 vs time integrated over all space. No options"

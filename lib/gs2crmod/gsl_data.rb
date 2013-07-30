@@ -400,6 +400,30 @@ module GSLVectors
 		end
 	end
 
+	def tpar2_by_mode_over_time_gsl_vector(options)
+		Dir.chdir(@directory) do			#Necessary options: :ky and :kx
+			#Optional options: :t_index_window
+			# 		eputs "got here"
+			#options[:begin_element], options[:end_element] = (options[:t_index_window] ? options[:t_index_window].map{|ind| ind -1} : [0, -1])
+			options.setup_time_window			
+			tpar_t_array=nil
+			if @grid_option == "single"
+				tpar_t_array = netcdf_file.var('tpar2').get('start' => [options[:begin_element]], 'end' => [options[:end_element]]).to_a.flatten
+			else
+# 				value = options[:ky]
+# 				eputs value
+# 				get_list_of(:ky)
+# 				index = @ky_list.find{|index,val| (val-value).abs < Float::EPSILON}[0]
+				options.convert_to_index(self, :kx, :ky)
+# 				p options
+				tpar_t_array = netcdf_file.var("tpar2_by_mode").get('start' => [options[:kx_index] - 1, options[:ky_index] - 1, options[:begin_element]], 'end' => [options[:kx_index] - 1, options[:ky_index] - 1, options[:end_element]]).to_a.flatten
+# 				eputs 'tpar_t_array.size', tpar_t_array.size
+			end
+			return GSL::Vector.alloc(tpar_t_array)
+
+		end
+	end
+
 	def phi0_by_kx_by_ky_over_time_gsl_vector(options)
 		Dir.chdir(@directory) do		
 			options.convert_to_index(self, :kx, :ky)

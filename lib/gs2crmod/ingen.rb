@@ -209,6 +209,12 @@ def ingen
 
 	warning("The correct BC is not being implemented. Preferably specify nonad_zero = true in input file.") if not (@nonad_zero and @nonad_zero.fortran_true?)
 
+	################
+	# Damping Rate #
+	################
+
+	warning("Recommend that const_amp = TRUE for linear runs.") if @nonlinear_mode == "off" and (!@const_amp or @const_amp.fortran_false?)
+
 end
 
 #  A hash which gives the actual numbers of gridpoints indexed by their corresponding letters in the layout string.
