@@ -91,6 +91,9 @@ class TestAnalysis < Test::Unit::TestCase
 		#kit.gnuplot
 		assert_equal(51, kit.data[0].y.data.size)
 		assert_equal(@runner.run_list[1].netcdf_file.var('phi2_by_ky').get('start' => [1,4], 'end' => [1,4]).to_a[0][0], kit.data[0].y.data[4])
+        
+        kit = @run.graphkit('tpar2_by_mode_vs_time', {ky_index:2, kx_index:1, species_index:1})
+        kit.gnuplot
 	end
 	def test_3d_graphs
 		kit = @runner.run_list[1].graphkit('phi_real_space', {n0: 3, Rgeo: 3})
@@ -136,7 +139,7 @@ class TestAnalysis < Test::Unit::TestCase
 		CYCLONE_LOW_RES_FOLDER
 	end
 	def teardown
-		FileUtils.rm_r(tfolder)
+		FileUtils.rm_rf(tfolder)
 	end
 end
 
@@ -166,7 +169,7 @@ class TestAgkAnalysis < Test::Unit::TestCase
 		assert_equal(:Complete, @runner.run_list[1].status)
 	end
 	def teardown
-		FileUtils.rm_r(tfolder)
+		FileUtils.rm_rf(tfolder)
 	end
 end
 

@@ -440,9 +440,9 @@ module GSLVectors
 # 				eputs value
 # 				get_list_of(:ky)
 # 				index = @ky_list.find{|index,val| (val-value).abs < Float::EPSILON}[0]
-				options.convert_to_index(self, :kx, :ky)
+				options.convert_to_index(self, :kx, :ky, :species)
 # 				p options
-				tpar_t_array = netcdf_file.var("tpar2_by_mode").get('start' => [options[:kx_index] - 1, options[:ky_index] - 1, options[:begin_element]], 'end' => [options[:kx_index] - 1, options[:ky_index] - 1, options[:end_element]]).to_a.flatten
+				tpar_t_array = netcdf_file.var("tpar2_by_mode").get('start' => [options[:kx_index] - 1, options[:ky_index] - 1, options[:species_index] - 1, options[:begin_element]], 'end' => [options[:kx_index] - 1, options[:ky_index] - 1, options[:species_index] - 1, options[:end_element]]).to_a.flatten
 # 				eputs 'tpar_t_array.size', tpar_t_array.size
 			end
 			return GSL::Vector.alloc(tpar_t_array)

@@ -2,6 +2,7 @@ source "http://rubygems.org"
 # Add dependencies required to use your gem here.
 # Example:
    gem "coderunner", ">= 0.12.11"
+   gem "ruby-netcdf", "> 0.6"
 
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.

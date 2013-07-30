@@ -1900,7 +1900,7 @@ module GraphKits
 		when :options
 			return  [:ky, :ky_index, :kx, :kx_index]
 		else
-			kxy = options[:direction]
+			kxy = :mode
 	
 			# i.e. tpar2_by_ky_vs_time or tpar2_by_kx_vs_time or tpar2_by_mode_vs_time
 			
@@ -1908,7 +1908,7 @@ module GraphKits
 			nt_options.delete(:t_index) if nt_options[:t_index]
 			nt_options.delete(:frame_index) if nt_options[:frame_index]
 			tparax = axiskit("tpar2_by_#{kxy}_over_time", nt_options)	
-			kit = GraphKit.autocreate({x: axiskit('t', options), y: phiax})
+			kit = GraphKit.autocreate({x: axiskit('t', options), y: tparax})
 			kit.data[0].title = "Tpar^2 total: #{kxy} = #{options[kxy]}"	
 			if options[:t_index]
 # 				p 'hello'
