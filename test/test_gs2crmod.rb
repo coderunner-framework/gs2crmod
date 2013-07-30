@@ -3,11 +3,13 @@ require 'helper'
 CYCLONE_LOW_RES_FOLDER = 'test/cyclone_low_res'
 class TestBasics < Test::Unit::TestCase
 	def setup
+    FileUtils.makedirs('test/slab_itg')
     @runner = CodeRunner.fetch_runner(Y: 'test/slab_itg', C: 'gs2', X: '/dev/null')
   end
   def teardown
     FileUtils.rm('test/slab_itg/.code_runner_script_defaults.rb')
     FileUtils.rm('test/slab_itg/.CODE_RUNNER_TEMP_RUN_LIST_CACHE')
+    FileUtils.rmdir('test/slab_itg')
   end
   def test_basics
     assert_equal(@runner.run_class, CodeRunner::Gs2)

@@ -178,7 +178,7 @@ class CodeRunner::Gs2
 			ep 'species_element', species_element
 			if options[:t_index]
 				#ep options; gets
-				raise CRFatal.new("write_phi_over_time is not enabled so this function won't work") unless @write_phi_over_time
+                #raise CRFatal.new("write_phi_over_time is not enabled so this function won't work") unless @write_phi_over_time
 				arr =  GSL::Tensor.new(netcdf_file.var(field_netcdf_name(options[:field_name], true)).get({'start' => [0,(options[:thetamin]||0),0,0, species_element, options[:t_index] - 1].compact, 'end' => [-1,(options[:thetamax]||-1),(options[:nakx]||0)-1,(options[:naky]||0)-1, species_element, options[:t_index] - 1].compact}))
 				#ep 'arr.shape', arr.shape
 				arr.reshape!(*arr.shape.slice(1...arr.shape.size))
@@ -379,7 +379,7 @@ class CodeRunner::Gs2
 							theta_vec_short = gsl_vector(:theta, {})
 							p 'sizes', [theta_vec_short.size, values[i+1].to_gslv.size]
 							interp = GSL::ScatterInterp.alloc(:linear, [theta_vec_short, values[i+1].to_gslv], true)
-							for j in 0...shape[1]
+							for j in 0...theta_vec.size
 								factors[i,j] = interp.eval(theta_vec[j])
 							end
 						end

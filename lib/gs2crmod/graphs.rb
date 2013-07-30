@@ -893,10 +893,10 @@ module GraphKits
 			#shape = zaxis.data.shape
 			#carts = cartesian_coordinates_gsl_tensor(options)
 			#torphiout = 2.6
-			torphiout = options[:torphi]
+			torphiout = options[:constant_torphi] || options[:torphi]
 			field = options[:field] || field_real_space_gsl_tensor(options)
 			torphi_const =  constant_torphi_surface_gsl_tensor(options)
-			cyls = cylindrical_coordinates_gsl_tensor(options.absorb({extra_points: true}))
+            cyls = cylindrical_coordinates_gsl_tensor(options.absorb({extra_points: true}))
 			#p torphi_const[0,true].to_a; 
 			#p 'sh', cyls.shape[1], '','','',''; 
 			#exit
