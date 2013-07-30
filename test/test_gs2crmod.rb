@@ -36,7 +36,7 @@ if ENV['GS2_EXEC']
 			FileUtils.rm_r(tfolder)
 		end
 		def test_submission
-			CodeRunner.submit(C: 'gs2', X: ENV['GS2_EXEC'], D: 'test_gs2crmod', n: '4', Y: tfolder, p: '{write_moments: ".true."}')
+			CodeRunner.submit(C: 'gs2', X: ENV['GS2_EXEC'], D: 'test_gs2crmod', n: '1', Y: tfolder, p: '{write_moments: ".true."}')
 			CodeRunner.status(Y: tfolder)
 		end
 	end
@@ -95,7 +95,9 @@ class TestAnalysis < Test::Unit::TestCase
 		assert_equal(@runner.run_list[1].netcdf_file.var('phi2_by_ky').get('start' => [1,4], 'end' => [1,4]).to_a[0][0], kit.data[0].y.data[4])
         
         kit = @run.graphkit('tpar2_by_mode_vs_time', {ky_index:2, kx_index:1, species_index:1})
-        kit.gnuplot
+        #kit.gnuplot
+
+		assert_equal(@runner.run_list[1].netcdf_file.var('tpar2_by_mode').get('start' => [0,1,0,4], 'end' => [0,1,0,4]).to_a[0][0][0][0], kit.data[0].y.data[4])
 	end
 	def test_3d_graphs
 		kit = @runner.run_list[1].graphkit('phi_real_space', {n0: 3, Rgeo: 3})
