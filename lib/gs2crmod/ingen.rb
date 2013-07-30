@@ -207,7 +207,23 @@ def ingen
 	# Boundary Condition Errors #
 	#############################
 
-	warning("The correct BC is not being implemented. Preferably specify nonad_zero = true in input file.") if not (@nonad_zero and @nonad_zero.fortran_true?)
+	warning("The correct BC is not being implemented. Preferably specify nonad_zero = true in input file.") if (not (@nonad_zero and @nonad_zero.fortran_true?) and not agk?)
+
+  ###################
+  # Spectrogk tests #
+  ###################
+  #
+  if spectrogk?
+    if @force_5d and @force_5d.fortran_true?
+      warning("Must specify interpolation method with phi_method.") if not (@phi_method)
+    end
+  end
+
+	################
+	# Damping Rate #
+	################
+
+	warning("Recommend that const_amp = TRUE for linear runs.") if @nonlinear_mode == "off" and (!@const_amp or @const_amp.fortran_false?)
 
 end
 

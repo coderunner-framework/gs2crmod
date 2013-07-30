@@ -46,6 +46,14 @@ file "lib/#{NAME}_ext.so" =>
   cp "ext/#{NAME}_ext.so", "lib/#{NAME}_ext.so"
 end
 
+
+require 'rake/testtask'
+Rake::TestTask.new(:sync_variables) do |test|
+  test.libs << 'lib' << 'sync_variables'
+  test.pattern = 'sync_variables/sync_variables.rb'
+  test.verbose = true
+end
+
 # make the :test task depend on the shared
 # object, so it will be built automatically
 # before running the tests
@@ -58,7 +66,6 @@ CLEAN.include('ext/**/Makefile')
 CLOBBER.include('lib/**/*.so')
 CLOBBER.include('lib/*.so')
 
-require 'rake/testtask'
 Rake::TestTask.new(:test) do |test|
   test.libs << 'lib' << 'test' << 'ext'
   test.pattern = 'test/**/test_*.rb'

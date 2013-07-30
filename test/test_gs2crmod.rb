@@ -93,6 +93,9 @@ class TestAnalysis < Test::Unit::TestCase
 		#kit.gnuplot
 		assert_equal(51, kit.data[0].y.data.size)
 		assert_equal(@runner.run_list[1].netcdf_file.var('phi2_by_ky').get('start' => [1,4], 'end' => [1,4]).to_a[0][0], kit.data[0].y.data[4])
+        
+        kit = @run.graphkit('tpar2_by_mode_vs_time', {ky_index:2, kx_index:1, species_index:1})
+        kit.gnuplot
 	end
 	def test_3d_graphs
 		kit = @runner.run_list[1].graphkit('phi_real_space', {n0: 3, Rgeo: 3})
@@ -138,7 +141,7 @@ class TestAnalysis < Test::Unit::TestCase
 		CYCLONE_LOW_RES_FOLDER
 	end
 	def teardown
-		FileUtils.rm_r(tfolder)
+		FileUtils.rm_rf(tfolder)
 	end
 end
 
@@ -168,7 +171,7 @@ class TestAgkAnalysis < Test::Unit::TestCase
 		assert_equal(:Complete, @runner.run_list[1].status)
 	end
 	def teardown
-		FileUtils.rm_r(tfolder)
+		FileUtils.rm_rf(tfolder)
 	end
 end
 
@@ -203,4 +206,23 @@ if ENV['AGK_EXEC']
 else
 	puts "\n************************************\nWarning: agk submission tests not run. Please specify the evironment variable AGK_EXEC (the path to the agk executable) if you wish to test submission.\n************************************\n"
 	sleep 0.1
+end
+
+class TestBasicsSpectroGK < Test::Unit::TestCase
+	def setup
+    @runner = CodeRunner.fetch_runner(Y: 'test/slab_itg', C: 'gs2', X: '/dev/null', m: 'spectrogk')
+  end
+  def teardown
+    FileUtils.rm('test/slab_itg/.code_runner_script_defaults.rb')
+    #FileUtils.rm('test/slab_itg/.CODE_RUNNER_TEMP_RUN_LIST_CACHE')
+  end
+  def test_basics
+    assert_equal(@runner.run_class, CodeRunner::Gs2::Spectrogk)
+  end
+	def test_variables
+		assert_equal(Hash, @runner.run_class.rcp.namelists.class)
+		assert_equal(@runner.run_class.rcp.namelists[:layouts_knobs].class, Hash)
+		assert_equal(@runner.run_class.rcp.namelists[:parameters_knobs].class, Hash)
+		assert_equal(@runner.run_class.rcp.namelists[:parameters_knobs][:variables][:force_5d].class, Hash)
+	end
 end
