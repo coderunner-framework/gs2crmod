@@ -117,10 +117,36 @@ def gsl_vector(name, options={})
 		options[:t_index_window] ||= @scan_index_window
 		options.setup_time_window
 		if [:ky, :kx].include? name.to_sym
-			return fix_norm(
+			vec = fix_norm(
 				GSL::Vector.alloc(netcdf_file.var(name.to_s).get.to_a.sort),
 				-1, options
 			) # ky, ky are normalised to 1 / rho_i
+			if i = options[:interpolate_ + name.to_s.sub(/k/, '').to_sym]
+				if name.to_sym == :ky
+					s = (vec.size - 1)*i + 1
+					#return vec.connect(GSL::Vector.alloc((vec.size-1)*(i-1)) * 0.0)
+					return (0...s).map{|k| k.to_f * vec[1]}.to_gslv
+				else
+					size = vec.size
+					#vec = vec.to_box_order
+					raise "Hmmm, kx.size should be odd" unless size%2 == 1
+					s = (size-1)/2 * i
+					return (-s..s).to_a.map{|i| i.to_f * vec.to_box_order[1]}.to_gslv
+					#new_vec = GSL::Vector.alloc((s-1)*i + 1)
+					#new_vec *= 0.0
+					#for j in 0...((s-1)/2+1)
+						#new_vec[j] = vec[j]
+					#end
+					#for j in 0...((s-1)/2)
+						#new_vec[-j-1] = vec[-j-1]
+					#end
+					#return new_vec.from_box_order
+				end
+
+
+			else
+				return vec
+			end
 	  elsif [:theta].include? name.to_sym
 			#ep options; gets
 			#vec = GSL::Vector.alloc(netcdf_file.var(name.to_s).get({'start' => [options[:thetamin]||0], 'end' => [options[:thetamax]||-1]}).to_a)
@@ -755,13 +781,16 @@ module GSLVectors
 			end
 		end
 		def x_gsl_vector(options)
-			kx = gsl_vector(:kx)
+			raise "options nakx and interpolate_x are incompatible" if options[:nakx] and options[:interpolate_x]
+			kx = gsl_vector(:kx, options)
 			lx = 2*Math::PI/kx.to_box_order[1]
+			#ep 'lx', lx
 			nx = options[:nakx]||kx.size
 			GSL::Vector.indgen(nx, 0, lx/nx)
 		end
 		def y_gsl_vector(options)
-			ky = gsl_vector(:ky)
+			raise "options naky and interpolate_y are incompatible" if options[:naky] and options[:interpolate_y]
+			ky = gsl_vector(:ky, options)
 			ly = 2*Math::PI/ky[1]
 			ny = options[:naky]||ky.size
 			ysize = ny*2-2+ny%2

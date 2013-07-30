@@ -34,6 +34,7 @@ def auto_axiskits(name, options)
 	        'spectrum_over_kx' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
 	        'zonal_spectrum' => ["Zonal spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
 	        'spectrum_over_ky' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
+	        'es_heat_over_ky' => ["Heat Flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", 'Q_gB', 1],
 	        'growth_rate_over_ky_over_kx' => ["Growth Rate", "v_th#{species_letter}/a", 2],
 	       	'es_heat_flux_over_ky_over_kx' => ["Heat flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
 	       	'spectrum_over_kpar' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
@@ -357,6 +358,35 @@ module GraphKits
 		end
 	end
 
+	def es_heat_vs_ky_graphkit(options={})
+		case options[:command]
+		when :help
+			return "Heat flux vs ky"
+		when :options
+			return [:ky_index, :species_index]
+		else
+			return es_heat_flux_vs_kxy_graphkit(options.absorb({direction: :ky}))
+		end
+	end
+
+	def es_heat_vs_kxy_graphkit(options={})
+		case options[:command]
+		when :help
+			return "Heat flux vs options[:direction]  (kx or ky)"
+		when :options
+			return [:ky_index, :species_index]
+		else
+			kxy = options[:direction]||options[:kxy] 
+			kit = GraphKit.autocreate({x: axiskit(kxy.to_s, options), y: axiskit("es_flux_vs_#{kxy}", options)})
+			kit.title  = "Heat flux vs #{kxy} for species #{options[:species_index]}"
+			kit.file_name = options[:graphkit_name] + options[:t_index].to_s
+			kit.data[0].with = 'lp'
+			#kit.ylabel = "Phi^2 #{kxy}^2"
+			kit.pointsize = 2.0
+		end
+	end
+
+
 	def es_heat_flux_vs_time_graphkit(options={})
 		case options[:command]
 		when :help
@@ -586,25 +616,25 @@ module GraphKits
 		end
 	end
 
-	def phi_flux_tube_boundary_surface_graphkit(options={})
+	def field_flux_tube_boundary_surface_graphkit(options={})
 		case options[:command]
 		when :help
-			return  "The potential as a function of cartesian coordinates, on one specified side of the flux tube (specified using the options :coordinate (:x, :y, :theta) and :side (:min, :max))"
+			return  "The field options[:field_name] as a function of cartesian coordinates, on one specified side of the flux tube (specified using the options :coordinate (:x, :y, :theta) and :side (:min, :max))"
 		when :options
 			return  [:Rgeo, :n0, :rho_star, :t_index, :nakx, :naky, :gs2_coordinate_factor, :xmax, :xmin, :ymax, :ymin, :thetamax, :thetamin, :ncopies, :side, :coordinate, :torphi_values]
 		else
-				phi = options[:phi] || phi_real_space_gsl_tensor(options)
+				field = options[:field] || field_real_space_gsl_tensor(options)
 			if options[:ncopies]
 				ops = options.dup
 				ops.delete(:ncopies)
 				return (options[:ncopies].times.map do |n|
 					ops[:ncopy] = n
-					phi_flux_tube_boundary_surface_graphkit(ops)
+					field_flux_tube_boundary_surface_graphkit(ops)
 				end).sum
 			end
 				side = options[:side]
 				coord = options[:coordinate]
-				shp = phi.shape
+				shp = field.shape
 				#raise "  asdfal" unless shp
 				opside = side == :max ? :min : :max
 				ops = options.dup
@@ -640,7 +670,7 @@ module GraphKits
 				else
 					coords = cartesian_coordinates_gsl_tensor(ops)
 				end
-				#ep ['coords', coords.shape, phi.shape]; gets
+				#ep ['coords', coords.shape, field.shape]; gets
 				newshape = coords.shape.slice(1..3)
 				x = coords[0, false]; x.reshape!(*newshape)
 				y = coords[1, false]; y.reshape!(*newshape)
@@ -654,12 +684,12 @@ module GraphKits
 					#((ops[:thetamin]||0) - (options[:thetamin]||0))..((ops[:thetamax]||shp[2]-1) - (options[:thetamin]||0))
 				]
 
-				#ep ['range', range, 'phi.shape', phi.shape]
-				phiside = phi[*range ]
-				#ep ['coords', x.shape, phiside.shape]; gets
-				kit = GraphKit.quick_create([x,y,z,phiside])
+				#ep ['range', range, 'field.shape', field.shape]
+				fieldside = field[*range ]
+				#ep ['coords', x.shape, fieldside.shape]; gets
+				kit = GraphKit.quick_create([x,y,z,fieldside])
 
-				# Create a map of this surface onto a continuous surface between two poloidal planes if ops[:torphi_values] is specified
+				# Create a map of this surface onto a continuous surface between two poloidal planes if ops[:torfield_values] is specified
 				if torphi_values = ops[:torphi_values]
 					raise "Can't take a poloidal cut at constant y or theta" if coord == :y #or coord == :theta
 					raise "Can't take a poloidal cut with a limited y range (Remove :ymin and :ymax from ops)" if options[:ymin] or options[:ymax]
@@ -692,13 +722,13 @@ module GraphKits
 					#ysize = (torphi_const0[-1] - torphi_const1[0] ).abs + 1
 					#case coord
 					#when :x
-					shpside = phiside.shape
-					phicut = GSL::Tensor.float(ysize, shpside[1], shpside[2])
+					shpside = fieldside.shape
+					fieldcut = GSL::Tensor.float(ysize, shpside[1], shpside[2])
 					xcut = GSL::Tensor.float(ysize, shpside[1], shpside[2])
 					ycut = GSL::Tensor.float(ysize, shpside[1], shpside[2])
 					zcut = GSL::Tensor.float(ysize, shpside[1], shpside[2])
 					#ep shpside
-					shpcut = phicut.shape
+					shpcut = fieldcut.shape
 					for k in 0...shpcut[2] # 1 of these 2 loops 
 					for j in 0...shpcut[1] # will have size 1
 
@@ -736,9 +766,9 @@ module GraphKits
 							dfac = 0
 						end
 
-						#ep [(phiside[i%ny,j,k] * (1-dfac) +  phiside[(i+1)%ny,j,k] * dfac).class, i,j,k, phiside.shape, ny  ]
+						#ep [(fieldside[i%ny,j,k] * (1-dfac) +  fieldside[(i+1)%ny,j,k] * dfac).class, i,j,k, fieldside.shape, ny  ]
 
-						phicut[n,j,k] = phiside[i%ny,j,k] * (1-dfac) +  phiside[((i+1)%ny),j,k] * dfac
+						fieldcut[n,j,k] = fieldside[i%ny,j,k] * (1-dfac) +  fieldside[((i+1)%ny),j,k] * dfac
 						
 						rad = cyls[0,i%ny,j,k] 
 						xcut[n,j,k] = rad * c
@@ -751,7 +781,7 @@ module GraphKits
 					end
 					end
 
-					kit = GraphKit.quick_create([xcut,ycut,zcut,phicut])
+					kit = GraphKit.quick_create([xcut,ycut,zcut,fieldcut])
 				end
 
 
@@ -764,6 +794,16 @@ module GraphKits
 		end
 
 	end
+	def density_real_space_standard_representation_graphkit(options={})
+		case options[:command]
+		when :help
+			return  "The density as a function of cartesian coordinates showing showing the standard way of representing the turbulence, with two poloidal cuts and the inner and outer radial surfaces. Multiple copies of the flux tube are used to fill the space."
+		when :options
+			return  [:Rgeo, :n0, :rho_star, :t_index, :nakx, :naky,  :xmax, :xmin, :thetamax, :thetamin,  :torphi_values, :species_index]
+		else
+			field_real_space_standard_representation_graphkit(options.absorb({field_name: :density}))
+		end
+	end
 	def phi_real_space_standard_representation_graphkit(options={})
 		case options[:command]
 		when :help
@@ -771,29 +811,39 @@ module GraphKits
 		when :options
 			return  [:Rgeo, :n0, :rho_star, :t_index, :nakx, :naky,  :xmax, :xmin, :thetamax, :thetamin,  :torphi_values]
 		else
-			phi = phi_real_space_gsl_tensor(options)
-			options[:phi] = phi
+			field_real_space_standard_representation_graphkit(options.absorb({field_name: :phi}))
+		end
+	end
+	def field_real_space_standard_representation_graphkit(options={})
+		case options[:command]
+		when :help
+			return  "The field options[:field_name] as a function of cartesian coordinates showing showing the standard way of representing the turbulence, with two poloidal cuts and the inner and outer radial surfaces. Multiple copies of the flux tube are used to fill the space."
+		when :options
+			return  [:Rgeo, :n0, :rho_star, :t_index, :nakx, :naky,  :xmax, :xmin, :thetamax, :thetamin,  :torphi_values]
+		else
+			field = field_real_space_gsl_tensor(options)
+			options[:field] = field
 			poloidal_planes = options[:torphi_values]
 			#ep poloidal_planes; gets
 			raise "Please set options[:torphi_values] to an array of two values" unless poloidal_planes.kind_of? Array and poloidal_planes.size==2
 			options[:torphi] = poloidal_planes[0]
-			kit1 = phi_real_space_poloidal_plane_graphkit(options)
+			kit1 = field_real_space_poloidal_plane_graphkit(options)
 			options[:torphi] = poloidal_planes[1]
-			kit2 = phi_real_space_poloidal_plane_graphkit(options)
+			kit2 = field_real_space_poloidal_plane_graphkit(options)
 			options[:coordinate] = :x
 			options[:side] = :min
-			kit3 = phi_flux_tube_boundary_surface_graphkit(options)
+			kit3 = field_flux_tube_boundary_surface_graphkit(options)
 			options[:side] = :max
-			kit4 = phi_flux_tube_boundary_surface_graphkit(options)
+			kit4 = field_flux_tube_boundary_surface_graphkit(options)
 			#kit= kit1+kit2
 			#kit = kit3 +kit4
 			kit = kit1+kit2+kit3+kit4
 			if options[:thetamax] or options[:thetamin]
 				options[:coordinate] = :theta
 				options[:side] = :min
-				kit5 = phi_flux_tube_boundary_surface_graphkit(options)
+				kit5 = field_flux_tube_boundary_surface_graphkit(options)
 				options[:side] = :max
-				kit6 = phi_flux_tube_boundary_surface_graphkit(options)
+				kit6 = field_flux_tube_boundary_surface_graphkit(options)
 				kit += kit5+kit6
 			end
 			kit.gp.pm3d = "depthorder"
@@ -821,7 +871,7 @@ module GraphKits
 		when :options
 			return  [:Rgeo, :n0, :rho_star, :t_index, :nakx, :naky,  :xmax, :xmin, :thetamax, :thetamin, :torphi]
 		else
-			return field_real_space_poloidal_plane_graphkit(options.absorb(phi: field_real_space_gsl_tensor(field: moment_gsl_tensor(options.absorb(moment_name: :density)))))
+			return field_real_space_poloidal_plane_graphkit(options.absorb({field_name: :density}))
 		end
 	end
 	def field_real_space_poloidal_plane_graphkit(options={})
@@ -836,26 +886,26 @@ module GraphKits
 				#ops.delete(:ncopies)
 				#return (options[:ncopies].times.map do |n|
 					#ops[:ncopy] = n
-					#phi_real_space_surface_graphkit(ops)
+					#field_real_space_surface_graphkit(ops)
 				#end).sum
 			#end
-			#zaxis = axiskit('phi0_over_x_over_y', options)
+			#zaxis = axiskit('field0_over_x_over_y', options)
 			#zaxis.data = zaxis.data.transpose
 			#shape = zaxis.data.shape
 			#carts = cartesian_coordinates_gsl_tensor(options)
 			#torphiout = 2.6
 			torphiout = options[:torphi]
-			phi = options[:phi] || field_real_space_gsl_tensor(options)
+			field = options[:field] || field_real_space_gsl_tensor(options)
 			torphi_const =  constant_torphi_surface_gsl_tensor(options)
 			cyls = cylindrical_coordinates_gsl_tensor(options.absorb({extra_points: true}))
 			#p torphi_const[0,true].to_a; 
 			#p 'sh', cyls.shape[1], '','','',''; 
 			#exit
 			#carts = cartesian_coordinates_gsl_tensor(options)
-			shp = phi.shape
+			shp = field.shape
 			shpc = cyls.shape
 			#ep 'shapes', shp, cyls.shape
-			new_phi = GSL::Tensor.alloc(shp[1], shp[2])
+			new_field = GSL::Tensor.alloc(shp[1], shp[2])
 			new_X = GSL::Tensor.alloc(shp[1], shp[2])
 			new_Y = GSL::Tensor.alloc(shp[1], shp[2])
 			new_Z = GSL::Tensor.alloc(shp[1], shp[2])
@@ -866,10 +916,10 @@ module GraphKits
 			#theta_vec = gsl_vector('theta', options)
 			#x_vec = gsl_vector('x', options)
 			#y_vec = gsl_vector('y', options)
-			#phi.iterate do |i,j,k|
+			#field.iterate do |i,j,k|
 			#lastbracketed = nil
 			#lastj = -1
-			#phi.iterate_row_maj do |i,j,k|
+			#field.iterate_row_maj do |i,j,k|
 			for k in 0...shp[2] #theta loop
 			for j in 0...shp[1] #xloop
 				#raise "Missed #{[j,k].inspect}, #{lastj}" unless lastj == j-1
@@ -944,9 +994,9 @@ module GraphKits
 				#raise "Missed: #{i},#{j}, #{lastbracketed.inspect} " unless lastbracketed == [j-1,k] or lastbracketed == [shp[1]-1, k-1] if lastbracketed
 				#ep bracketed,"********" 
 					#ep ['bracketed', i, j, k]
-					#ep ['phi', phi[i,j,k]]
+					#ep ['field', field[i,j,k]]
 					#new_phi[j,k] = theta_vec[k]
-					new_phi[j,k] = phi[i,j,k] * (1-dfac) +  phi[(i+1)%shp[0],j,k] * dfac
+					new_field[j,k] = field[i,j,k] * (1-dfac) +  field[(i+1)%shp[0],j,k] * dfac
 					#raise "Mismatched radii" unless
 					#new_X[j,k] = cyls[0,i,j,k] * Math.cos(cyls[2,i,j,k])
 					#new_X[j,k] =  x_vec[j]
@@ -962,7 +1012,7 @@ module GraphKits
 			end # xloop
 			end # theta loop
 			#exit
-			kit =  GraphKit.quick_create([new_X, new_Y, new_Z, new_phi])
+			kit =  GraphKit.quick_create([new_X, new_Y, new_Z, new_field])
 			kit.xlabel = 'X'
 			kit.ylabel = 'Y'
 			kit.data[0].gp.with = "pm3d"
@@ -985,12 +1035,12 @@ module GraphKits
 					#[0].each do |toroidalphi|
 					#raise unless i.kind_of? Integer
 					#return kit if coord + side == :xmax
-					options[:phi] = phi
+					options[:field] = field
 					options[:side] = side
 					options[:coordinate] = coord
 					options[:toroidal_projection] = coord == :x ? nil : toroidalphi
 					next if coord == :x and toroidalphi == Math::PI
-					kit = phi_flux_tube_boundary_surface_graphkit(options)
+					kit = field_flux_tube_boundary_surface_graphkit(options)
 					kits.push kit
 					end
 				#end
@@ -1494,10 +1544,31 @@ module GraphKits
 	end
 
 
+	def density_real_space_surface_graphkit(options={})
+		case options[:command]
+		when :help
+			return  "The density as a function of cartesian coordinates, plotted on the six outer surfaces of constant x, y and theta."
+		when :options
+			return  [:Rgeo, :n0, :rho_star, :t_index, :nakx, :naky, :gs2_coordinate_factor, :xmax, :xmin, :ymax, :ymin, :thetamax, :thetamin, :ncopies]
+		else
+			return field_real_space_surface_graphkit(options.absorb({field_name: :density}))
+		end
+	end
 	def phi_real_space_surface_graphkit(options={})
 		case options[:command]
 		when :help
 			return  "The potential as a function of cartesian coordinates, plotted on the six outer surfaces of constant x, y and theta."
+		when :options
+			return  [:Rgeo, :n0, :rho_star, :t_index, :nakx, :naky, :gs2_coordinate_factor, :xmax, :xmin, :ymax, :ymin, :thetamax, :thetamin, :ncopies]
+		else
+			return field_real_space_surface_graphkit(options.absorb({field_name: :phi}))
+		end
+	end
+																							 
+	def field_real_space_surface_graphkit(options={})
+		case options[:command]
+		when :help
+			return  "The field options[:field_name] as a function of cartesian coordinates, plotted on the six outer surfaces of constant x, y and theta."
 		when :options
 			return  [:Rgeo, :n0, :rho_star, :t_index, :nakx, :naky, :gs2_coordinate_factor, :xmax, :xmin, :ymax, :ymin, :thetamax, :thetamin, :ncopies]
 		else
@@ -1506,24 +1577,24 @@ module GraphKits
 				ops.delete(:ncopies)
 				return (options[:ncopies].times.map do |n|
 					ops[:ncopy] = n
-					phi_real_space_surface_graphkit(ops)
+					field_real_space_surface_graphkit(ops)
 				end).sum
 			end
-			#zaxis = axiskit('phi0_over_x_over_y', options)
+			#zaxis = axiskit('field0_over_x_over_y', options)
 			#zaxis.data = zaxis.data.transpose
 			#shape = zaxis.data.shape
 			#carts = cartesian_coordinates_gsl_tensor(options)
-			phi = options[:phi] || phi_real_space_gsl_tensor(options)
+			field = options[:field] || field_real_space_gsl_tensor(options)
 			sides = [:max, :min]
 			kits = []
 			[:y, :x, :theta].each_with_index do |coord,i|
 				sides.each_with_index do |side,j|
 					raise unless i.kind_of? Integer
 					#return kit if coord + side == :xmax
-					options[:phi] = phi
+					options[:field] = field
 					options[:side] = side
 					options[:coordinate] = coord
-					kit = phi_flux_tube_boundary_surface_graphkit(options)
+					kit = field_flux_tube_boundary_surface_graphkit(options)
 					kits.push kit
 				end
 			end
@@ -1548,10 +1619,32 @@ module GraphKits
 
 		end
 	end
+	def density_real_space_graphkit(options={})
+		case options[:command]
+		when :help
+			return  "The potential as a function of cartesian coordinates"
+		when :options
+			return  [:rgbformulae, :limit, :t_index]
+		else
+			kit = field_real_space_graphkit(options.absorb({field_name: :density}))
+			kit.title = 'Density'
+			kit
+		end
+	end
 	def phi_real_space_graphkit(options={})
 		case options[:command]
 		when :help
 			return  "The potential as a function of cartesian coordinates"
+		when :options
+			return  [:rgbformulae, :limit, :t_index]
+		else
+			return field_real_space_graphkit(options.absorb({field_name: :phi}))
+		end
+	end
+	def field_real_space_graphkit(options={})
+		case options[:command]
+		when :help
+			return  "The field options[:field_name] as a function of cartesian coordinates"
 		when :options
 			return  [:rgbformulae, :limit, :t_index]
 		else
@@ -1560,14 +1653,14 @@ module GraphKits
 				ops.delete(:ncopies)
 				return (options[:ncopies].times.map do |n|
 					ops[:ncopy] = n
-					phi_real_space_graphkit(ops)
+					field_real_space_graphkit(ops)
 				end).sum
 			end
-			#zaxis = axiskit('phi0_over_x_over_y', options)
+			#zaxis = axiskit('field0_over_x_over_y', options)
 			#zaxis.data = zaxis.data.transpose
 			#shape = zaxis.data.shape
 			#carts = cartesian_coordinates_gsl_tensor(options)
-			phi = phi_real_space_gsl_tensor(options)
+			field = field_real_space_gsl_tensor(options)
 			if options[:cyl]
 				carts = cylindrical_coordinates_gsl_tensor(options) #.transpose(0,1,2,3)
 			else
@@ -1584,7 +1677,7 @@ module GraphKits
 			#x = x.transpose(2,1,0)
 			#y = y.transpose(2,1,0)
 			#z = z.transpose(2,1,0)
-			#phi = phi.transpose(2,1,0)
+			#field = field.transpose(2,1,0)
 			end
 
 
@@ -1592,7 +1685,7 @@ module GraphKits
 				x: GraphKit::AxisKit.autocreate({data: x, title: "X", units: "m"}), 
 				y: GraphKit::AxisKit.autocreate({data: y, title: "Y", units: "m"}), 
 				z: GraphKit::AxisKit.autocreate({data: z, title: "Z", units: "m"}),
-				f: GraphKit::AxisKit.autocreate({data: phi, title: "Phi"})
+				f: GraphKit::AxisKit.autocreate({data: field, title: "Phi"})
 			})
 # 			kit.xrange = [0,shape[0]]
 # 			kit.yrange = [0,shape[1]]
@@ -1909,6 +2002,119 @@ module GraphKits
 			kit
 		end
 	end
+	def g2_by_energy_by_all_k_graphkit(options={})
+		case options[:command]
+		when :help
+			return "Plots g**2 vs Hankel mode for fixed wavenumber and Hankel mode. JTP"
+		when :options
+			return []
+		else
+			#raise "Velocity space diagnostics not found" unless FileTest.exist? "#@directory/#@run_name.vpg" 
+			raise "Velocity space diagnostics not found" unless FileTest.exist? "#@directory/#@run_name.vpx#{'%02d'%options[:kx_index]}y#{'%02d'%options[:ky_index]}z#{'%02d'%options[:kz_index]}g" 
+			g2 = []
+			x_axis = []
+                        File.open("#@directory/#@run_name.vpx#{'%02d'%options[:kx_index]}y#{'%02d'%options[:ky_index]}z#{'%02d'%options[:kz_index]}g","r").each_line do | line |
+                        #File.open("#@directory/#@run_name.vpg","r").each_line do | line |
+				line_array = line.split(/\s+/).map{|v| v.to_f}
+				if( options[:il_index] == line_array[4]  )
+					g2.push line_array[1] # **2+line_array[2]**2 
+					x_axis.push line_array[3]
+				end
+			end
+
+			return GraphKit.quick_create([x_axis,g2])
+		end
+	end
+	def g2_by_energy_by_kx_by_ky_graphkit(options={})
+		case options[:command]
+		when :help
+			return "Plots g**2 vs Hankel mode for fixed wavenumber and Hankel mode. JTP"
+		when :options
+			return []
+		else
+			raise "Velocity space diagnostics not found" unless FileTest.exist? "#@directory/#@run_name.vpg" 
+			g2 = []
+			x_axis = []
+                        File.open("#@directory/#@run_name.vpx#{'%02d'%options[:kx_index]}y#{'%02d'%options[:ky_index]}g","r").each_line do | line |
+                        #File.open("#@directory/#@run_name.vpg","r").each_line do | line |
+				line_array = line.split(/\s+/).map{|v| v.to_f}
+				if( options[:il_index] == line_array[4]  )
+					g2.push line_array[1] # **2+line_array[2]**2 
+					x_axis.push line_array[3]
+				end
+			end
+
+			return GraphKit.quick_create([x_axis,g2])
+		end
+	end
+	def g2_by_energy_graphkit(options={})
+		case options[:command]
+		when :help
+			return "Plots g**2 vs Hankel mode for fixed wavenumber and Hankel mode. JTP"
+		when :options
+			return []
+		else
+			raise "Velocity space diagnostics not found" unless FileTest.exist? "#@directory/#@run_name.vpg" 
+			g2 = []
+			x_axis = []
+                        #File.open("#@directory/#@run_name.vpx#{options[:kx_index]}y#{options[:ky_index]}g","r").each_line do | line |
+                        File.open("#@directory/#@run_name.vpg","r").each_line do | line |
+				line_array = line.split(/\s+/).map{|v| v.to_f}
+				if( options[:il_index] == line_array[4]  )
+					g2.push line_array[1] # **2+line_array[2]**2 
+					x_axis.push line_array[3]
+				end
+			end
+
+			return GraphKit.quick_create([x_axis,g2])
+		end
+	end
+	def g2_by_lambda_by_all_k_graphkit(options={})
+		case options[:command]
+		when :help
+			return "Plots g**2 vs Hermite mode for fixed wavenumber and Hankel mode. JTP"
+		when :options
+			return []
+		else
+			#raise "Velocity space diagnostics not found" unless FileTest.exist? "#@directory/#@run_name.vpg" 
+			g2 = []
+			x_axis = []
+                        #File.open("#@directory/#@run_name.vpx#{options[:kx_index]}y#{options[:ky_index]}g","r").each_line do | line |
+                        #File.open("#@directory/#@run_name.vpg","r").each_line do | line |
+                        File.open("#@directory/#@run_name.vpx#{'%02d'%options[:kx_index]}y#{'%02d'%options[:ky_index]}z#{'%02d'%options[:kz_index]}g","r").each_line do | line |
+				line_array = line.split(/\s+/).map{|v| v.to_f}
+				if( options[:e_index] == line_array[3]  )
+					g2.push line_array[1] # **2+line_array[2]**2 
+					x_axis.push line_array[4]
+				end
+			end
+
+			return GraphKit.quick_create([x_axis,g2])
+		end
+	end
+	def g2_by_lambda_graphkit(options={})
+		case options[:command]
+		when :help
+			return "Plots g**2 vs Hermite mode for fixed wavenumber and Hankel mode. JTP"
+		when :options
+			return []
+		else
+			raise "Velocity space diagnostics not found" unless FileTest.exist? "#@directory/#@run_name.vpg" 
+			g2 = []
+			x_axis = []
+                        #File.open("#@directory/#@run_name.vpx#{options[:kx_index]}y#{options[:ky_index]}g","r").each_line do | line |
+                        File.open("#@directory/#@run_name.vpg","r").each_line do | line |
+				line_array = line.split(/\s+/).map{|v| v.to_f}
+				if( options[:e_index] == line_array[3]  )
+					g2.push line_array[1] # **2+line_array[2]**2 
+					x_axis.push line_array[4]
+				end
+			end
+
+			return GraphKit.quick_create([x_axis,g2])
+		end
+	end
+
 	def vspace_diagnostics_graphkit(options={})
 		case options[:command]
 		when :help

@@ -185,3 +185,14 @@ def forward_rows_r2cc
 end
 	
 end
+
+
+class NArray
+  def expand(*new_shape, empty_value)
+    na = NArray.new(self.typecode,*new_shape)
+		na[true] = empty_value 
+    range = self.shape.map{|n| 0...n}
+    na[*range] = self
+    return na
+  end
+end

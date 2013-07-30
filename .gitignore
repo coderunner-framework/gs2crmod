@@ -43,6 +43,7 @@ pkg
 
 # For vim:
 *.swp
+*.swo
 *.orig
 
 # For redcar:
@@ -53,6 +54,8 @@ pkg
 #
 Gemfile.lock
 
+#Binaries for testing
+*.so
 
 #For CodeRunner
 #

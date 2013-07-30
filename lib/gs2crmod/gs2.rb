@@ -52,10 +52,15 @@ class CodeRunner
 
 class Gs2 < Run::FortranNamelist
 
-GS2_CRMOD_VERSION = Version.new(Gem.loaded_specs['gs2crmod'].version.to_s)
+#GS2_CRMOD_VERSION = Version.new(Gem.loaded_specs['gs2crmod'].version.to_s)
+GS2_CRMOD_VERSION = Version.new('0.5.0')
 
 
 def agk?
+	false
+end
+
+def spectrogk?
 	false
 end
 
@@ -448,10 +453,18 @@ def get_list_of(*args)
  			next if (cache[list_name] and [:Failed, :Complete].include? status and not refresh)
 			
 			cache[list_name] = {}
-			netcdf_file.var(var.to_s).get.to_a.each_with_index do |value, element|
-# 				print '.'
-				cache[list_name][element+1]=value
+			if netcdf_file.var(var.to_s)
+				netcdf_file.var(var.to_s).get.to_a.each_with_index do |value, element|
+	# 				print '.'
+					cache[list_name][element+1]=value
+				end
+
+			else
+				netcdf_file.dim(var.to_s).length.times.each do |element|
+					cache[list_name][element+1]='unknown'
+				end
 			end
+		
 #			eputs send(var+:_list)
 		end
 	end
@@ -850,7 +863,7 @@ end
 
 
 def self.list_code_commands
-	puts (methods - superclass.methods).sort
+	puts (methods - Run.methods).sort
 end
 
 def self.add_variable_to_namelist(namelist, var, value)
@@ -874,6 +887,8 @@ def input_file_header
 !  of large simulations. 
 !
 !  	See http://coderunner.sourceforge.net
+!
+!  Created on #{Time.now.to_s}
 !      by CodeRunner version #{CodeRunner::CODE_RUNNER_VERSION.to_s}
 !
 !==============================================================================
@@ -1149,6 +1164,7 @@ class Hash
 	         p self[:ky_index] = ky_element + 1
 					 self[:strongest_non_zonal_mode] = false
 	    end
+		raise "No names specified" if names.size == 0
 
 
 # 		ep run

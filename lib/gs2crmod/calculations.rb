@@ -373,7 +373,10 @@ def calculate_growth_rate(vector, options={})
 	raise "This vector should be positive definite" if vector.min < 0.0
 	offset = 0
 	length = vector.length
-	offset+=1 while vector[offset] == 0.0
+  while vector[offset] == 0.0
+    offset+=1
+    return 0.0 if offset == vector.length
+  end
 	growth_rate = GSL::Fit::linear(gsl_vector(:t).subvector(offset, length-offset), 0.5*GSL::Sf::log(vector.subvector(offset, length - offset)))[1]
 	divisor = 1
 	while (growth_rate.to_s == "NaN")

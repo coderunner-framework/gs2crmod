@@ -211,7 +211,7 @@ VALUE gs2crmod_tensor_field_gsl_tensor(VALUE self, VALUE options)
 				/* We are converting a complex array 
 				 * to a half complex array in
 				 * preparation for transforming 
-				 * it to real space, and so their
+				 * it to real space, and so there
 				 * are one or two elements we leave
 				 * unfilled.*/
 				if (i==0 || (c_shape[0]%2==0 && i == c_shape[0]/2 + 1)) continue;
