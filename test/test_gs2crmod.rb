@@ -96,8 +96,11 @@ class TestAnalysis < Test::Unit::TestCase
         
         kit = @run.graphkit('tpar2_by_mode_vs_time', {ky_index:2, kx_index:1, species_index:1})
         #kit.gnuplot
-
 		assert_equal(@runner.run_list[1].netcdf_file.var('tpar2_by_mode').get('start' => [0,1,0,4], 'end' => [0,1,0,4]).to_a[0][0][0][0], kit.data[0].y.data[4])
+
+        kit = @run.graphkit('tperp2_by_mode_vs_time', {ky_index:2, kx_index:1, species_index:1})
+        #kit.gnuplot
+		assert_equal(@runner.run_list[1].netcdf_file.var('tperp2_by_mode').get('start' => [0,1,0,4], 'end' => [0,1,0,4]).to_a[0][0][0][0], kit.data[0].y.data[4])
 	end
 	def test_3d_graphs
 		kit = @runner.run_list[1].graphkit('phi_real_space', {n0: 3, Rgeo: 3})
