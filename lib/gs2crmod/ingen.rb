@@ -219,6 +219,12 @@ def ingen
     end
   end
 
+	################
+	# Damping Rate #
+	################
+
+	warning("Recommend that const_amp = TRUE for linear runs.") if @nonlinear_mode == "off" and (!@const_amp or @const_amp.fortran_false?)
+
 end
 
 #  A hash which gives the actual numbers of gridpoints indexed by their corresponding letters in the layout string.
