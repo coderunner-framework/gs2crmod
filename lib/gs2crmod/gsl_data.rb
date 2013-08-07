@@ -493,8 +493,9 @@ module GSLVectors
 		Dir.chdir(@directory) do
  # , /kpar_spectrum/
 			#ep 'zero?', (@s_hat_input||@shat)==0.0
-			unless (@s_hat_input||@shat||0.75).abs<1.0e-5
+			unless agk? or (@s_hat_input||@shat||0.0).abs<1.0e-5
 				phi = gsl_vector_complex('phi_along_field_line', options)
+        phi = phi.subvector(0,phi.size-1)
 				#i = 0
 				#phi = phi.collect{|re,im| 
 					#i+=1; GSL::Complex.alloc(Math.sin(0.1*i), Math.cos(0.1*i))+ 
@@ -539,10 +540,11 @@ module GSLVectors
 			end
 			case phi.size%2
 			when 0
-				kpar = GSL::Vector.indgen(phi.size, -(phi.size-2)/2)*dk
+				kpar = GSL::Vector.indgen(phi.size-1, -((phi.size-3)/2))*dk
 			when 1
-				kpar = GSL::Vector.indgen(phi.size, -(phi.size-1)/2)*dk
+				kpar = GSL::Vector.indgen(phi.size-1, -((phi.size-2)/2))*dk
 			end
+      #ep 'kpar', kpar, 'phi.size', phi.size
 
 			#ep 'kpar.class', kpar.class
 			return kpar
@@ -951,9 +953,9 @@ module GSLMatrices
 			end
 			temp = phi_av = (lkx.keys.map do |kx_index|		
 				if options[:t_index]
-					phi =  netcdf_file.var('phi_t').get({'start' => [0,0,kx_index-1,0, options[:t_index] - 1], 'end' => [-1,-1,kx_index-1,-1, options[:t_index] - 1]})
+					phi =  netcdf_file.var('phi_t').get({'start' => [0,0,kx_index-1,0, options[:t_index] - 1], 'end' => [-1,-2,kx_index-1,-1, options[:t_index] - 1]})
 				else
-					phi = netcdf_file.var('phi').get({'start' => [0, 0, kx_index - 1, 0], 'end' => [-1, -1, kx_index-1, -1]})
+					phi = netcdf_file.var('phi').get({'start' => [0, 0, kx_index - 1, 0], 'end' => [-1, -2, kx_index-1, -1]})
 				end
 				#ep phi.shape
 				phi.reshape(*phi.shape.values_at(0,1,3))
@@ -962,16 +964,19 @@ module GSLMatrices
 			phi_t = phi_av.to_a #.map{|arr| arr.transpose}.transpose.map{|a| a.transpose}
 			#ep 'phi_t', phi_t.size, phi_t[0].size, phi_t[0][0].size
 			gvky = gsl_vector('ky')
-			gm = GSL::Matrix.alloc(gvky.size, gsl_vector('theta').size)
+			gm = GSL::Matrix.alloc(gvky.size, gsl_vector('theta').size-1)
 			for ky_element in 0...gm.shape[0]
 				#p phi_t[ky_element].transpose[0]
 				spectrum = GSL::Vector::Complex.alloc(phi_t[ky_element]).forward.square
 				if options[:no_kpar0]
 					spectrum[0]=0.0
 				end
+        #ep spectrum.size
 				spectrum = spectrum.from_box_order
 				#ep spectrum.shape
 				spectrum = spectrum*gvky[ky_element]**2 unless options[:phi2_only]
+        #ep gm.size
+        #ep spectrum.size
 				gm.set_row(ky_element, spectrum)
 			end
 			if options[:no_zonal]

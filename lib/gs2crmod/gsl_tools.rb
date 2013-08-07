@@ -35,12 +35,12 @@ class GSL::Vector
 	
 	def from_box_order
 		size = self.size
-		v1, v2 = self.subvector(0, (size+1)/2), self.subvector((size+1)/2, (size-1)/2)
+		v1, v2 = self.subvector(0, (size+2)/2), self.subvector((size+2)/2, (size-1)/2)
 		return v2.connect(v1)
 	end
 	def to_box_order
 		size = self.size
-		v1, v2 = self.subvector(0, (size-1)/2), self.subvector((size-1)/2, (size+1)/2)
+		v1, v2 = self.subvector(0, (size-1)/2), self.subvector((size-1)/2, (size+2)/2)
 		return v2.connect(v1)
 	end
 

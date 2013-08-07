@@ -157,6 +157,9 @@ class TestAgkAnalysis < Test::Unit::TestCase
 		#kit.gnuplot
 		assert_equal(126, kit.data[0].y.data.size)
 		assert_equal(@runner.run_list[1].netcdf_file.var('phi2').get('start' => [4], 'end' => [4]).to_a[0], kit.data[0].y.data[4])
+    assert_equal(nil,@runner.run_list[1].instance_variable_get(:@shat))
+		kit = @runner.run_list[1].graphkit('kpar_spectrum',{})
+		#kit.gnuplot
 	end
 	def test_analysis
 		assert_equal(1, @runner.run_list.size)
