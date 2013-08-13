@@ -2058,9 +2058,9 @@ module GraphKits
                         File.open("#@directory/#@run_name.vpx#{'%02d'%options[:kx_index]}y#{'%02d'%options[:ky_index]}z#{'%02d'%options[:kz_index]}g","r").each_line do | line |
                         #File.open("#@directory/#@run_name.vpg","r").each_line do | line |
 				line_array = line.split(/\s+/).map{|v| v.to_f}
-				if( options[:il_index] == line_array[4]  )
-					g2.push line_array[1] # **2+line_array[2]**2 
-					x_axis.push line_array[3]
+				if( options[:il_index] == line_array[5]  )
+					g2.push line_array[1]**2+line_array[2]**2 
+					x_axis.push line_array[4]
 				end
 			end
 
@@ -2080,9 +2080,9 @@ module GraphKits
                         File.open("#@directory/#@run_name.vpx#{'%02d'%options[:kx_index]}y#{'%02d'%options[:ky_index]}g","r").each_line do | line |
                         #File.open("#@directory/#@run_name.vpg","r").each_line do | line |
 				line_array = line.split(/\s+/).map{|v| v.to_f}
-				if( options[:il_index] == line_array[4]  )
-					g2.push line_array[1] # **2+line_array[2]**2 
-					x_axis.push line_array[3]
+				if( options[:il_index] == line_array[5]  )
+					g2.push line_array[1]**2+line_array[2]**2 
+					x_axis.push line_array[4]
 				end
 			end
 
@@ -2102,9 +2102,9 @@ module GraphKits
                         #File.open("#@directory/#@run_name.vpx#{options[:kx_index]}y#{options[:ky_index]}g","r").each_line do | line |
                         File.open("#@directory/#@run_name.vpg","r").each_line do | line |
 				line_array = line.split(/\s+/).map{|v| v.to_f}
-				if( options[:il_index] == line_array[4]  )
-					g2.push line_array[1] # **2+line_array[2]**2 
-					x_axis.push line_array[3]
+				if( options[:il_index] == line_array[5]  )
+					g2.push line_array[1]**2+line_array[2]**2 
+					x_axis.push line_array[4]
 				end
 			end
 
@@ -2125,9 +2125,9 @@ module GraphKits
                         #File.open("#@directory/#@run_name.vpg","r").each_line do | line |
                         File.open("#@directory/#@run_name.vpx#{'%02d'%options[:kx_index]}y#{'%02d'%options[:ky_index]}z#{'%02d'%options[:kz_index]}g","r").each_line do | line |
 				line_array = line.split(/\s+/).map{|v| v.to_f}
-				if( options[:e_index] == line_array[3]  )
-					g2.push line_array[1] # **2+line_array[2]**2 
-					x_axis.push line_array[4]
+				if( options[:e_index] == line_array[4]  )
+					g2.push line_array[1]**2+line_array[2]**2 
+					x_axis.push line_array[5]
 				end
 			end
 
@@ -2147,9 +2147,9 @@ module GraphKits
                         #File.open("#@directory/#@run_name.vpx#{options[:kx_index]}y#{options[:ky_index]}g","r").each_line do | line |
                         File.open("#@directory/#@run_name.vpg","r").each_line do | line |
 				line_array = line.split(/\s+/).map{|v| v.to_f}
-				if( options[:e_index] == line_array[3]  )
-					g2.push line_array[1] # **2+line_array[2]**2 
-					x_axis.push line_array[4]
+				if( options[:e_index] == line_array[4]  )
+					g2.push line_array[1]**2+line_array[2]**2 
+					x_axis.push line_array[5]
 				end
 			end
 
