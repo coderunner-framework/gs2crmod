@@ -41,8 +41,13 @@ def netcdf_file
 		ncclose
 	end
 	cache[:netcdf_file_otime] = Time.now.to_i
-	cache[:netcdf_file] ||= NumRu::NetCDF.open(@directory + '/' +  @run_name + '.out.nc')
+	cache[:netcdf_file] ||= NumRu::NetCDF.open(netcdf_filename)
 end
+
+def netcdf_filename
+	@directory + '/' +  @run_name + '.out.nc'
+end
+
 
 def ncclose
 	cache[:netcdf_file].close
