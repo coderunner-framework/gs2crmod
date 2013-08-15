@@ -327,6 +327,12 @@ module GSLVectors
 	end
 	private :growth_rate_over_kxy_gsl_vector
 
+	# Frequency, indexed over ky, taken direct from the gs2 output file
+	def frequency_over_ky_gsl_vector(options)
+		  options.convert_to_index(self, :kx)
+			return GSL::Vector.alloc(gsl_vector('ky').to_a.map{|ky| frequency_at_ky_at_kx[ky].values[options[:kx_index]-1]})
+	end
+
 	def es_heat_by_kx_over_time_gsl_vector(options)
 		options[:direction] = :kx
 		es_heat_by_kxy_over_time_gsl_vector(options)

@@ -265,19 +265,30 @@ def calculate_growth_rates_and_frequencies
 # 		eputs final_timestep_list
 		f = LongRegexen::FLOAT.verbatim
 		logi(f)
-		regex = Regexp.new( "^.*aky=\\s*(?<aky>#{f}).*omav=\\s*(?<re>#{f})\\s*(?<gr>#{f})")
-		logi(regex)
-		final_timestep_list.gsub(regex) do 
-			data = $~
-#  			eputs data.inspect; gets
-			#raise CRFatal.new("Unknown value of ky read from output file: #{data[:aky].to_f}. Not in list:\n#{list(:ky).values.inspect}") 
+		#regex = Regexp.new( "^.*aky=\\s*(?<aky>#{f}).*omav=\\s*(?<re>#{f})\\s*(?<gr>#{f})")
+		#logi(regex)
+		#final_timestep_list.gsub(regex) do 
+			#data = $~
+##  			eputs data.inspect; gets
+			##raise CRFatal.new("Unknown value of ky read from output file: #{data[:aky].to_f}. Not in list:\n#{list(:ky).values.inspect}") 
 		
-			next unless (list(:ky).values).include? data[:aky].to_f
-			#@growth_rates[data[:aky].to_f] = data[:gr].to_f
-			aky = data[:aky].to_f
-			next if aky==0.0
-			@real_frequencies[data[:aky].to_f] = data[:re].to_f
+			#next unless (list(:ky).values).include? data[:aky].to_f
+			##@growth_rates[data[:aky].to_f] = data[:gr].to_f
+			#aky = data[:aky].to_f
+			#next if aky==0.0
+			#@real_frequencies[data[:aky].to_f] = data[:re].to_f
+		#end
+		@frequency_at_ky_at_kx||= FloatHash.new
+		ky_values = []
+		regex = Regexp.new( "^.*aky=\\s*(?<aky>#{f})\s*akx=\\s*(?<akx>#{f}).*omav=\\s*(?<re>#{f})\\s*(?<gr>#{f})")
+		final_timestep_list.scan(regex) do
+			aky = eval($~[:aky])
+			akx = eval($~[:akx])
+			@frequency_at_ky_at_kx[aky] = FloatHash.new unless ky_values.include? aky
+			ky_values.push aky
+			@frequency_at_ky_at_kx[aky][akx] = eval($~[:re])
 		end
+			#raise CRFatal.new("Unknown value of ky read from output file: #{data[:aky].to_f}. Not in list:\n#{list(:ky).values.inspect}") 
 # 		pp @ky_list
 		
 		# With zero magnetic shear, calculate growth rates for both kx and ky
