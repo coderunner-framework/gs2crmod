@@ -525,7 +525,7 @@ module GraphKits
 	def frequency_vs_ky_graphkit(options={})
 		case options[:command]
 		when :help
-			return "Frequencies vs ky. "
+			return "Frequencies vs ky. You need the parameter write_line set to \".true.\". "
 		when :options
 			return []
 		else
