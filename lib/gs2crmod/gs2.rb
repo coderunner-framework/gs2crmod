@@ -120,6 +120,7 @@ eval(%[
 	:growth_rate_at_ky,
 	:growth_rate_at_kx,
 	:growth_rate_at_ky_at_kx,
+	:frequency_at_ky_at_kx,
 	:real_frequencies_by_ky,
 	:max_growth_rate,
 	:fastest_growing_mode,

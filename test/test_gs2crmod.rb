@@ -36,7 +36,7 @@ if ENV['GS2_EXEC']
 			FileUtils.rm_r(tfolder)
 		end
 		def test_submission
-			CodeRunner.submit(C: 'gs2', X: ENV['GS2_EXEC'], D: 'test_gs2crmod', n: '1', Y: tfolder, p: '{write_moments: ".true."}')
+			CodeRunner.submit(C: 'gs2', X: ENV['GS2_EXEC'], D: 'test_gs2crmod', n: '1', Y: tfolder, p: '{write_moments: ".true.", write_line: ".true."}')
 			CodeRunner.status(Y: tfolder)
 		end
 	end
@@ -55,6 +55,10 @@ class TestAnalysis < Test::Unit::TestCase
 		assert_equal(0.13066732664774272, @runner.run_list[1].max_growth_rate)
 		assert_equal(0.13066732664774272, @runner.run_list[1].growth_rate_at_ky[0.5])
 		assert_equal(:Complete, @runner.run_list[1].status)
+		p @run.frequency_at_ky_at_kx, @run.gsl_vector('kx')[1]
+		assert_equal(6.6036e-01, @run.frequency_at_ky_at_kx[0.5][2.5133])
+		#p @run.gsl_vector('kx'); STDIN.gets
+		assert_equal(6.6036e-01, @run.frequency_at_ky_at_kx[0.5][@run.gsl_vector('kx')[3]])
 	end
 	def test_interpolation
 		assert_equal(5, @run.gsl_vector('kx').size)
@@ -94,13 +98,16 @@ class TestAnalysis < Test::Unit::TestCase
 		assert_equal(51, kit.data[0].y.data.size)
 		assert_equal(@runner.run_list[1].netcdf_file.var('phi2_by_ky').get('start' => [1,4], 'end' => [1,4]).to_a[0][0], kit.data[0].y.data[4])
         
-        kit = @run.graphkit('tpar2_by_mode_vs_time', {ky_index:2, kx_index:1, species_index:1})
+		kit = @run.graphkit('tpar2_by_mode_vs_time', {ky_index:2, kx_index:1, species_index:1})
         #kit.gnuplot
 		assert_equal(@runner.run_list[1].netcdf_file.var('tpar2_by_mode').get('start' => [0,1,0,4], 'end' => [0,1,0,4]).to_a[0][0][0][0], kit.data[0].y.data[4])
 
-        kit = @run.graphkit('tperp2_by_mode_vs_time', {ky_index:2, kx_index:1, species_index:1})
+		kit = @run.graphkit('tperp2_by_mode_vs_time', {ky_index:2, kx_index:1, species_index:1})
         #kit.gnuplot
 		assert_equal(@runner.run_list[1].netcdf_file.var('tperp2_by_mode').get('start' => [0,1,0,4], 'end' => [0,1,0,4]).to_a[0][0][0][0], kit.data[0].y.data[4])
+		kit = @run.graphkit('frequency_vs_ky', {kx_index:1})
+		assert_equal(@run.frequency_at_ky_at_kx[0.5][0.0], kit.data[0].y.data[1])
+		#kit.gnuplot
 	end
 	def test_3d_graphs
 		kit = @runner.run_list[1].graphkit('phi_real_space', {n0: 3, Rgeo: 3})
