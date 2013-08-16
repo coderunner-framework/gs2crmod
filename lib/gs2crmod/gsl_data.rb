@@ -42,6 +42,8 @@ def netcdf_file
 	end
 	cache[:netcdf_file_otime] = Time.now.to_i
 	cache[:netcdf_file] ||= NumRu::NetCDF.open(netcdf_filename)
+	cache[:netcdf_file].sync
+	cache[:netcdf_file]
 end
 
 def netcdf_filename
@@ -523,7 +525,7 @@ module GSLVectors
 			options.convert_to_index(self, :ky, :kx)
 			nkx = netcdf_file.var('kx').dims[0].length
 # 			p nkx
-			stride = @jtwist * (options[:ky_index] - 1)
+			stride = @jtwist * (options[:ky_index] )
 			#stride = 3
 			nlinks = [(nkx / stride).floor, 1].max 
 			theta0 = options[:kx_index] % @jtwist  #(options[:theta0] || 0)
@@ -656,6 +658,15 @@ module GSLVectors
 # 				ep thetas
 				#eputs "End theta_along_field_line"
 				return thetas if agk? or (@s_hat_input or @shat).abs < 1.0e-5
+				if gryfx?
+					theta_list = ((1..kx_elements.size).to_a.map do |i|
+						thetas * i
+					end)
+					thetas = theta_list.inject{|o,n| o.connect(n)}
+					thetas -= Math::PI*(kx_elements.size-1)
+					return thetas
+
+				end
 				theta_list = (kx_elements.map do |element|
 				        
 					kx = list(:kx)[(element + 1).to_i]

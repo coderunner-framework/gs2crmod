@@ -64,6 +64,10 @@ def spectrogk?
 	false
 end
 
+def gryfx?
+	false
+end
+
 CODE_SCRIPT_FOLDER = MODULE_FOLDER = File.dirname(File.expand_path(__FILE__))
 
 # Include the other files
@@ -314,7 +318,7 @@ def generate_phantom_runs
 # 			log('@runner.class', @runner.class)
 # 			@runner.add_phantom_run(phantom_run)
 		end
-	elsif @scan_type and @scan_type != "none" 
+	elsif (not gryfx?) and @scan_type and @scan_type != "none" 
 		t = gsl_vector('t')
 		scan_vals = gsl_vector('scan_parameter_value')
 		current = scan_vals[0]
