@@ -958,6 +958,7 @@ module GraphKits
 			#carts = cartesian_coordinates_gsl_tensor(options)
 			#torphiout = 2.6
 			torphiout = options[:constant_torphi] || options[:torphi]
+			raise "Please specify a toroidal angle (options[:torphi])" unless torphiout
 			field = options[:field] || field_real_space_gsl_tensor(options)
 			torphi_const =  constant_torphi_surface_gsl_tensor(options)
             cyls = cylindrical_coordinates_gsl_tensor(options.absorb({extra_points: true}))

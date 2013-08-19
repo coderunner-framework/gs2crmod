@@ -668,7 +668,7 @@ class CodeRunner::Gs2
 			#ep options; gets
 			theta = gsl_vector('theta', options)
 			#ep theta; gets;
-			ep 'thsize', @ntheta, theta.size
+			#ep 'thsize', @ntheta, theta.size
 			correct_3d_options(options)
 			rhoc = options[:rhoc_actual]
 			q_actual = options[:q_actual]
