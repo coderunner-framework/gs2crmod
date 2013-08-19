@@ -23,6 +23,8 @@ def auto_axiskits(name, options)
 								 'tpar2_by_mode_over_time' => ["(delta T_parallel)^2 by mode", '%'],
 						 		'tperp2_by_mode_over_time' => ["(delta T_perp)^2 by mode", '%'],
                                 'hflux_tot' => ['Total Heat Flux', ''],
+                                'es_heat_par' => ['Parallel electrostatic heat flux', ''],
+                                'es_heat_perp' => ['Perpendicular electrostatic heat flux', ''],
                 'ky' => ['ky', "1/rho_#{species_letter}"],
                 'kx' => ['kx', "1/rho_#{species_letter}"],
 	        'kpar' => ['kpar', "2 pi/qR"],
@@ -73,6 +75,13 @@ def axiskit(name, options={})
 		type = species_type(options[:species_index]).capitalize
 		units = ''
 		return GraphKit::AxisKit.autocreate(data: gsl_vector('es_heat_flux_over_time', options), title: "#{type} Heat Flux", units: units)
+# 	when 'spectrum_by_ky'
+# 		return AxisKit.autocreate(data: gsl_vector('spectrum_by_ky', options), title: "Phi^2 at t = #{list(:t)[options[:t_index]]}", units: '')
+	when 'es_heat_par'
+    puts "heat par" 
+		type = species_type(options[:species_index]).capitalize
+		units = ''
+		return GraphKit::AxisKit.autocreate(data: gsl_vector('es_heat_par_over_time', options), title: "#{type} parallel es heat flux", units: units)
 # 	when 'spectrum_by_ky'
 # 		return AxisKit.autocreate(data: gsl_vector('spectrum_by_ky', options), title: "Phi^2 at t = #{list(:t)[options[:t_index]]}", units: '')
 	end
@@ -403,6 +412,41 @@ module GraphKits
 		end 
 	end
 
+	def es_heat_par_vs_time_graphkit(options={})
+		case options[:command]
+		when :help
+			return "Graph of parallel electrostatic heat flux vs time."
+		when :options
+			return [:t_index_window, :species_index]
+		else
+			kit = GraphKit.autocreate({x: axiskit('t', options), y: axiskit('es_heat_par', options)})
+			kit.data[0].title = "#{species_type(options[:species_index])} es_heat_par: #@run_name"
+			kit.data[0].with = "l" #"lines"
+			kit.file_name = options[:graphkit_name]
+# 			kit.log_axis = 'y'
+			kit
+		end
+	end
+
+	def es_heat_perp_vs_time_graphkit(options={})
+		case options[:command]
+		when :help
+			return "Graph of perpendicular electrostatic heat flux vs time."
+		when :options
+			return [:t_index_window, :species_index]
+		else
+			kit = GraphKit.autocreate({x: axiskit('t', options), y: axiskit('es_heat_perp', options)})
+			kit.data[0].title = "#{species_type(options[:species_index])} es_heat_perp: #@run_name"
+			kit.data[0].with = "l" #"lines"
+			kit.file_name = options[:graphkit_name]
+# 			kit.log_axis = 'y'
+			kit
+		end
+	end
+	def es_heat_all_vs_time_graphkit(options={})
+    es_heat_par_vs_time_graphkit(options)
+    es_heat_perp_vs_time_graphkit(options)
+	end
 	def es_mom_flux_vs_time_graphkit(options={})
 		case options[:command]
 		when :help
