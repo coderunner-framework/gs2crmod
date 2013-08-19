@@ -249,14 +249,9 @@ end
 
 alias :csti :calculate_saturation_time_index
 
-def calculate_growth_rates_and_frequencies
-        return if @grid_option == "single" and @aky == 0.0 # no meaningful results
-	Dir.chdir(@directory) do
-		logf(:calculate_growth_rates_and_frequencies)
-		logd
-		
-# 		get_list_of(:ky, :kx)
-		@growth_rates= FloatHash.new
+#Actually, this doesn't calculate the frequencies but reads them from run_name.out. Requires write_line to be .true.
+#
+def calculate_frequencies
 		@real_frequencies = FloatHash.new
 		gs2_out = FileUtils.tail(@run_name + ".out", list(:ky).size*list(:kx).size)
 # 		a  = gs2_out.split("\n")
@@ -265,28 +260,37 @@ def calculate_growth_rates_and_frequencies
 # 		eputs final_timestep_list
 		f = LongRegexen::FLOAT.verbatim
 		logi(f)
-		regex = Regexp.new( "^.*aky=\\s*(?<aky>#{f}).*omav=\\s*(?<re>#{f})\\s*(?<gr>#{f})")
-		logi(regex)
-		final_timestep_list.gsub(regex) do 
-			data = $~
-#  			eputs data.inspect; gets
-			#raise CRFatal.new("Unknown value of ky read from output file: #{data[:aky].to_f}. Not in list:\n#{list(:ky).values.inspect}") 
-		
-			next unless (list(:ky).values).include? data[:aky].to_f
-			#@growth_rates[data[:aky].to_f] = data[:gr].to_f
-			aky = data[:aky].to_f
-			next if aky==0.0
-			@real_frequencies[data[:aky].to_f] = data[:re].to_f
+		@frequency_at_ky_at_kx||= FloatHash.new
+		ky_values = []
+		regex = Regexp.new( "^.*aky=\\s*(?<aky>#{f})\s*akx=\\s*(?<akx>#{f}).*omav=\\s*(?<re>#{f})\\s*(?<gr>#{f})")
+		final_timestep_list.scan(regex) do
+			aky = eval($~[:aky])
+			akx = eval($~[:akx])
+			@frequency_at_ky_at_kx[aky] = FloatHash.new unless ky_values.include? aky
+			ky_values.push aky
+			@frequency_at_ky_at_kx[aky][akx] = eval($~[:re])
 		end
+end
+def calculate_growth_rates_and_frequencies
+        return if @grid_option == "single" and @aky == 0.0 # no meaningful results
+	Dir.chdir(@directory) do
+		logf(:calculate_growth_rates_and_frequencies)
+		logd
+
+		calculate_frequencies
+		
+# 		get_list_of(:ky, :kx)
+		@growth_rates= FloatHash.new
+			#raise CRFatal.new("Unknown value of ky read from output file: #{data[:aky].to_f}. Not in list:\n#{list(:ky).values.inspect}") 
 # 		pp @ky_list
 		
 		# With zero magnetic shear, calculate growth rates for both kx and ky
-		if @shat and @shat.abs < 1.0e-5 and @nx and @nx > 1 
+		#if @shat and @shat.abs < 1.0e-5 and @nx and @nx > 1 
 			to_calc = [:kx, :ky]
 			@growth_rate_at_kx ||= FloatHash.new
-		else
-			to_calc = [:ky]
-		end
+		#else
+			#to_calc = [:ky]
+		#end
 		
 		@growth_rate_at_ky ||= FloatHash.new
  		eputs

@@ -41,8 +41,15 @@ def netcdf_file
 		ncclose
 	end
 	cache[:netcdf_file_otime] = Time.now.to_i
-	cache[:netcdf_file] ||= NumRu::NetCDF.open(@directory + '/' +  @run_name + '.out.nc')
+	cache[:netcdf_file] ||= NumRu::NetCDF.open(netcdf_filename)
+	cache[:netcdf_file].sync
+	cache[:netcdf_file]
 end
+
+def netcdf_filename
+	@directory + '/' +  @run_name + '.out.nc'
+end
+
 
 def ncclose
 	cache[:netcdf_file].close
@@ -322,6 +329,12 @@ module GSLVectors
 	end
 	private :growth_rate_over_kxy_gsl_vector
 
+	# Frequency, indexed over ky, taken direct from the gs2 output file
+	def frequency_over_ky_gsl_vector(options)
+		  options.convert_to_index(self, :kx)
+			return GSL::Vector.alloc(gsl_vector('ky').to_a.map{|ky| frequency_at_ky_at_kx[ky].values[options[:kx_index]-1]})
+	end
+
 	def es_heat_by_kx_over_time_gsl_vector(options)
 		options[:direction] = :kx
 		es_heat_by_kxy_over_time_gsl_vector(options)
@@ -512,7 +525,7 @@ module GSLVectors
 			options.convert_to_index(self, :ky, :kx)
 			nkx = netcdf_file.var('kx').dims[0].length
 # 			p nkx
-			stride = @jtwist * (options[:ky_index] - 1)
+			stride = @jtwist * (options[:ky_index] )
 			#stride = 3
 			nlinks = [(nkx / stride).floor, 1].max 
 			theta0 = options[:kx_index] % @jtwist  #(options[:theta0] || 0)
@@ -645,6 +658,15 @@ module GSLVectors
 # 				ep thetas
 				#eputs "End theta_along_field_line"
 				return thetas if agk? or (@s_hat_input or @shat).abs < 1.0e-5
+				if gryfx?
+					theta_list = ((1..kx_elements.size).to_a.map do |i|
+						thetas * i
+					end)
+					thetas = theta_list.inject{|o,n| o.connect(n)}
+					thetas -= Math::PI*(kx_elements.size-1)
+					return thetas
+
+				end
 				theta_list = (kx_elements.map do |element|
 				        
 					kx = list(:kx)[(element + 1).to_i]

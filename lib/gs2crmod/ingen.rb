@@ -234,7 +234,7 @@ def gridpoints
 	if @grid_option == "single"
 		gridpoints.absorb({'x'=>1, 'y'=>1})
 	else
-		gridpoints.absorb({'x' => (2.0 * (@nx - 1.0) / 3.0  + 1.0).floor,  'y' => (@naky or ((@ny - 1.0) / 3.0  + 1.0).floor)})
+		gridpoints.absorb({'x' => (@ntheta0 or (2.0 * (@nx - 1.0) / 3.0  + 1.0).floor),  'y' => (@naky or ((@ny - 1.0) / 3.0  + 1.0).floor)})
 	end
 	return gridpoints
 end

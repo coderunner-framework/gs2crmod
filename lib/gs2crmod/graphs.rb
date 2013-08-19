@@ -30,6 +30,7 @@ def auto_axiskits(name, options)
 	        'kpar' => ['kpar', "2 pi/qR"],
 	        'growth_rate_over_kx' => ['Growth Rate', "v_th#{species_letter}/a", 1],
 	        'growth_rate_over_ky' => ['Growth Rate', "v_th#{species_letter}/a", 1],
+          'frequency_over_ky' => ['Frequency', "v_th#{species_letter}/a", 1],
 	        'transient_es_heat_flux_amplification_over_kx' => ['Transient Electrostatic Heat Amplification', "", 1],
 	        'transient_es_heat_flux_amplification_over_ky' => ['Transient Electrostatic Heat Amplification', "", 1],
 	        'transient_amplification_over_kx' => ['Transient Amplification', "", 1],
@@ -565,6 +566,23 @@ module GraphKits
 		end
 	end
 
+	def frequency_vs_ky_graphkit(options={})
+		case options[:command]
+		when :help
+			return "Frequencies vs ky. You need the parameter write_line set to \".true.\". "
+		when :options
+			return []
+		else
+			raise "Frequencies are not available in non-linear mode" if @nonlinear_mode == "on"
+			kxy = options[:kxy]
+			kit = GraphKit.autocreate({x: axiskit('ky', options), y: axiskit("frequency_over_ky", options)})
+			kit.title  = "Frequencies vs ky"
+			kit.data[0].gp.with = "lp"
+			kit.data[0].gp.title = @run_name
+			kit.file_name = options[:graphkit_name]
+			kit
+		end 
+	end
 	def hflux_tot_vs_time_graphkit(options={})
 		case options[:command]
 		when :help
