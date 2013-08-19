@@ -205,6 +205,21 @@ class CodeRunner::Gs2
 				arr = GSL::Tensor.new(arr.narray.expand(*shape, 0.0))
 			end
 
+			if gryfx? and options[:periodic]
+				shape = arr.narray.shape
+				shape[1]+=1
+				arr = GSL::Tensor.new(arr.narray.expand(*shape, 0.0))
+				shpe = arr.shape
+				for i in 0...shpe[0]
+					for j in 0...shpe[1]
+						for r in 0...shpe[3]
+							arr[i, j, -1, r] = arr[i, j, 0, r]
+						end
+					end
+				end
+
+			end
+
 			arr[0, true, true, true] = 0.0 if options[:no_zonal]
 			#arr = arr[options[:nakx] ? 0...options[:nakx] : true, options[:naky] ? 0...options[:naky] : true, true, true] if options[:nakx] or options[:naky]
 			return arr
@@ -614,8 +629,8 @@ class CodeRunner::Gs2
 			end
 			if [true,:y].include? options[:extra_points]
 				ep "Extending y..."
-				y = y.connect([2*y[-1] - y[-2]].to_gslv).dup
-				raise "ly corrected incorrectly #{ly},#{y[-1]},#{y[0]},#{y[-1]-y[0]}" unless (ly-(y[-1] - y[0])).abs / ly.abs < 1.0e-8
+				y = y.connect([2.0*y[-1] - y[-2]].to_gslv).dup
+				raise "ly corrected incorrectly #{ly},#{y[-1]},#{y[0]},#{y[-1]-y[0]}" unless (ly-(y[-1] - y[0])).abs / ly.abs < 1.0e-6
 			end
 
 
@@ -653,13 +668,15 @@ class CodeRunner::Gs2
 			#ep options; gets
 			theta = gsl_vector('theta', options)
 			#ep theta; gets;
-			#ep 'thsize', @ntheta, theta.size
+			ep 'thsize', @ntheta, theta.size
 			correct_3d_options(options)
 			rhoc = options[:rhoc_actual]
 			q_actual = options[:q_actual]
 			xfac = 1.0 / options[:rho_star_actual]
 			yfac = rhoc / q_actual / options[:rho_star_actual]
 			factors = geometric_factors_gsl_tensor(options)
+			
+			#ep ['factors.shape', factors.shape]
 
 
 

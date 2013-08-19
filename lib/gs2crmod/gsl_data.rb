@@ -158,6 +158,10 @@ def gsl_vector(name, options={})
 			#ep options; gets
 			#vec = GSL::Vector.alloc(netcdf_file.var(name.to_s).get({'start' => [options[:thetamin]||0], 'end' => [options[:thetamax]||-1]}).to_a)
 			vec = GSL::Vector.alloc(netcdf_file.var(name.to_s).get.to_a)
+			if gryfx? and options[:periodic]
+				#vec = vec.connect([2.0*vec[-1] - vec[-2]].to_gslv)
+				vec = vec.connect([-vec[0]].to_gslv)
+			end
 			if ith = options[:interpolate_theta]
 				osize = vec.size
 				newsize = (osize-1)*ith+1
@@ -174,6 +178,7 @@ def gsl_vector(name, options={})
 			end
 			start = options[:thetamin]||0
 			endv = options[:thetamax]||vec.size-1
+			#ep ['options', options, 'vec.size', vec.size]
 			vec = vec.subvector(start, (endv-start+1)).dup
 			return vec
 		elsif name.to_sym == :t
