@@ -777,7 +777,7 @@ def generate_input_file
 			#FileUtils.cp("#{old_dir}/#{file}", "nc/#@restart_file#{num}")
 			FileUtils.cp(file, "nc/#@restart_file#{num}")
 		end
-	elsif @save_for_restart.fortran_true?
+	elsif @save_for_restart and @save_for_restart.fortran_true?
 		@restart_dir = "nc"
 		#if CODE_OPTIONS[:gs2] and CODE_OPTIONS[:gs2][:list]
 			#FileUtils.makedirs "#{@runner.root_folder}/#@restart_dir"
