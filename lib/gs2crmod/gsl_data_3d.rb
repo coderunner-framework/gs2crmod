@@ -690,8 +690,8 @@ class CodeRunner::Gs2
 						coordinates[2,i,j,k] = y[i] / yfac - factors[2,k] - x[j]/xfac*factors[5,k] # phi
 						#ep [i,j,k], coordinates[0, false, j,k].to_a
 						if gs2f = options[:gs2_coordinate_factor]
-							rgs2 = (x[j]**2 + y[i]**2)**0.5
-							p ['x', x[j], 'y', y[i], 'r', rgs2]
+							rgs2 = (x[j]**2 + y[i]**2 + Float::EPSILON)**0.5
+							p ['x', x[j], 'y', y[i], 'r', rgs2] if agk?
 							if rgs2 < 1.0e-8
 								phigs2 = 0
 							else
