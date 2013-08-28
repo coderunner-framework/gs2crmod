@@ -200,6 +200,10 @@ def ingen
 		#warning(v"#{var} not set or .false. --- " + warn) unless send(var) and send(var).fortran_true?
 	#end
 	
+	error("Please specify nwrite") unless @nwrite
+	error("Please specify nstep") unless @nstep
+
+
 	warning("You will write out diagnostics less than 50 times") if @nstep/@nwrite < 50
 	
 	########################
