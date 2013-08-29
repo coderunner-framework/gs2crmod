@@ -159,6 +159,10 @@ class CodeRunner::Gs2
 								time_varying ? 'phi_t' : 'phi'
 							when /density/
 								time_varying ? 'ntot_t' : 'density'
+							when /apar/
+								time_varying ? 'apar_t' : 'apar'
+							else
+								raise "Unknown field name: #{field_name}"
 							end
 			#p name
 			return name
