@@ -251,8 +251,8 @@ def calculate_results
 	elsif @nonlinear_mode == "on"
 		calculate_saturation_time_index
 		calculate_time_averaged_fluxes
-		calculate_spectral_checks
 		begin 
+			calculate_spectral_checks
 			calculate_vspace_checks
 		rescue
 		end
