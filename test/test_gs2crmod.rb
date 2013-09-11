@@ -179,11 +179,17 @@ class TestAgkAnalysis < Test::Unit::TestCase
 		#kit.gnuplot
 	end
 	def test_analysis
-		assert_equal(1, @runner.run_list.size)
-		assert_equal(0.03224, @runner.run_list[1].max_growth_rate.round(5))
+		assert_equal(2, @runner.run_list.size)
+		assert_equal(0.04154, @runner.run_list[1].max_growth_rate.round(5))
 		#p @runner.run_list[1].growth_rate_at_ky
-		assert_equal(0.03224, @runner.run_list[1].growth_rate_at_ky[0.01].round(5))
+		assert_equal(0.04154, @runner.run_list[1].growth_rate_at_ky[0.01].round(5))
 		assert_equal(:Complete, @runner.run_list[1].status)
+	end
+	def test_3d_graphs
+		kit = @runner.run_list[2].graphkit('phi_real_space_surface', {rho_star: 0.1})
+		kit.gnuplot
+		assert_equal([5,5,1], kit.data[0].f.data.shape)
+		#assert_equal(-0.00402, kit.data[0].f.data[2,3,6].round(5))
 	end
 	def teardown
 		FileUtils.rm_rf(tfolder)
@@ -214,6 +220,7 @@ if ENV['AGK_EXEC']
 		end
 		def test_submission
 			CodeRunner.submit(C: 'gs2', X: ENV['AGK_EXEC'], D: 'test_gs2crmod_astrogk', n: '4', Y: tfolder, m: 'astrogk')
+			CodeRunner.submit(C: 'gs2', X: ENV['AGK_EXEC'], D: 'test_gs2crmod_astrogk', n: '4', Y: tfolder, m: 'astrogk', p: '{ny: 8, nx: 8, y0: 100, x0: 100, grid_option: "box"}', )
 			
 			CodeRunner.status(Y: tfolder)
 		end

@@ -159,6 +159,10 @@ class CodeRunner::Gs2
 								time_varying ? 'phi_t' : 'phi'
 							when /density/
 								time_varying ? 'ntot_t' : 'density'
+							when /apar/
+								time_varying ? 'apar_t' : 'apar'
+							else
+								raise "Unknown field name: #{field_name}"
 							end
 			#p name
 			return name
@@ -203,6 +207,21 @@ class CodeRunner::Gs2
 				shape[3] = (shape[3]-1)*options[:interpolate_y] + 1
 				#p shape
 				arr = GSL::Tensor.new(arr.narray.expand(*shape, 0.0))
+			end
+
+			if gryfx? and options[:periodic]
+				shape = arr.narray.shape
+				shape[1]+=1
+				arr = GSL::Tensor.new(arr.narray.expand(*shape, 0.0))
+				shpe = arr.shape
+				for i in 0...shpe[0]
+					for j in 0...shpe[1]
+						for r in 0...shpe[3]
+							arr[i, j, -1, r] = arr[i, j, 0, r]
+						end
+					end
+				end
+
 			end
 
 			arr[0, true, true, true] = 0.0 if options[:no_zonal]
@@ -614,8 +633,8 @@ class CodeRunner::Gs2
 			end
 			if [true,:y].include? options[:extra_points]
 				ep "Extending y..."
-				y = y.connect([2*y[-1] - y[-2]].to_gslv).dup
-				raise "ly corrected incorrectly #{ly},#{y[-1]},#{y[0]},#{y[-1]-y[0]}" unless (ly-(y[-1] - y[0])).abs / ly.abs < 1.0e-8
+				y = y.connect([2.0*y[-1] - y[-2]].to_gslv).dup
+				raise "ly corrected incorrectly #{ly},#{y[-1]},#{y[0]},#{y[-1]-y[0]}" unless (ly-(y[-1] - y[0])).abs / ly.abs < 1.0e-6
 			end
 
 
@@ -660,6 +679,8 @@ class CodeRunner::Gs2
 			xfac = 1.0 / options[:rho_star_actual]
 			yfac = rhoc / q_actual / options[:rho_star_actual]
 			factors = geometric_factors_gsl_tensor(options)
+			
+			#ep ['factors.shape', factors.shape]
 
 
 
@@ -673,7 +694,8 @@ class CodeRunner::Gs2
 						coordinates[2,i,j,k] = y[i] / yfac - factors[2,k] - x[j]/xfac*factors[5,k] # phi
 						#ep [i,j,k], coordinates[0, false, j,k].to_a
 						if gs2f = options[:gs2_coordinate_factor]
-							rgs2 = (x[j]**2 + y[i]**2)**0.5
+							rgs2 = (x[j]**2 + y[i]**2 )**0.5*(1.0 + 2.0 * Float::EPSILON)
+							#p ['x', x[j], 'y', y[i], 'r', rgs2] if agk?
 							if rgs2 < 1.0e-8
 								phigs2 = 0
 							else

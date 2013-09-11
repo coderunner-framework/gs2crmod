@@ -19,7 +19,7 @@ class Gs2
 def calculate_time_averaged_fluxes
 	eputs 'Calculating time averaged fluxes'
 	calculate_saturation_time_index unless @saturation_time_index
-	return unless FileTest.exist?("#@run_name.out.nc")
+	return unless FileTest.exist?(netcdf_filename)
 	@hflux_tot_stav = saturated_time_average('hflux_tot_over_time', {})
 	@hflux_tot_stav_error = saturated_time_average_error('hflux_tot_over_time', {})
 	@phi2_tot_stav = saturated_time_average('phi2tot_over_time', {})

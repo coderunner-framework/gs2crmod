@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "gs2crmod"
-  s.version = "0.9.11"
+  s.version = "0.10.13"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Edmund Highcock", "Ferdinand van Wyk"]
-  s.date = "2013-08-19"
+  s.date = "2013-09-10"
   s.description = "GS2 is a gyrokinetic flux tube initial value turbulence code which can be used for fusion or astrophysical plasmas. CodeRunner is a framework for the automated running and analysis of large simulations. This module allows GS2 (and its sister code AstroGK) to harness the power of the CodeRunner framework."
   s.email = "edmundhighcock@sourceforge.net"
   s.extensions = ["ext/extconf.rb"]
@@ -85,14 +85,14 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<coderunner>, [">= 0.12.16"])
+      s.add_runtime_dependency(%q<coderunner>, [">= 0.13.13"])
       s.add_runtime_dependency(%q<rubyhacks>, [">= 0.1.2"])
       s.add_development_dependency(%q<shoulda>, [">= 0"])
       s.add_development_dependency(%q<rdoc>, ["~> 3.12"])
       s.add_development_dependency(%q<bundler>, ["> 1.0.0"])
       s.add_development_dependency(%q<jeweler>, [">= 1.8.4"])
     else
-      s.add_dependency(%q<coderunner>, [">= 0.12.16"])
+      s.add_dependency(%q<coderunner>, [">= 0.13.13"])
       s.add_dependency(%q<rubyhacks>, [">= 0.1.2"])
       s.add_dependency(%q<shoulda>, [">= 0"])
       s.add_dependency(%q<rdoc>, ["~> 3.12"])
@@ -100,7 +100,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<jeweler>, [">= 1.8.4"])
     end
   else
-    s.add_dependency(%q<coderunner>, [">= 0.12.16"])
+    s.add_dependency(%q<coderunner>, [">= 0.13.13"])
     s.add_dependency(%q<rubyhacks>, [">= 0.1.2"])
     s.add_dependency(%q<shoulda>, [">= 0"])
     s.add_dependency(%q<rdoc>, ["~> 3.12"])

@@ -64,20 +64,31 @@ def run_namelist_tests(namelist, hash, enum = nil)
 	hash[:variables].each do |var, var_hash|
 		gs2_var = (var_hash[:gs2_name] or var)
 		cr_var = var+ext.to_sym 
-		if send(cr_var) and (not var_hash[:should_include] or  eval(var_hash[:should_include]))
+		value = send(cr_var)
+		if value.kind_of? Array
+			value.each{|v| test_variable(namelist, var, var_hash, ext, v)}
+		else
+			test_variable(namelist, var, var_hash, ext, value)
+		end
+	end
+end
+
+def test_variable(namelist, var, var_hash, ext, value)
+		gs2_var = (var_hash[:gs2_name] or var)
+		cr_var = var+ext.to_sym 
+		if value and (not var_hash[:should_include] or  eval(var_hash[:should_include]))
 			var_hash[:must_pass].each do |tst|
-				error(test_failed(namelist, cr_var, gs2_var, tst)) unless send(cr_var).instance_eval(tst[:test])
+				error(test_failed(namelist, cr_var, gs2_var, tst)) unless value.instance_eval(tst[:test])
 			end if var_hash[:must_pass]
 			var_hash[:should_pass].each do |tst|
-				warning(test_failed(namelist, cr_var, gs2_var, tst)) unless send(cr_var).instance_eval(tst[:test])
+				warning(test_failed(namelist, cr_var, gs2_var, tst)) unless value.instance_eval(tst[:test])
 			end if var_hash[:should_pass]
 			if (var_hash[:allowed_values] or var_hash[:text_options])
 				tst = {test: "#{(var_hash[:allowed_values] or var_hash[:text_options]).inspect}.include? self", explanation: "The variable must have one of these values"}
-				error(test_failed(namelist, cr_var, gs2_var, tst)) unless send(cr_var).instance_eval(tst[:test])
+				error(test_failed(namelist, cr_var, gs2_var, tst)) unless value.instance_eval(tst[:test])
 			end
 
 		end
-	end
 end
 
 	
@@ -189,6 +200,10 @@ def ingen
 		#warning(v"#{var} not set or .false. --- " + warn) unless send(var) and send(var).fortran_true?
 	#end
 	
+	error("Please specify nwrite") unless @nwrite
+	error("Please specify nstep") unless @nstep
+
+
 	warning("You will write out diagnostics less than 50 times") if @nstep/@nwrite < 50
 	
 	########################

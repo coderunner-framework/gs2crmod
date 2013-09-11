@@ -251,8 +251,8 @@ def calculate_results
 	elsif @nonlinear_mode == "on"
 		calculate_saturation_time_index
 		calculate_time_averaged_fluxes
-		calculate_spectral_checks
 		begin 
+			calculate_spectral_checks
 			calculate_vspace_checks
 		rescue
 		end
@@ -777,7 +777,7 @@ def generate_input_file
 			#FileUtils.cp("#{old_dir}/#{file}", "nc/#@restart_file#{num}")
 			FileUtils.cp(file, "nc/#@restart_file#{num}")
 		end
-	elsif @save_for_restart.fortran_true?
+	elsif @save_for_restart and @save_for_restart.fortran_true?
 		@restart_dir = "nc"
 		#if CODE_OPTIONS[:gs2] and CODE_OPTIONS[:gs2][:list]
 			#FileUtils.makedirs "#{@runner.root_folder}/#@restart_dir"
@@ -920,34 +920,36 @@ end
 
 # Customize this method from Run::FortranNamelist by saying when diagnostics are not switched on.
 
-def namelist_text(namelist, enum = nil)
-	hash = rcp.namelists[namelist]
-	text = ""
-	ext = enum ? "_#{enum}" : ""
-	text << "!#{'='*30}\n!#{hash[:description]} #{enum} \n!#{'='*30}\n" if hash[:description]
-	text << "&#{namelist}#{ext}\n"
-	hash[:variables].each do |var, var_hash|
-		code_var = (var_hash[:code_name] or var)
-		cr_var = var+ext.to_sym 
-# 		ep cr_var, namelist
-		if send(cr_var) and (not var_hash[:should_include] or  eval(var_hash[:should_include]))
-# 				var_hash[:tests].each{|tst| eval(tst).test(send(cr_var), cr_var)}
-			if String::FORTRAN_BOOLS.include? send(cr_var) # var is a Fortran Bool, not really a string
-				output = send(cr_var).to_s
-			elsif (v = send(cr_var)).kind_of? Complex
-				output = "(#{v.real}, #{v.imag})"
-			else
-				output = send(cr_var).inspect
-			end
-			text << " #{code_var} = #{output} #{var_hash[:description] ? "! #{var_hash[:description]}": ""}\n"
-		elsif namelist == :gs2_diagnostics_knobs or namelist == :diagnostics
-			text << "  ! #{code_var} not specified --- #{var_hash[:description]}\n"
-		end
-	end
-# # 	end
-	text << "/\n\n"
-	text
-end
+#def namelist_text(namelist, enum = nil)
+	#hash = rcp.namelists[namelist]
+	#text = ""
+	#ext = enum ? "_#{enum}" : ""
+	#text << "!#{'='*30}\n!#{hash[:description]} #{enum} \n!#{'='*30}\n" if hash[:description]
+	#text << "&#{namelist}#{ext}\n"
+	#hash[:variables].each do |var, var_hash|
+		#code_var = (var_hash[:code_name] or var)
+		#cr_var = var+ext.to_sym 
+## 		ep cr_var, namelist
+		#if send(cr_var) and (not var_hash[:should_include] or  eval(var_hash[:should_include]))
+## 				var_hash[:tests].each{|tst| eval(tst).test(send(cr_var), cr_var)}
+			#if String::FORTRAN_BOOLS.include? send(cr_var) # var is a Fortran Bool, not really a string
+				#output = send(cr_var).to_s
+			#elsif (v = send(cr_var)).kind_of? Complex
+				#output = "(#{v.real}, #{v.imag})"
+			#else
+				#output = send(cr_var).inspect
+			#end
+			#text << " #{code_var} = #{output} #{var_hash[:description] ? "! #{var_hash[:description]}": ""}\n"
+		#elsif namelist == :gs2_diagnostics_knobs or namelist == :diagnostics
+			#text << "  ! #{code_var} not specified --- #{var_hash[:description]}\n"
+		#end
+	#end
+## # 	end
+	#text << "/\n\n"
+	#text
+#end
+
+@namelists_to_print_not_specified = [:gs2_diagnostics_knobs, :diagnostics]
 
 # def self.add_code_var
 # 	rcp.namelists.each do |namelist, hash|
