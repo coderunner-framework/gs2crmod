@@ -14,15 +14,19 @@ def auto_axiskits(name, options)
                 'apar2_over_time' => ['Apar^2 Total', ''],
                 'growth_rate_by_ky_over_time' => ['Growth Rate by ky', ''],
                  'growth_rate_by_kx_over_time' => ['Growth Rate by kx', ''],  
-								 'growth_rate_by_mode_over_time' => ["Growth Rate by mode", ''],
+		 'growth_rate_by_mode_over_time' => ["Growth Rate by mode", ''],
+# <MJL additions 2013-09-19>
+                 'frequency_by_ky_over_time' => ['Real frequency by ky', ''],
+                  'frequency_by_kx_over_time' => ['Real frequency by kx', ''],
+# </MJL>
                 'phi2_by_ky_over_time' => ['Phi^2 by ky', ''],
                  'phi2_by_kx_over_time' => ['Phi^2 by ky', ''],  
                 'es_heat_by_ky_over_time' => ['Phi^2 by ky', ''],
                  'es_heat_by_kx_over_time' => ['Phi^2 by kx', ''],  
-								 'phi2_by_mode_over_time' => ["Phi^2 by mode", ''],
-								 'tpar2_by_mode_over_time' => ["(delta T_parallel)^2 by mode", '%'],
-						 		'tperp2_by_mode_over_time' => ["(delta T_perp)^2 by mode", '%'],
-                                'hflux_tot' => ['Total Heat Flux', ''],
+		 'phi2_by_mode_over_time' => ["Phi^2 by mode", ''],
+	 'tpar2_by_mode_over_time' => ["(delta T_parallel)^2 by mode", '%'],
+ 		'tperp2_by_mode_over_time' => ["(delta T_perp)^2 by mode", '%'],
+                              'hflux_tot' => ['Total Heat Flux', ''],
                                 'es_heat_par' => ['Parallel electrostatic heat flux', ''],
                                 'es_heat_perp' => ['Perpendicular electrostatic heat flux', ''],
                 'ky' => ['ky', "1/rho_#{species_letter}"],
@@ -1846,13 +1850,49 @@ module GraphKits
       x = axiskit('t', options)
 			x.data = x.data.subvector(0, x.data.size-1)
 			kit = GraphKit.autocreate({x: x , y: phiax})
-			kit.data[0].title = "Growth Rate: #{kxy} = #{options[kxy]}"	
-			kit.data[0].title = "gs2:#@run_name"
+			#kit.data[0].title = "Growth Rate: #{kxy} = #{options[kxy]}"	
+			#kit.data[0].title = "gs2:#@run_name"
+# <MJL additions on 2013-09-19>
+          		kxy_index = kxy + :_index
+  		  	kit.data[0].title = "gs2:#@run_name, #{kxy}_index = #{options[kxy_index]}"
+# </MJL>
 			kit.data[0].with = "l" #"linespoints"
 			kit.file_name = options[:graphkit_name]
 			kit
 		end
 	end
+
+# <MJL additions on 2013-09-19>
+      def frequency_by_kx_vs_time_graphkit(options={})
+        options[:direction] = :kx
+        frequency_by_kxy_or_mode_vs_time_graphkit(options)
+      end
+ 
+      def frequency_by_ky_vs_time_graphkit(options={})
+ 	options[:direction] = :ky
+	frequency_by_kxy_or_mode_vs_time_graphkit(options)
+      end
+ 
+      def frequency_by_kxy_or_mode_vs_time_graphkit(options={})
+ 	case options[:command]
+ 	  when :help
+	    return  "'frequency_by_ky_vs_time' or 'frequency_by_kx_vs_time': Real part of the frequency vs time for a given kx or ky, integrated over the other direction"
+ 	  when :options
+	    return  [:ky, :ky_index, :kx, :kx_index]
+          else
+	    raise "Frequencies are not available in non-linear mode" if @nonlinear_mode == "on"
+ 	    kxy = options[:direction]
+ 	    x_data = axiskit('t', options)
+ 	    y_data = axiskit("frequency_by_#{kxy}_over_time", options) 
+            kit = GraphKit.autocreate({x: x_data , y: y_data})
+  	    kxy_index = kxy + :_index
+ 	    kit.data[0].title = "gs2:#@run_name, #{kxy}_index = #{options[kxy_index]}"
+       	    kit.data[0].with = "l" #"linespoints"
+ 	    kit.file_name = options[:graphkit_name]
+ 	    kit
+        end
+      end
+# </MJL>
 
 	def es_heat_by_mode_vs_time_graphkit(options={})
 		options[:direction] = :mode
