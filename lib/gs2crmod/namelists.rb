@@ -1644,7 +1644,7 @@
        :type=>:Fortran_Bool}}},
      :read_many=>
       {:should_include=>"true",
-       :description=>nil,
+       :description=>"",
        :help=>"Allows reading of many restart files and writing to one. Compile with USE_PARALLEL_NETCDF=on.\n",
        :tests=>["Tst::FORTRAN_BOOL"],
        :gs2_name=>:read_many,
@@ -1657,7 +1657,7 @@
        :code_name=>:read_many},
      :save_many=>
       {:should_include=>"true",
-       :description=>nil,
+       :description=>"",
        :help=>"Allows saving of many restart files. Compile with USE_PARALLEL_NETCDF=on.\n",
        :tests=>["Tst::FORTRAN_BOOL"],
        :gs2_name=>:save_many,
