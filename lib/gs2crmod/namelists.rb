@@ -1642,6 +1642,32 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool}}},
+     :read_many=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>"Allows reading of many restart files and writing to one. Compile with USE_PARALLEL_NETCDF=on.\n",
+       :tests=>["Tst::FORTRAN_BOOL"],
+       :gs2_name=>:read_many,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :autoscanned_defaults=>[".false."],
+       :type=>:Fortran_Bool,
+       :code_name=>:read_many},
+     :save_many=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>"Allows saving of many restart files. Compile with USE_PARALLEL_NETCDF=on.\n",
+       :tests=>["Tst::FORTRAN_BOOL"],
+       :gs2_name=>:save_many,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :autoscanned_defaults=>[".false."],
+       :type=>:Fortran_Bool,
+       :code_name=>:save_many},
  :fields_knobs=>
   {:description=>"ALGORITHMIC CHOICES",
    :should_include=>"true",
