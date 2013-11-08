@@ -34,6 +34,9 @@ def auto_axiskits(name, options)
 	        'kpar' => ['kpar', "2 pi/qR"],
 	        'growth_rate_over_kx' => ['Growth Rate', "v_th#{species_letter}/a", 1],
 	        'growth_rate_over_ky' => ['Growth Rate', "v_th#{species_letter}/a", 1],
+	        'growth_rate_over_kx_slice' => ['Growth Rate', "v_th#{species_letter}/a", 1],
+	        'growth_rate_over_ky_slice' => ['Growth Rate', "v_th#{species_letter}/a", 1],
+	        'growth_rate_over_ky_over_kx' => ["Growth Rate", "v_th#{species_letter}/a", 2],
           'frequency_over_ky' => ['Frequency', "v_th#{species_letter}/a", 1],
 	        'transient_es_heat_flux_amplification_over_kx' => ['Transient Electrostatic Heat Amplification', "", 1],
 	        'transient_es_heat_flux_amplification_over_ky' => ['Transient Electrostatic Heat Amplification', "", 1],
@@ -43,7 +46,6 @@ def auto_axiskits(name, options)
 	        'zonal_spectrum' => ["Zonal spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
 	        'spectrum_over_ky' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
 	        'es_heat_over_ky' => ["Heat Flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", 'Q_gB', 1],
-	        'growth_rate_over_ky_over_kx' => ["Growth Rate", "v_th#{species_letter}/a", 2],
 	       	'es_heat_flux_over_ky_over_kx' => ["Heat flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
 	       	'spectrum_over_kpar' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
 	       	'spectrum_over_ky_over_kx' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
@@ -546,6 +548,64 @@ module GraphKits
 			kxy = options[:kxy]
 			kit = GraphKit.autocreate({x: axiskit(kxy.to_s, options), y: axiskit("growth_rate_over_#{kxy}", options)})
 			kit.title  = "Growth Rates by #{kxy}"
+			kit.data[0].with = "lp"
+			kit.data[0].title = @run_name
+			kit.file_name = options[:graphkit_name]
+			kit
+		end 
+	end
+
+	def growth_rate_vs_kx_slice_graphkit(options={})
+	    case options[:command]
+	    when :help
+	    	 return "Growth rates vs kx at a fixed ky, not integrated over ky."
+	    when :options
+	    	 return [:ky, :ky_index]
+	    else
+		options[:kxy] = :kx
+		if options[:ky_index].nil?
+		   raise "You must specify ky or ky_index." if options[:ky].nil?
+		   options[:title] = "Growth rate vs kx at ky = "+options[:ky].to_s
+		else
+		   options[:ky] = list(:ky)[options[:ky_index]]
+		   options[:title] = "Growth rate vs kx at ky_index = "+options[:ky_index].to_s		   
+		end
+		eputs "For run " + @id.to_s + ", using ky = " + options[:ky].to_s
+		growth_rate_vs_kxy_slice_graphkit(options)
+	    end
+	end
+
+	def growth_rate_vs_ky_slice_graphkit(options={})
+	    case options[:command]
+	    when :help
+	    	 return "Growth rates vs ky at a fixed kx, not integrated over kx."
+	    when :options
+	    	 return [:kx, :kx_index]
+	    else
+		options[:kxy] = :ky
+		if options[:kx_index].nil?
+		   raise "You must specify kx or kx_index." if options[:kx].nil?
+		   options[:title] = "Growth rate vs ky at kx = "+options[:kx].to_s
+		else
+		   options[:kx] = list(:kx)[options[:kx_index]]
+		   options[:title] = "Growth rate vs ky at kx_index = "+options[:kx_index].to_s
+		end
+		eputs "For run " + @id.to_s + ", using kx = " + options[:kx].to_s
+	    	growth_rate_vs_kxy_slice_graphkit(options)
+	    end
+	end
+
+	def growth_rate_vs_kxy_slice_graphkit(options={})
+		case options[:command]
+		when :help
+		when :options
+			return []
+		else
+			raise "Growth Rates are not available in non-linear mode" if @nonlinear_mode == "on"
+			raise "growth_rate_at_ky_at_kx was not calculated for this run, probably because the environment variable GS2_CALCULATE_ALL was not set when the run was analyzed. Try setting this variable and re-analyzing the run." if @growth_rate_at_ky_at_kx.nil?
+			kxy = options[:kxy]
+			kit = GraphKit.autocreate({x: axiskit(kxy.to_s, options), y: axiskit("growth_rate_over_#{kxy}_slice", options)})
+			kit.title  = options[:title]
 			kit.data[0].with = "lp"
 			kit.data[0].title = @run_name
 			kit.file_name = options[:graphkit_name]

@@ -387,6 +387,25 @@ module GSLVectors
 	end
 	private :growth_rate_over_kxy_gsl_vector
 
+	# The growth rate, calculated from the potential, indexed by kx. Only makes sense in linear calculations. 
+	def growth_rate_over_kx_slice_gsl_vector(options)
+		Dir.chdir(@directory) do
+			slice_of_growth_rates = send(:growth_rate_at_ky_at_kx)[options[:ky]].values
+			raise "Something went wrong: slice of growth rates seems empty" if slice_of_growth_rates.nil?
+			return GSL::Vector.alloc(slice_of_growth_rates)
+			#return GSL::Vector.alloc(send(:growth_rate_at_ky_at_kx[ky]).values)
+		end
+	end
+
+	# The growth rate, calculated from the potential, indexed by ky. Only makes sense in linear calculations. 
+	def growth_rate_over_ky_slice_gsl_vector(options)
+		Dir.chdir(@directory) do
+			slice_of_growth_rates = send(:growth_rate_at_ky_at_kx).values.map{|h| h[options[:kx]]}
+			raise "Something went wrong: slice of growth rates seems empty" if slice_of_growth_rates.nil?
+			return GSL::Vector.alloc(slice_of_growth_rates)
+		end
+	end
+
 	# Frequency, indexed over ky, taken direct from the gs2 output file
 	def frequency_over_ky_gsl_vector(options)
 		  options.convert_to_index(self, :kx)
