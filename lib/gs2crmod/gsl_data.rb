@@ -1028,8 +1028,11 @@ end
 
 module GSLMatrices
 	def growth_rate_over_ky_over_kx_gsl_matrix(options)
-			array = @growth_rate_at_ky_at_kx.values.map{|h| h.values}
-			return GSL::Matrix.alloc(array.flatten, array.size, array[0].size)
+		if @growth_rate_at_ky_at_kx.nil?
+		   raise("The CodeRunner variable growth_rate_at_ky_at_kx does not seem to have been calculated for this run. This may result when the environment variable GS2_CALCULATE_ALL is not set when the run was analyzed. Try setting GS2_CALCULATE_ALL and then re-analyze the run using, e.g. from the command line,\n $ coderunner rc 'cgrf\' -j #{@id}")
+      		end
+		array = @growth_rate_at_ky_at_kx.values.map{|h| h.values}
+		return GSL::Matrix.alloc(array.flatten, array.size, array[0].size)
 	end
 	def transient_amplification_over_ky_over_kx_gsl_matrix(options)
 			array = @transient_amplification_at_ky_at_kx.values.map{|h| h.values}
