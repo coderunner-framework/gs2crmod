@@ -317,24 +317,6 @@ module GraphKits
 				options[:imrc] ||= :real
 				ep options
 				options.convert_to_index(self, :ky)
-				#ep 'converted options: ', options
-				
-				#decode naming scheme
-				#mag = nil
-				#options[:imrc] = :real
-				#case name
-				#when /im/
-					#options[:imrc] = :im
-				#when /mag/
-					#options[:imrc] = :mag
-					#options[:mag] = true
-				#when /corr/
-					#options[:imrc] = :corr
-				#end 
-				#options[:flip] = true if name =~ /flip/
-				#options[:norm] = true if name =~ /norm/
-				#options[:rev] = true if name =~ /rev/
-				#options[:z] = true if name =~ /z/
 				
 				
 				kit = GraphKit.autocreate({x: axiskit('theta_along_field_line', options), y: axiskit('phi_along_field_line', options)})
@@ -348,10 +330,10 @@ module GraphKits
 				kit.data[0].with = "linespoints"
 	# 			kit.data[0].axes[:x].data *= -1 #if options[:rev]
 				#(eputs 'reversing'; gets)
-				if (@s_hat_input||@shat).abs >= 1.0e-5
-					range = options[:range] == 0 ? nil : (options[:range] or options[:z] ? 1 / (@s_hat_input||@shat) : 2 * Math::PI / (@s_hat_input||@shat))
-					kit.xrange = [-range, range] if range
-				end
+				#if (@s_hat_input||@shat).abs >= 1.0e-5
+					#range = options[:range] == 0 ? nil : (options[:range] or options[:z] ? 1 / (@s_hat_input||@shat) : 2 * Math::PI / (@s_hat_input||@shat))
+					#kit.xrange = [-range, range] if range
+				#end
 				return kit
 		end
 	end
