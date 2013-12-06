@@ -387,6 +387,25 @@ module GSLVectors
 	end
 	private :growth_rate_over_kxy_gsl_vector
 
+	# The growth rate, calculated from the potential, indexed by kx. Only makes sense in linear calculations. 
+	def growth_rate_over_kx_slice_gsl_vector(options)
+		Dir.chdir(@directory) do
+			slice_of_growth_rates = send(:growth_rate_at_ky_at_kx)[options[:ky]].values
+			raise "Something went wrong: slice of growth rates seems empty" if slice_of_growth_rates.nil?
+			return GSL::Vector.alloc(slice_of_growth_rates)
+			#return GSL::Vector.alloc(send(:growth_rate_at_ky_at_kx[ky]).values)
+		end
+	end
+
+	# The growth rate, calculated from the potential, indexed by ky. Only makes sense in linear calculations. 
+	def growth_rate_over_ky_slice_gsl_vector(options)
+		Dir.chdir(@directory) do
+			slice_of_growth_rates = send(:growth_rate_at_ky_at_kx).values.map{|h| h[options[:kx]]}
+			raise "Something went wrong: slice of growth rates seems empty" if slice_of_growth_rates.nil?
+			return GSL::Vector.alloc(slice_of_growth_rates)
+		end
+	end
+
 	# Frequency, indexed over ky, taken direct from the gs2 output file
 	def frequency_over_ky_gsl_vector(options)
 		  options.convert_to_index(self, :kx)
@@ -583,7 +602,7 @@ module GSLVectors
 			options.convert_to_index(self, :ky, :kx)
 			nkx = netcdf_file.var('kx').dims[0].length
 # 			p nkx
-			stride = @jtwist * (options[:ky_index] )
+			stride = @jtwist * (options[:ky_index] -1 )
 			#stride = 3
 			nlinks = [(nkx / stride).floor, 1].max 
 			theta0 = options[:kx_index] % @jtwist  #(options[:theta0] || 0)
@@ -600,7 +619,7 @@ module GSLVectors
 # 					jump = 0	
 			#end
 			ep 'stride', stride, 'nlinks', nlinks, 'theta0', theta0
-			p GSL::Vector.indgen(nlinks / 2,  nkx + theta0 - nlinks / 2 * stride, stride).connect(GSL::Vector.indgen(nlinks / 2, theta0, stride)).reverse if nlinks > 1
+			ep GSL::Vector.indgen(nlinks / 2,  nkx + theta0 - nlinks / 2 * stride, stride).connect(GSL::Vector.indgen(nlinks / 2, theta0, stride)).reverse if nlinks > 1
 			#return [7,5,3,1,34].to_gslv
 			return GSL::Vector.alloc([theta0 % jtwist]) if nlinks ==1
 			return GSL::Vector.indgen(nlinks / 2,  nkx + theta0 - nlinks / 2 * stride, stride).connect(GSL::Vector.indgen(nlinks / 2, theta0, stride)).reverse
@@ -707,7 +726,11 @@ module GSLVectors
 				theta_vector = gsl_vector(:theta)
 			when "box"
 				#eputs "Start theta_along_field_line"
+
 				kx_elements = gsl_vector('linked_kx_elements', options).to_a
+				#if @grid_option == "range"
+					#kx_elements = kx_elements.to_gslv.from_box_order.to_a
+				#end
 				ep 'kx_elements', kx_elements.to_a
 # 				ep list(:kx).keys.max
 # 				ep kx_elements[0], list(:kx)[(kx_elements[0] + 1).to_i]
@@ -968,6 +991,10 @@ module GSLVectorComplexes
 				case @grid_option
 				when "single"
 					temp = GSL::Vector.alloc(netcdf_file.var('phi_t').get({'start' => [0,0,0,0, options[:t_index] - 1], 'end' => [-1,-1,0,0, options[:t_index] - 1]}).to_a[0][0][0].flatten)
+				when "range"
+					a = netcdf_file.var('phi_t').get({'start' => [0, 0, options[:kx_index]-1, options[:ky_index] - 1, options[:t_index] - 1], 'end' => [-1, -1, options[:kx_index]-1, options[:ky_index] - 1, options[:t_index]-1]})
+					#temp =  GSL::Vector.alloc(a.to_a[0].values_at(*kx_elements).flatten)
+					temp =  GSL::Vector.alloc(a.to_a[0][0].flatten)
 				when "box"
 					options.convert_to_index(self, :ky, :kx)
 					kx_elements = gsl_vector('linked_kx_elements', options).to_a
@@ -1028,8 +1055,11 @@ end
 
 module GSLMatrices
 	def growth_rate_over_ky_over_kx_gsl_matrix(options)
-			array = @growth_rate_at_ky_at_kx.values.map{|h| h.values}
-			return GSL::Matrix.alloc(array.flatten, array.size, array[0].size)
+		if @growth_rate_at_ky_at_kx.nil?
+		   raise("The CodeRunner variable growth_rate_at_ky_at_kx does not seem to have been calculated for this run. This may result when the environment variable GS2_CALCULATE_ALL is not set when the run was analyzed. Try setting GS2_CALCULATE_ALL and then re-analyze the run using, e.g. from the command line,\n $ coderunner rc 'cgrf\' -j #{@id}")
+      		end
+		array = @growth_rate_at_ky_at_kx.values.map{|h| h.values}
+		return GSL::Matrix.alloc(array.flatten, array.size, array[0].size)
 	end
 	def transient_amplification_over_ky_over_kx_gsl_matrix(options)
 			array = @transient_amplification_at_ky_at_kx.values.map{|h| h.values}
@@ -1060,7 +1090,7 @@ module GSLMatrices
 	def spectrum_over_ky_over_kx_gsl_matrix(options)
 	Dir.chdir(@directory) do
 			raise "Spectrum makes no sense for single modes" if @grid_option == "single"
-			options.convert_to_index(:t) if options[:t] or options[:t_element]
+			options.convert_to_index(:t) if options[:t] or options[:t_element] 
 			options[:t_index] ||= list(:t).keys.max
 			#phi2_by_mode index order (in Fortran) is kx, ky, t
 			phi_narray = netcdf_file.var("phi2_by_mode").get('start' => [0, 0, options[:t_index] - 1], 'end' => [-1, -1, options[:t_index] - 1])
