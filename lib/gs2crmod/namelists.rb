@@ -2313,6 +2313,18 @@
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
        :module=>:collisions},
+     :use_le_layout=>
+      {:should_include=>"true",
+       :description=>"Use more efficient layouts for le grid",
+       :help=>"Use more efficient layouts for le grid",
+       :tests=>["Tst::FORTRAN_BOOL"],
+       :code_name=>:use_le_layout,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool,
+       :module=>:collisions},
      :ewindowa=>
       {:should_include=>"true",
        :description=>nil,

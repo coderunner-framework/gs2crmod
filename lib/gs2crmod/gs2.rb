@@ -550,8 +550,13 @@ def list_of_restart_files
 				break if files.size == 0
 			end
 		end #if files.size == 0
-    # This just finds a .nc file if using single restart file
-		files = Dir.entries.grep(/\.nc/) if files.size == 0
+    # This just finds a .nc file (w/o a number) if using single restart file
+		if files.size == 0
+			(Dir.entries.find_all{|dir| FileTest.directory? dir} - ['.', '..']).each do |dir|
+				files = Dir.entries(dir).grep(/\.nc/).map{|file| dir + "/" + file}
+				break if files.size == 0
+			end
+		end #if files.size == 0
 		return files
 	end # Dir.chdir(@directory) do
 end
