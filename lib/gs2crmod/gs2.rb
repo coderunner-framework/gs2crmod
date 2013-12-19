@@ -94,9 +94,12 @@ module load openmpi
 EOF
 	when /helios/
 		<<EOF
+module purge
 module load intel
 module load bullxmpi
-module load netcdf
+module load netcdf_p
+module load hdf5_p
+module load fftw
 EOF
 	else
 		""
