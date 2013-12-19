@@ -1687,9 +1687,9 @@
        :description=>
         "Set to TRUE to use allgatherv to fetch part of the field update calculated on other procs. FALSE uses a sum_allreduce instead.",
        :help=>"",
-       :code_name=>:unbalanced_xxf,
+       :code_name=>:field_subgath,
        :must_pass=>
-        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+        [{:test=>"kind_of? String  and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool},
