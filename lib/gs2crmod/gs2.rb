@@ -100,6 +100,7 @@ module load bullxmpi
 module load netcdf_p
 module load hdf5_p
 module load fftw
+module load scalasca papi
 EOF
 	else
 		""
