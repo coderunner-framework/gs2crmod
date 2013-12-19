@@ -1682,6 +1682,17 @@
        :type=>:String,
        :text_options=>["default", "implicit", "explicit", "test"],
        :module=>:fields},
+     :field_subgath=>
+      {:should_include=>"true",
+       :description=>
+        "Set to TRUE to use allgatherv to fetch part of the field update calculated on other procs. FALSE uses a sum_allreduce instead.",
+       :help=>"",
+       :code_name=>:unbalanced_xxf,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
      :remove_zonal_flows_switch=>
       {:should_include=>"true",
        :description=>"Delete zonal flows at every timestep.",
@@ -2001,7 +2012,7 @@
      :unbalanced_xxf=>
       {:should_include=>"true",
        :description=>
-        "An optimised layout made by Adrian Jackson..please add better help!",
+        "This allows GS2 to set up an unbalanced xxf processor grid (e.g. leaving some tasks with no work) in order to balance the work load on each.",
        :help=>"",
        :code_name=>:unbalanced_xxf,
        :must_pass=>
@@ -2012,7 +2023,7 @@
      :max_unbalanced_xxf=>
       {:should_include=>"true",
        :description=>
-        "An optimised layout made by Adrian Jackson..please add better help!",
+        "This sets the maximum level of difference between the largest and smallest block sizes. Must be between 0 and 1",
        :help=>"",
        :code_name=>:max_unbalanced_xxf,
        :must_pass=>
@@ -2023,7 +2034,7 @@
      :unbalanced_yxf=>
       {:should_include=>"true",
        :description=>
-        "An optimised layout made by Adrian Jackson..please add better help!",
+        "This allows GS2 to set up an unbalanced yxxf processor grid (e.g. leaving some tasks with no work) in order to balance the work load on each.",
        :help=>"",
        :code_name=>:unbalanced_yxf,
        :must_pass=>
@@ -2034,7 +2045,7 @@
      :max_unbalanced_yxf=>
       {:should_include=>"true",
        :description=>
-        "An optimised layout made by Adrian Jackson..please add better help!",
+        "This sets the maximum level of difference between the largest and smallest block sizes. Must be between 0 and 1",
        :help=>"",
        :code_name=>:max_unbalanced_yxf,
        :must_pass=>
@@ -2042,6 +2053,50 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float},
+     :opt_redist_nbk=>
+      {:should_include=>"true",
+       :description=>
+        "This enables the use of non-blocking communication in redistribute routines.",
+       :help=>"",
+       :code_name=>:opt_redist_nbk,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :opt_redist_init=>
+      {:should_include=>"true",
+       :description=>
+        "This enables optimized initialization routines for creating redistribution objects.",
+       :help=>"",
+       :code_name=>:opt_redist_init,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :intmom_sub=>
+      {:should_include=>"true",
+       :description=>
+        "This enables use of sub-communicators to do reduction associated with calculation of moments of distribution function. Most advantageous for collisional runs without LE layouts.",
+       :help=>"",
+       :code_name=>:intmom_sub,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :intspec_sub=>
+      {:should_include=>"true",
+       :description=>
+        "This enables use of sub-communicators to do reduction associated with calculation of species integrated moments of distribution function.",
+       :help=>"",
+       :code_name=>:intspec_sub,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
      :opt_local_copy=>
       {:should_include=>"true",
        :description=>"A recent optimisation ..please add better help!",
