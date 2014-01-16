@@ -112,21 +112,21 @@ class TestAnalysis < Test::Unit::TestCase
 	def test_3d_graphs
 		kit = @runner.run_list[1].graphkit('phi_real_space', {n0: 3, Rgeo: 3})
 		assert_equal([5,5,9], kit.data[0].f.data.shape)
-		assert_equal(-0.00402, kit.data[0].f.data[2,3,6].round(5))
+		assert_equal(-0.00492, kit.data[0].f.data[2,3,6].round(5))
 		kit = @runner.run_list[1].graphkit('density_real_space', {n0: 3, Rgeo: 3, species_index: 1, gs2_coordinate_factor: 0.9})
 		#kit.gnuplot
 		assert_equal([5,5,9], kit.data[0].f.data.shape)
 		assert_equal(-0.00985, kit.data[0].f.data[2,3,6].round(5))
 		kit = @runner.run_list[1].graphkit('phi_real_space', {n0: 3, Rgeo: 3, t_index: 2})
 		assert_equal([5,5,9], kit.data[0].f.data.shape)
-		assert_equal(0.00031, kit.data[0].f.data[2,3,6].round(5))
+		assert_equal(0.00015, kit.data[0].f.data[2,3,6].round(5))
 		kit = @runner.run_list[1].graphkit('phi_real_space_surface', {n0: 3, Rgeo: 3, interpolate_theta: 2})
 		assert_equal([5,5,1], kit.data[0].f.data.shape)
 		assert_equal([5,1,17], kit.data[2].f.data.shape)
-		assert_equal(-0.00153, kit.data[0].f.data[1,4,0].round(5))
+		assert_equal(-0.0024, kit.data[0].f.data[1,4,0].round(5))
 		#kit.gnuplot
 		kit = @runner.run_list[1].graphkit('phi_real_space_poloidal_plane', {n0: 1, Rgeo: 3, interpolate_theta: 8, torphi: Math::PI/4.0})
-		assert_equal(-0.00208, kit.data[0].f.data[-1,1].round(5))
+		assert_equal(-0.00176, kit.data[0].f.data[-1,1].round(5))
 		assert_equal(1.707, kit.data[0].x.data[-1,1].round(3))
 		kit.gp.view = ["equal xyz", ",,4.0"]
 		#kit.gnuplot
@@ -144,9 +144,22 @@ class TestAnalysis < Test::Unit::TestCase
 		assert_equal([5,17], kit.data[0].f.data.shape)
 		assert_equal([3,1,17], kit.data[2].f.data.shape)
 		assert_equal([3,1,17], kit.data[2].y.data.shape)
-		assert_equal(-0.00038, kit.data[0].f.data[-1,1].round(5))
+		assert_equal(0.00012, kit.data[0].f.data[-1,1].round(5))
 		assert_equal(2.12132, kit.data[2].y.data[2,0,12].round(5))
 		#kit.gnuplot 
+	end
+
+	def test_new_netcdf_module
+		assert_equal(NumRu::NetCDF, @run.new_netcdf_file.class)
+		assert_equal(NumRu::NetCDFVar, @run.new_netcdf_file.var('phi2').class)
+		assert_equal(@run.netcdf_file.var('phi2').get.to_a[-1], @run.new_netcdf_file.var('phi2').get.to_a[-1])
+		assert_equal("r",  @run.netcdf_smart_reader.dimensions('phi')[0].name)
+		assert_equal("X",  @run.netcdf_smart_reader.dimensions('phi')[2].name)
+		assert_equal(2, @run.netcdf_smart_reader.dim_start("Y", Y_index: 3))
+		assert_equal(@run.new_netcdf_file.var('phi2').get.to_a, @run.netcdf_smart_reader.read_variable('phi2', {}).to_a)
+		assert_equal(@run.new_netcdf_file.var('phi2').get.to_a[3], @run.netcdf_smart_reader.read_variable('phi2', {t_index: 4})[0])
+		assert_equal(@run.new_netcdf_file.var('phi2').get.to_a[3], @run.netcdf_smart_reader.read_variable('phi2', {tmax: 3})[-1])
+		assert_equal(@run.new_netcdf_file.var('phi').get[0,4,3,1], @run.netcdf_smart_reader.read_variable('phi', {zmax: 5, X_index: 4, Y_element: 1})[0,-2])
 	end
 
 	def tfolder
@@ -187,7 +200,7 @@ class TestAgkAnalysis < Test::Unit::TestCase
 	end
 	def test_3d_graphs
 		kit = @runner.run_list[2].graphkit('phi_real_space_surface', {rho_star: 0.1})
-		kit.gnuplot
+		#kit.gnuplot
 		assert_equal([5,5,1], kit.data[0].f.data.shape)
 		#assert_equal(-0.00402, kit.data[0].f.data[2,3,6].round(5))
 	end

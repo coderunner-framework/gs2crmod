@@ -81,6 +81,7 @@ require folder + '/calculations.rb'
 require folder + '/ingen.rb'
 require folder + '/properties.rb'
 require folder + '/test_gs2.rb'
+require folder + '/read_netcdf.rb'
 
 NaN = GSL::NAN
 # GSL::Neg
