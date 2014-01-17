@@ -160,6 +160,11 @@ class TestAnalysis < Test::Unit::TestCase
 		assert_equal(@run.new_netcdf_file.var('phi2').get.to_a[3], @run.netcdf_smart_reader.read_variable('phi2', {t_index: 4})[0])
 		assert_equal(@run.new_netcdf_file.var('phi2').get.to_a[3], @run.netcdf_smart_reader.read_variable('phi2', {tmax: 3})[-1])
 		assert_equal(@run.new_netcdf_file.var('phi').get[0,4,3,1], @run.netcdf_smart_reader.read_variable('phi', {zmax: 5, X_index: 4, Y_element: 1})[0,-2])
+		assert_equal("time (a/v_thr)", @run.smart_graphkit(graphkit_name: 'cdf_heat_flux_tot').xlabel)
+		@run.smart_graphkit(graphkit_name: 'cdf_phi', r_index: 1, z_index: 5)
+		@run.old_smart_graphkit(graphkit_name: 'nc_phi', ri_index: 1, theta_index: 5)
+		@run.graphkit('nc_phi', ri_index: 1, theta_index: [5,6])
+		#@runner.run_class.help_graphs
 	end
 
 	def tfolder

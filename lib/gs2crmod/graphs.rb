@@ -122,21 +122,23 @@ def self.generate_graphs_rdoc_file
 end
 def self.help_graphs
 # 	@@runner ||= CodeRunner.fetch_runner(U: true, 
+	string = ""
 	graphs = self.instance_methods.find_all{|m| m.to_s =~ /_graphkit$/}.sort_by{|m| m.to_s}
 	run = new(nil)
-	puts "-------------------------------------------\n    Available Graphs For #{self.to_s}\n-------------------------------------------\n"
+	string << "-------------------------------------------\n    Available Graphs For #{self.to_s}\n-------------------------------------------\n\n"
 	graphs.each do |graph|
 		help = run.send(graph, command: :help)
 		options = run.send(graph, command: :options)
-		puts "\n------------------------------------\n#{graph.to_s.sub(/_graphkit/, '')}\n------------------------------------\n\n#{help}"
+		string << "\n------------------------------------\n#{graph.to_s.sub(/_graphkit/, '')}\n------------------------------------\n\n#{help}\n"
 		if options and options.size > 0
-			puts "\n\tOptions:"
+			string << "\n\tOptions:\n"
 			options.each do |op|
-				puts "\t\t#{op}: #{GRAPHKIT_OPTIONS_HELP[op]}"
+				string << "\t\t#{op}: #{GRAPHKIT_OPTIONS_HELP[op]}\n"
 			end
 		end
 		
 	end
+	string.paginate
 end
 
 GRAPHKIT_OPTIONS_HELP = {
@@ -192,7 +194,7 @@ GRAPHKIT_OPTIONS_HELP = {
 def graphkit(name, options={})
 	logf :graphkit
 	# If an array of t, kx or ky values is provided, plot one graph for each value and then sum the graphs together
-	[:t, :kx, :ky].each do |var|
+	[:t, :kx, :ky, :X, :Y, :e, :l, :theta].each do |var|
 		#ep 'index', var
 		if options[var].class == Symbol and options[var] == :all
 			options[var] = list(var).values
@@ -218,10 +220,15 @@ def graphkit(name, options={})
 	
 
 
-	# If a method from the new GraphKits module can generate this graphkit use it 
-	#ep name + '_graphkit'
- 	#ep self.class.instance_methods.find{|meth| (name + '_graphkit').to_sym == meth}
 
+	# Smart graphkits are defined in the file read_netcdf
+	if name =~ /^cdf_/
+		return smart_graphkit(options + {graphkit_name: name})
+	elsif name =~ /^nc_/
+		return old_smart_graphkit(options + {graphkit_name: name})
+	end
+
+	# If a method from the new GraphKits module can generate this graphkit use it 
 	if method = self.class.instance_methods.find{|meth| (name + '_graphkit').to_sym == meth}
 		options[:graphkit_name] = name
 		return send(method, options)
