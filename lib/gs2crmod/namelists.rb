@@ -4,7 +4,7 @@
    :variables=>
     {:beta=>
       {:help=>
-        "In GS2 <math>\\beta</math> is the ratio of the reference pressure to the reference magnetic energy density, <math>\\beta = 2 \\mu_0 n_{\\rm ref} T_{\\rm ref}/B_{\\rm ref}^2 </math>. Mainly GS2 uses <math>\\beta</math> to determine the amplitude of the perturbed magnetic fields.   \n**For electromagnetic runs, the contribution of each species to the total parallel current is weighted by a factor of <math>w_s = 2 \\beta Z_s n_s \\sqrt{T_s/m_s}</math>.\n**For electromagnetic runs that include <math>\\delta B_\\parallel</math>, this field is proportional to <math>\\beta</math>.\n**The contribution of <math>(\\delta B)^2</math> to the total gyrokinetic energy is inversely proportional to this input parameter.\n**If an antenna is set up to drive Alfven waves, then <math>\\beta</math> is used to calculate the Alfven frequency.  \n**For some collision operator models, <math>\\beta</math> is used to calculate the resistivity.  \n**For some rarely-used initial conditions, <math>\\beta</math> appears explicitly. \n**Important:  <math>\\beta</math> is not a GS2 plasma equilibrium parameter, but it must be chosen with care. <math>\\beta</math> is '''not''' automatically consistent with the value of <math>\\beta'</math> used in the local magnetic equilibrium.  The user is responsible for ensuring that the values of <math> \\beta </math> together with the densities, temperatures and gradients for all species are consistent with the local equilibrium value of <math>\\beta'</math>.",
+        "In GS2 <math>\\beta</math> is the ratio of the reference pressure to the reference magnetic energy density, <math>\\beta = 2 \\mu_0 n_{\\rm ref} T_{\\rm ref}/B_{\\rm ref}^2 </math>. Mainly GS2 uses <math>\\beta</math> to determine the amplitude of the perturbed magnetic fields.   \n**For electromagnetic runs, the contribution of each species to the total parallel current is weighted by a factor of <math>w_s = 2 \\beta Z_s n_s \\sqrt{T_s/m_s}</math>.\n**Handy formula: 403. * nref_19 * T_ref(kev) / 1.e5 / B_T**2, where nref_19 is the reference density / 10**19 and B_T is the magnetic field in Tesla.\n**For electromagnetic runs that include <math>\\delta B_\\parallel</math>, this field is proportional to <math>\\beta</math>.\n**The contribution of <math>(\\delta B)^2</math> to the total gyrokinetic energy is inversely proportional to this input parameter.\n**If an antenna is set up to drive Alfven waves, then <math>\\beta</math> is used to calculate the Alfven frequency.  \n**For some collision operator models, <math>\\beta</math> is used to calculate the resistivity.  \n**For some rarely-used initial conditions, <math>\\beta</math> appears explicitly. \n**Important:  <math>\\beta</math> is not a GS2 plasma equilibrium parameter, but it must be chosen with care. <math>\\beta</math> is '''not''' automatically consistent with the value of <math>\\beta'</math> used in the local magnetic equilibrium.  The user is responsible for ensuring that the values of <math> \\beta </math> together with the densities, temperatures and gradients for all species are consistent with the local equilibrium value of <math>\\beta'</math>.",
        :should_include=>"true",
        :description=>
         "Ratio of particle to magnetic pressure (reference Beta, not total beta):  beta=n_0 T_0 /( B^2 / (8 pi))",
@@ -138,7 +138,7 @@
        :module=>:kt_grids_specified},
      :jtwist=>
       {:help=>
-        "For finite magnetic shear, determines box size in x direction according to \n** <math>L_x = L_y  jtwist / (2 \\pi \\hat{s}) </math>\n** Also affects the number of \"connections\" at each ky when linked boundary conditions are selected in the dist_fn_knobs namelist.",
+        "For finite magnetic shear, determines box size in x direction according to \n** <math>L_x = L_y  jtwist / (2 \\pi \\hat{s}) </math>\n** Also affects the number of \"connections\" at each ky when linked boundary conditions are selected in the dist_fn_knobs namelist. \n** Internally initialised to <math>jtwist=MAX(Int[2\\pi\\hat{s}+0.5],1)</math> such that <math>L_x \\sim L_y</math> except for very small shear (<math>\\hat{s}<\\sim 0.16</math>).",
        :should_include=>"true",
        :description=>"L_x = L_y  jtwist / (2 pi shat)",
        :tests=>["Tst::INT"],
@@ -150,7 +150,7 @@
        :module=>:kt_grids_box},
      :y0=>
       {:help=>
-        "The length of the box in the y direction (measured in the Larmour radius of species 1).  Box size in y direction is 2*pi*y0.",
+        "The length of the box in the y direction (measured in the Larmour radius of species 1).  Box size in y direction is 2*pi*y0. \n**Note if <math>y0<0</math> then replaced with <math>-1/y0</math> so effectively setting the minimum wavelength captured by the box (related to [[aky_min]]).",
        :should_include=>"true",
        :description=>
         "The length of the box in the y direction (measured in the Larmour radius of species 1)",
@@ -317,7 +317,7 @@
       {:should_include=>"true",
        :description=>"Overrides aky: aky=n0*drhodpsi*rhostar_single",
        :help=>
-        "If specified, overrides aky in kt_grids_single: aky=n0*drhodpsi*rhostar_single",
+        "if n0>0 use toroidal mode number to override aky and set aky=n0*drhodpsi*rhostar_single",
        :code_name=>:n0,
        :must_pass=>
         [{:test=>"kind_of? Integer",
@@ -340,7 +340,7 @@
    :variables=>
     {:ntheta=>
       {:help=>
-        "Number of grid points along equilibrium magnetic field between <math>\\theta=(-\\pi,\\pi)</math> (in addition to a grid point at <math>\\theta=0</math>).\n** Ignored in some cases",
+        "Number of grid points along equilibrium magnetic field between <math>\\theta=(-\\pi,\\pi)</math> (in addition to a grid point at <math>\\theta=0</math>).\n** Ignored in some cases (when using numerical equilibria)",
        :should_include=>"true",
        :description=>
         "Number of points along field line (theta) per 2 pi segment",
@@ -379,7 +379,7 @@
        :module=>:theta_grid_gridgen},
      :epsl=>
       {:help=>
-        "Sets curvature drift in simple geometric models.  <math>\\epsilon_\\ell = 2 a / R </math>, where a is the GS2 normalisation length and R is the major radius at the centre of the flux surface.",
+        "<math>\\epsilon_\\ell = \\frac{2 L_{ref}}{ R} </math> Sets curvature drift in s-alpha model, where <math>L_{ref}</math> is the GS2 equilibrium reference normalisation length and R is the major radius at the centre of the flux surface.",
        :should_include=>"true",
        :description=>"epsl=2 a/R",
        :tests=>["Tst::FLOAT"],
@@ -405,7 +405,7 @@
        :module=>:theta_grid_params},
      :pk=>
       {:help=>
-        "<math>p_k = 2 a / q R</math> - when using high aspect ratio, <math>s-\\alpha</math> model for geometry it sets q, the magnetic safety factor, since the ratio 2a/R is set by epsl. It therefore also sets the connection length, i.e. the length of the box in the parallel direction, in terms of a, the GS2 normalization quantity.",
+        "<math>p_k = \\frac{epsl}{q} = \\frac{2 L_{ref}}{ q R} </math> Sets q, the magnetic safety factor, and therefore also sets the connection length, i.e. the length of the box in the parallel direction, in terms of <math>L_{ref}</math>. Used only in high aspect ratio <math>s-\\alpha</math> equilibrium model.",
        :should_include=>"true",
        :description=>"pk = 2 a / q R",
        :tests=>["Tst::FLOAT"],
@@ -418,7 +418,7 @@
        :module=>:theta_grid_gridgen},
      :kp=>
       {:help=>
-        "If kp > 0 then pk = 2*kp. Set kp rather than pk in the slab. Since in the slab limit, shat =  2a/ (L_S pk), this means that if kp = 1, shat = a/ L_S, where L_S is the magnetic shear scale length.\n\nSets parallel box length when geometry is unsheared slab.  <math>k_p = 2 \\pi /L_z</math>.",
+        "kp sets parallel wavenumber and box length in slab geometry.  <math>k_p = \\frac{2 \\pi L_{ref}}{L_z}</math>. \n** always use kp instead of pk in slab geometry (if kp > 0 then gs2 sets pk = 2*kp) \n** in slab limit <math> shat =  \\frac{L_z}{2 \\pi L_s} = \\frac{L_{ref}}{k_p L_s}</math> : nb if kp = 1, <math> shat = \\frac{L_{ref}}{L_s}</math>, where L_s is the magnetic shear scale length.",
        :should_include=>"true",
        :description=>"if kp >0 then pk = 2*kp",
        :tests=>["Tst::FLOAT"],
@@ -512,7 +512,7 @@
        :module=>:theta_grid_params},
      :shift=>
       {:help=>
-        "Related to Shafranov shift.  Sign depends on geometric model. ?? Exact definition uncertain... please edit if you know! ?? Could be\n** <math>shift = -R q**2 d\\beta/d\\rho (>0) </math> ??\n** dR/drho (R normalized to a) (< 0) ??",
+        "shift is related to the derivative of the Shafranov shift, but it has different definitions in the s-alpha and Miller equilbrium models:  \n** In s-alpha: <math>shift = -\\frac{2epsl}{pk^2}\\frac{d\\beta}{d\\rho}=-\\frac{q^2R}{L_{ref}}\\frac{d\\beta}{d\\rho} > 0  </math> \n** In Miller: <math>shift = \\frac{1}{L_{ref}} \\frac{dR}{d\\rho} < 0 </math>",
        :should_include=>"true",
        :description=>"shift = -R q**2 dbeta/drho (>0)",
        :tests=>["Tst::FLOAT"],
@@ -609,7 +609,7 @@
    :variables=>
     {:equilibrium_option=>
       {:help=>
-        "The equilibrium_option variable controls which geometric assumptions are used in the run.  Additional namelists determine the geometric parameters according to the choice made here. Allowed values are:\n** 'eik' Use routines from the geometry module, controlled mainly by the subsidiary namelists theta_grid_parameters and theta_grid_eik_knob.\n** 'default' Same as 'eik'                                                                                                                          \n** 's-alpha' Use high aspect-ratio toroidal equilbrium (which can be simplified to slab or cylinder), controlled by the subsidiary namelist theta_grid_parameters and  theta_grid_salpha_knob\n** 'file'  Use output from rungridgen code directly.  Controlled by theta_grid_file_knobs. Note: in this case, the variables nperiod and ntheta (from the theta_grid_parameters namelist) are ignored.\n** 'grid.out'  Same as 'file'",
+        "The equilibrium_option variable controls which geometric assumptions are used in the run.  Additional namelists determine the geometric parameters according to the choice made here. Allowed values are:\n** 'eik' Use routines from the geometry module, controlled mainly by the subsidiary namelists theta_grid_parameters and theta_grid_eik_knob. This includes options for Miller as well as a range of different numerical equilibrium file formats.\n** 'default' Same as 'eik'                                                                                                                          \n** 's-alpha' Use high aspect-ratio toroidal equilbrium (which can be simplified to slab or cylinder), controlled by the subsidiary namelist theta_grid_parameters and  theta_grid_salpha_knob\n** 'file'  Use output from rungridgen code directly.  Controlled by theta_grid_file_knobs. Note: in this case, the variables nperiod and ntheta (from the theta_grid_parameters namelist) are ignored.\n** 'grid.out'  Same as 'file'",
        :should_include=>"true",
        :description=>
         "Controls which geometric assumptions are used in the run.",
@@ -624,7 +624,8 @@
      :gb_to_cv=>
       {:should_include=>"true",
        :description=>nil,
-       :help=>nil,
+       :help=>
+        "If true then force grad-B drift to be equal to curvature drift. This is not recommended when fbpar<math>\\neq</math>0.",
        :tests=>["Tst::FORTRAN_BOOL"],
        :gs2_name=>:gb_to_cv,
        :must_pass=>
@@ -641,9 +642,9 @@
    :variables=>
     {:model_option=>
       {:help=>
-        " \n** 's-alpha' High aspect ratio toroidal equilibrium.  (Note that the curvature and grad-B drifts are equal.)\n** 'default' Same as 's-alpha'\n**\n'alpha1','rogers','b2','normal_only',const-curv',no-curvature': See output of ingen until this page is improved.\n",
+        "Sets the particular model for the magnetic field and related drifts.\n** 's-alpha' High aspect ratio toroidal equilibrium.  (Note that the curvature and grad-B drifts are equal.)\n** 'default' Same as 's-alpha'\n**'alpha1','rogers','b2','normal_only',const-curv',no-curvature': See output of ingen (or contents of theta_grid.f90) until this page is improved.",
        :should_include=>"true",
-       :description=>nil,
+       :description=>"",
        :tests=>["Tst::STRING"],
        :autoscanned_defaults=>["default"],
        :must_pass=>
@@ -662,8 +663,9 @@
        :module=>:theta_grid_salpha},
      :alpmhdfac=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>" \n",
+       :description=>"",
+       :help=>
+        "Used in conjunction with [[alpmhd]] of [[theta_grid_parameters]] to override shift, set as <math>shift=-alpmhd*alpmhdfac</math>.",
        :tests=>["Tst::FLOAT"],
        :gs2_name=>:alpmhdfac,
        :must_pass=>
@@ -676,8 +678,9 @@
        :module=>:theta_grid_salpha},
      :alpha1=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>" \n",
+       :description=>"",
+       :help=>
+        "Coefficient in model when [[model_option]]='alpha1' has been selected.",
        :tests=>["Tst::FLOAT"],
        :gs2_name=>:alpha1,
        :must_pass=>
@@ -1173,7 +1176,7 @@
        :module=>:le_grids},
      :ngauss=>
       {:help=>
-        "Number of untrapped pitch-angles moving in one direction along field line.",
+        "2*ngauss is the number of untrapped pitch-angles moving in one direction along field line.",
        :should_include=>"true",
        :description=>
         "Number of untrapped pitch-angles moving in one direction along field line.",
@@ -1257,8 +1260,9 @@
        :code_name=>:test},
      :trapped_particles=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>" \n",
+       :description=>"",
+       :help=>
+        "If set to False then the <math>\\lambda</math> grid weighting (wl) is set to zero for trapped pitch angles. This means that integrals over velocity space do not include a contribution from trapped particles which is equivalent to the situation where eps<=0.0. \n*Trapped particle drifts are not set to zero so \"trapped\" particles still enter the source term through wdfac. At least for s-alpha the drifts are the main difference (?please correct if not true?) between the eps<=0.0 and the trapped_particles = False cases as Bmag is not a function of <math>\\theta</math> in the eps<=0.0 case whilst it is in the trapped_particles = False case.",
        :tests=>["Tst::FORTRAN_BOOL"],
        :gs2_name=>:trapped_particles,
        :must_pass=>
@@ -1381,7 +1385,7 @@
        :module=>:dist_fn},
      :boundary_option=>
       {:help=>
-        "Sets the boundary condition along the field line (i.e. the boundary conditions at theta = +- pi). Possible values are: \n'zero', 'default', 'unconnected' - Use Kotschenreuther boundary condition at endpoints of theta grid\n'self-periodic', 'periodic', 'kperiod=1' - Each mode is periodic in theta with itself\n'linked' - Twist and shift boundary conditions\n'alternate-zero' - Ignored",
+        "Sets the boundary condition along the field line (i.e. the boundary conditions at theta = +- pi). Possible values are: \n**'zero', 'default', 'unconnected' - Use Kotschenreuther boundary condition at endpoints of theta grid\n**'self-periodic', 'periodic', 'kperiod=1' - Each mode is periodic in theta with itself\n**'linked' - Twist and shift boundary conditions (used for kt_grids:grid_option='box')\n**'alternate-zero' - Ignored \n*See also [[nonad_zero]]",
        :should_include=>"true",
        :description=>
         "Sets the boundary condition along the field line (i.e. the boundary conditions at theta = +- pi).",
@@ -1435,7 +1439,8 @@
        :type=>:String,
        :module=>:dist_fn},
      :g_exb=>
-      {:help=>nil,
+      {:help=>
+        "<math> \\frac{\\rho}{q} \\frac{d\\Omega^{\\rm GS2}}{d\\rho_n} </math> where <math>\\Omega^{\\rm GS2}</math> is toroidal angular velocity normalised to the reference frequency <math>v_{t}^{\\rm ref}/a</math>\nand  <math>\\rho_n</math> is the normalised flux label which has value <math>\\rho</math> on the local surface. ",
        :should_include=>"true",
        :description=>nil,
        :tests=>["Tst::FLOAT"],
@@ -1447,7 +1452,8 @@
        :type=>:Float,
        :module=>:dist_fn},
      :btor_slab=>
-      {:help=>nil,
+      {:help=>
+        "Overrides the itor_over_B internal parameter, meant only for slab runs where it sets the angle between the magnetic field and the toroidal flow.",
        :should_include=>"true",
        :description=>nil,
        :tests=>["Tst::FLOAT"],
@@ -1474,8 +1480,9 @@
        :module=>:dist_fn},
      :driftknob=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>" Leave as unity.  For debugging/\n",
+       :description=>"",
+       :help=>
+        "Leave as unity.  For debugging. Multiplies the passing particle drifts (also see [[tpdriftknob]]).",
        :tests=>["Tst::FLOAT"],
        :gs2_name=>:driftknob,
        :must_pass=>
@@ -1699,7 +1706,8 @@
      :esv=>
       {:should_include=>"true",
        :description=>"",
-       :help=>"",
+       :help=>
+        "If esv=.true. and boundary_option='linked' (i.e. flux tube simulation) then at every time step we ensure the fields are exactly single valued by replacing the field at one of the repeated boundary points with the value at the other boundary (i.e. of the two array locations which should be storing the field at the same point in space we pick one and set the other equal to the one we picked). This can be important in correctly tracking the amplitude of damped modes to very small values. Also see [[clean_init]].\n ",
        :code_name=>:esv,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
