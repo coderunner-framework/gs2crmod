@@ -73,7 +73,8 @@
      :rhostar=>
       {:should_include=>"true",
        :description=>"Rhostar, for low flow terms.",
-       :help=>"Rhostar, for low flow terms.",
+       :help=>
+        "Normalised gyro-radius, <math>\\frac{\\rho}{a}</math>, needed for calculating the momentum flux in the low flow limit.",
        :code_name=>:rhostar,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
@@ -1372,7 +1373,8 @@
        :type=>:Float,
        :module=>:dist_fn},
      :omprimfac=>
-      {:help=>nil,
+      {:help=>
+        "Factor multiplying the parallel shearing drive term when running with non-zero [[g_exb]]  ",
        :should_include=>"true",
        :description=>nil,
        :tests=>["Tst::FLOAT"],
@@ -1427,8 +1429,22 @@
          "iphi00=3",
          "dimits"],
        :module=>:dist_fn},
+     :include_lowflow=>
+      {:help=>
+        "Include calculation of terms present in the low flow limit of gyrokinetics. Many new terms... will slow calculation... don't set true unless you know what you are doing. ",
+       :should_include=>"true",
+       :description=>nil,
+       :tests=>["Tst::STRING"],
+       :autoscanned_defaults=>[".false."],
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool,
+       :module=>:dist_fn},
      :test=>
-      {:help=>"For debugging only.",
+      {:help=>
+        "For debugging only. If set then run will print various grid sizes and then stop.",
        :should_include=>"true",
        :description=>"For debugging",
        :tests=>["Tst::STRING"],
@@ -1496,7 +1512,8 @@
      :tpdriftknob=>
       {:should_include=>"true",
        :description=>nil,
-       :help=>nil,
+       :help=>
+        "For debugging only. Multiplies the trapped particle drifts (also see [[driftknob]]).  ",
        :tests=>["Tst::FLOAT"],
        :gs2_name=>:tpdriftknob,
        :must_pass=>
@@ -1607,7 +1624,8 @@
      :wfb=>
       {:should_include=>"true",
        :description=>nil,
-       :help=>nil,
+       :help=>
+        "For debugging only. Sets the boundary value for the barely trapped/passing particle.  ",
        :tests=>["Tst::FLOAT"],
        :gs2_name=>:wfb,
        :must_pass=>
@@ -1621,7 +1639,7 @@
      :mach=>
       {:should_include=>"true",
        :description=>nil,
-       :help=>nil,
+       :help=>"Number multiplying the coriolis drift   ",
        :tests=>["Tst::FLOAT"],
        :code_name=>:mach,
        :must_pass=>
@@ -1828,7 +1846,7 @@
        :module=>:run_parameters},
      :delt_option=>
       {:help=>
-        "Deprecated.  Do not use.  (Use 'check_restart' to get initial timestep from restart file, 'default' otherwise.)",
+        "Deprecated.  Do not use. Is this really right? History of svn suggests this comment may be meant for margin.  (Use 'check_restart' to get initial timestep from restart file, 'default' otherwise.)",
        :should_include=>"true",
        :description=>"Deprecated.",
        :tests=>["Tst::STRING"],
@@ -1944,7 +1962,7 @@
        :description=>
         "Specify the available wall clock time in seconds. GS2 will exit before this time.",
        :help=>
-        "Specify the available wall clock time in seconds. GS2 will exit before this time. This ensures that all the output files are written correctly.  CodeRunner automatically sets this quantity unless it is given the value false.",
+        "Specify the available wall clock time in seconds. GS2 will start to exit up to 5 minutes before this time is up. This ensures that all the output files are written correctly.  CodeRunner automatically sets this quantity unless it is given the value false.",
        :tests=>["Tst::FLOAT"],
        :gs2_name=>:avail_cpu_time,
        :must_pass=>
@@ -1992,7 +2010,7 @@
        :description=>
         "Start finalising when (avail_cpu_time - margin_cpu_time) seconds have elapsed.",
        :help=>
-        "Sets the safety margin in seconds for exiting before the time limit avail_cpu_time, i.e. the amount of time GS2 should leave for finalising before running out of wall clock time. In other words, GS2 will start finalising when (avail_cpu_time - margin_cpu_time) seconds have elapsed.",
+        "Time (in seconds) before [[avail_cpu_time]] at which finalisation triggered. May need to set this quite large for large problems to make certain the run finishes cleanly.",
        :code_name=>:margin_cpu_time,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
@@ -2004,9 +2022,10 @@
    :should_include=>"true",
    :variables=>
     {:delt_adj=>
-      {:help=>"When the time step needs to be changed, it is adjusted ",
+      {:help=>
+        "When the time step needs to be changed it is adjusted by this factor (i.e dt-->dt/delt_adj or dt-->dt*delt_adj when reducing/increasing the timestep).\n**For implicit non-linear runs good choice of [[delt_adj]] can make a moderate difference to efficiency. Need to balance time taken to reinitialise against frequency of time step adjustments (i.e. if your run takes a long time to initialise you probably want to set delt_adj to be reasonably large).",
        :should_include=>"true",
-       :description=>"When the time step needs to be changed, it is adjusted ",
+       :description=>"When the time step needs to be changed, it is adjusted",
        :tests=>["Tst::FLOAT"],
        :autoscanned_defaults=>[2.0],
        :must_pass=>
@@ -2016,7 +2035,8 @@
        :type=>:Float,
        :module=>:gs2_reinit},
      :delt_minimum=>
-      {:help=>"The minimum time step is delt_minimum.",
+      {:help=>
+        "The minimum time step allowed is delt_minimum. If the code wants to drop below this value then the run will end.",
        :should_include=>"true",
        :description=>"The minimum time step is delt_minimum.",
        :tests=>["Tst::FLOAT"],
@@ -2028,7 +2048,8 @@
        :type=>:Float,
        :module=>:gs2_reinit},
      :delt_cushion=>
-      {:help=>nil,
+      {:help=>
+        "Used in deciding when to increase the time step to help prevent oscillations in time step around some value. We only increase the time step when it is less than the scaled cfl estimate divided by delt_adj*delt_cushion (whilst we decrease it as soon as the time step is larger than the scaled cfl estimate).  ",
        :should_include=>"true",
        :description=>nil,
        :tests=>["Tst::FLOAT"],
@@ -2056,7 +2077,7 @@
    :variables=>
     {:layout=>
       {:help=>
-        "Determines the way the grids are laid out in memory. Rightmost is parallelised first. \n** Can be 'yxles', 'lxyes', 'lyxes', 'lexys' \n** Strongly affects performance on parallel computers\n** In general avoid parallelizing over x. For this reason 'lxyes' is often a good choice.",
+        "Determines the way the grids are laid out in memory. Rightmost is parallelised first. \n** Can be 'yxles', 'lxyes', 'lyxes', 'lexys','xyles'\n** Strongly affects performance on parallel computers\n** In general avoid parallelizing over x. For this reason 'lxyes' is often a good choice.\n*Depending on the type of run you are doing, and how many processors you are using, the optimal layout will vary.\n** In nonlinear runs FFTs are taken in x and y, so keeping these as local as possible (i.e. keeping xy to the left in layout) will help these.\n** In calculating collisions we need to take derivatives in l and e, hence keeping these as local as possible will help these.\n** The best choice will vary depending on grid sizes generally for linear runs with collisions 'lexys' is a good choice whilst for nonlinear runs (with or without collisions) 'xyles' (or similar) is usually fastest.",
        :should_include=>"true",
        :description=>
         "'yxles', 'lxyes', 'lyxes', 'lexys' Determines the way the grids are laid out in memory.",
@@ -2069,7 +2090,7 @@
        :module=>:gs2_layouts},
      :local_field_solve=>
       {:help=>
-        "Strongly affects initialization time on some parallel computers. \n**  Recommendation:  Use T on computers with slow communication networks.",
+        "Strongly affects initialization time on some parallel computers. \n**  Recommendation:  Use T on computers with slow communication networks.\n**  It's probably worth trying changing this on your favourite machine to see how much difference it makes for you.",
        :should_include=>"true",
        :description=>
         "Strongly affects initialization time on some parallel computers.",
@@ -2084,7 +2105,8 @@
       {:should_include=>"true",
        :description=>
         "This allows GS2 to set up an unbalanced xxf processor grid (e.g. leaving some tasks with no work) in order to balance the work load on each.",
-       :help=>"",
+       :help=>
+        "Setting to .true. allows GS2 to adopt a more flexible domain decomposition of the xxf data type (used in nonlinear FFTs). \n** By default GS2 allocates each MPI task with ''the same uniform blocksize'' in xxf_lo, one task may have a smaller block of data, and other tasks may be empty. There is no attempt to keep both x and y as local as possible, and sometimes large MPI data transfers are required to map from xxf to yxf and vice-versa during FFTs.\n** With \"unbalanced_xxf = .true.\", ''two slightly different blocksizes'' are chosen in order to keep both x and y as local as possible, and avoid this potentially large MPI communication overhead. The level of imbalance is limited by max_unbalanced_xxf. \n* [http://www.gyrokinetics.sourceforge.net/wikifiles/CMR/GS2_Final_report_NAG_Version_v1.0.pdf See Adrian Jackson's DCSE report \"Improved Data Distribution Routines for Gyrokinetic Plasma Simulations\"]\n",
        :code_name=>:unbalanced_xxf,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -2095,7 +2117,8 @@
       {:should_include=>"true",
        :description=>
         "This sets the maximum level of difference between the largest and smallest block sizes. Must be between 0 and 1",
-       :help=>"",
+       :help=>
+        "Sets maximum allowable fractional imbalance between the two different blocksizes used in xxf_lo if unbalanced_xxf =.true.\n* [http://www.gyrokinetics.sourceforge.net/wikifiles/CMR/GS2_Final_report_NAG_Version_v1.0.pdf See Adrian Jackson's DCSE report \"Improved Data Distribution Routines for Gyrokinetic Plasma Simulations\"]\n",
        :code_name=>:max_unbalanced_xxf,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
@@ -2106,7 +2129,8 @@
       {:should_include=>"true",
        :description=>
         "This allows GS2 to set up an unbalanced yxxf processor grid (e.g. leaving some tasks with no work) in order to balance the work load on each.",
-       :help=>"",
+       :help=>
+        "Setting to .true. allows GS2 to adopt a more flexible domain decomposition of the yxf data type (used in nonlinear FFTs). \n** By default GS2 allocates each MPI task with ''the same uniform blocksize'' in yxf_lo, one task may have a smaller block of data, and other tasks may be empty. There is no attempt to keep both x and y as local as possible, and sometimes large MPI data transfers are required to map from xxf to yxf and vice-versa during FFTs.\n** With \"unbalanced_yxf = .true.\", ''two slightly different blocksizes'' are chosen in order to keep both x and y as local as possible, and avoid this potentially large MPI communication overhead. The level of imbalance is limited by max_unbalanced_yxf. \n* [http://www.gyrokinetics.sourceforge.net/wikifiles/CMR/GS2_Final_report_NAG_Version_v1.0.pdf See Adrian Jackson's DCSE report \"Improved Data Distribution Routines for Gyrokinetic Plasma Simulations\"]\n",
        :code_name=>:unbalanced_yxf,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -2117,7 +2141,8 @@
       {:should_include=>"true",
        :description=>
         "This sets the maximum level of difference between the largest and smallest block sizes. Must be between 0 and 1",
-       :help=>"",
+       :help=>
+        "Sets maximum allowable fractional imbalance between the two different blocksizes used in yxf_lo if unbalanced_yxf =.true.\n* [http://www.gyrokinetics.sourceforge.net/wikifiles/CMR/GS2_Final_report_NAG_Version_v1.0.pdf See Adrian Jackson's DCSE report \"Improved Data Distribution Routines for Gyrokinetic Plasma Simulations\"]\n",
        :code_name=>:max_unbalanced_yxf,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
@@ -2171,7 +2196,8 @@
      :opt_local_copy=>
       {:should_include=>"true",
        :description=>"A recent optimisation ..please add better help!",
-       :help=>"",
+       :help=>
+        "Setting to .true. enables optimising redistribute code, used in FFTs for evaluating nonlinear terms, that avoids indirect addressing. \nThis can introduces worthwhile savings in nonlinear GS2 simulations at lower core counts. \n* [http://www.gyrokinetics.sourceforge.net/wikifiles/CMR/GS2_Final_report_NAG_Version_v1.0.pdf See Adrian Jackson's DCSE report \"Improved Data Distribution Routines for Gyrokinetic Plasma Simulations\"]\n",
        :code_name=>:opt_local_copy,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -2254,7 +2280,8 @@
      :adjust=>
       {:should_include=>"true",
        :description=>nil,
-       :help=>nil,
+       :help=>
+        "If adjust is .true., transform from the gyro-averaged dist. fn., g, to the non-Boltzmann part of delta f, h, when applying the collision operator  ",
        :tests=>["Tst::FORTRAN_BOOL"],
        :gs2_name=>:adjust,
        :must_pass=>
@@ -2468,9 +2495,10 @@
    :should_include=>"true",
    :variables=>
     {:hyper_option=>
-      {:help=>"'default' is 'none'",
+      {:help=>
+        "Should be set to 'default','none','visc_only', 'res_only', or 'both'. 'default' and 'none' are identical.",
        :should_include=>"true",
-       :description=>nil,
+       :description=>"",
        :tests=>["Tst::STRING"],
        :autoscanned_defaults=>["default"],
        :must_pass=>
@@ -2809,7 +2837,7 @@
        :module=>:file_utils},
      :tprim=>
       {:help=>
-        "Normalised inverse temperature gradient: <math>-1/T (dT/d\\rho)</math>",
+        "Normalised inverse temperature gradient: <math>-1/T (dT/d\\rho)</math> (Note here <math>\\rho</math> is the normalised radius <math>\\rho/L_{ref}</math>)",
        :should_include=>"true",
        :description=>"-1/T (dT/drho)",
        :tests=>["Tst::FLOAT"],
@@ -2821,7 +2849,7 @@
        :type=>:Float},
      :fprim=>
       {:help=>
-        "Normalised inverse density gradient: <math>-1/n (dn/d\\rho)</math>",
+        "Normalised inverse density gradient: <math>-1/n (dn/d\\rho)</math>  (Note here <math>\\rho</math> is the normalised radius <math>\\rho/L_{ref}</math>)",
        :should_include=>"true",
        :description=>"-1/n (dn/drho)",
        :tests=>["Tst::FLOAT"],
@@ -2843,7 +2871,8 @@
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float},
      :vnewk=>
-      {:help=>"Collisionality parameter: collisionality normalized to v_th/a",
+      {:help=>
+        "Collisionality parameter: For species <math>s</math>, vnewk = <math> \\nu_{ss} L_{ref} / v_{ref}</math> where <math>L_{ref}</math> is the reference length (half-minor-radius at the elevation of the magnetic axis), <math>v_{ref} = \\sqrt{2 T_{ref} / m_{ref}} </math> is the reference thermal speed (not the thermal speed of species <math>s</math>!), <math>\\nu_{ss} = \\frac{\\sqrt{2} \\pi n_s Z_s^4 e^4 \\ln(\\Lambda)}{\\sqrt{m_s} T_s^{3/2}}</math> is a dimensional collision frequency, <math>e</math> is the proton charge, <math>\\ln(\\Lambda)</math> is the Coloumb logarithm, and (<math>Z_s, T_s, n_s, m_s</math>) are the (charge, temperature, density, mass) of species <math>s</math>. (The dimensional collision frequency given here is in Gaussian units. For SI units, include an extra factor <math>(4 \\pi \\epsilon_0)^2 </math> in the denominator of the definition of <math>\\nu_{ss}</math>.)",
        :should_include=>"true",
        :description=>"collisionality parameter",
        :tests=>["Tst::FLOAT"],
@@ -3028,7 +3057,8 @@
      :bess_fac=>
       {:should_include=>"true",
        :description=>"",
-       :help=>"",
+       :help=>
+        "Multiplies the argument of the Bessel function for this species. Useful for removing the effect of the Bessel functions (set to 0.0) ",
        :code_name=>:bess_fac,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
@@ -3042,7 +3072,7 @@
    :variables=>
     {:fexpr=>
       {:help=>
-        "Temporal implicitness parameter. Any value other than 0.5 adds numerical dissipation.\n** Recommended value: 0.48",
+        "Temporal implicitness parameter. Any value smaller than 0.5 adds numerical dissipation.  fexpr=0.5 is 2cd order time-centered, fexpr=0 is fully implicit backward Euler, fexpr=1.0 is fully explicit forward Euler. \n** Recommended value: 0.48",
        :should_include=>"true",
        :description=>
         "Temporal implicitness parameter. Recommended value: 0.48",
@@ -3068,7 +3098,7 @@
        :module=>:dist_fn},
      :bakdif=>
       {:help=>
-        "Spatial implicitness parameter. Any value greater than 0 adds numerical dissipation (usually necessary).\n** Recommended value: 0.05",
+        "Spatial implicitness parameter. Any value greater than 0 adds numerical dissipation (usually necessary).  bakdif=0 is 2cd-order space-centered, bakdif=1.0 is fully upwinded.\n** Recommended value for electrostatic runs: 0.05. For electromagnetic runs, bakdif should be 0.",
        :should_include=>"true",
        :description=>"Spatial implicitness parameter. Recommended value: 0.05",
        :tests=>["Tst::FLOAT"],
@@ -3187,7 +3217,7 @@
        :type=>:Float},
      :clean_init=>
       {:help=>
-        "Makes sure phi = 0 at either ends of paralle domain. Only works when chop_side is also true",
+        "Used with ginit_option='noise'. Ensures that in flux tube simulations the connected boundary points are initialised to the same value. Also allows for chop_side to behave correctly in flux tube simulations.",
        :should_include=>"true",
        :description=>"phi = 0 at either end of domain.",
        :tests=>["Tst::STRING"],
@@ -3198,7 +3228,8 @@
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool},
      :chop_side=>
-      {:help=>"Rarely needed.  Forces asymmetry into initial condition.",
+      {:help=>
+        "Rarely needed.  Forces asymmetry into initial condition. Warning: This does not behave as one may expect in flux tube simulations (see [[clean_init]]), this can be important as the default is to use chop_side.",
        :should_include=>"true",
        :description=>"Rarely needed. Forces asymmetry into initial condition.",
        :tests=>["Tst::STRING"],
@@ -3250,7 +3281,7 @@
        :module=>:init_g},
      :ginit_option=>
       {:help=>
-        "Sets the way that the distribution function is initialized. There are many possible choices.\n**  'default'\n**  'noise'  This is the  recommended selection.  Pretty random.\n**  'test1'\n**  'xi'\n**  'xi2'\n**  'zero'\n**  'test3'\n**  'convect'\n**  'rh'\n**  'many'\n**  'small'\n**  'file'\n**  'cont'\n**  'kz0'  initialise only with k_parallel=0\n**  'nl'\n**  'nl2'\n**  'nl3'\n**  'nl4'\n**  'nl5'\n**  'nl6'\n**  'gs'\n**  'kpar'\n**  'zonal_only'  Restart but set all non-zonal components of the potential and the distribution function to 0. Noise can be added to these other components by setting iphiinit > 0.\n**  'single_parallel_mode'  Initialise only with a single parallel mode specified by either ikpar_init for periodic boundary conditions or kpar_init for linked boundary conditions. Intended for linear calculations.\n**  'all_modes_equal'  Initialise with every single parallel and perpendicular mode given the same amplitude. Intended for linear calculations.",
+        "Sets the way that the distribution function is initialized. There are many possible choices.\n**  'default' This gives a gaussian in theta (see [[width0]])\n**  'noise'  This is the  recommended selection ('''but not the default''').  Pretty random.\n**  'test1'\n**  'xi'\n**  'xi2'\n**  'zero'\n**  'test3'\n**  'convect'\n**  'rh'\n**  'many' This is the option to read the (many) restart files written by a previous run. Use for restarts\n**  'small'\n**  'file'\n**  'cont'\n**  'kz0'  initialise only with k_parallel=0\n**  'nl'\n**  'nl2'\n**  'nl3'\n**  'nl4'\n**  'nl5'\n**  'nl6'\n**  'gs'\n**  'kpar'\n**  'zonal_only'  Restart but set all non-zonal components of the potential and the distribution function to 0. Noise can be added to these other components by setting iphiinit > 0.\n**  'single_parallel_mode'  Initialise only with a single parallel mode specified by either ikpar_init for periodic boundary conditions or kpar_init for linked boundary conditions. Intended for linear calculations.\n**  'all_modes_equal'  Initialise with every single parallel and perpendicular mode given the same amplitude. Intended for linear calculations.",
        :should_include=>"true",
        :description=>
         "Sets the way that the distribution function is initialized.",
@@ -3491,7 +3522,8 @@
      :restart_dir=>
       {:should_include=>"true",
        :description=>nil,
-       :help=>nil,
+       :help=>
+        "Directory in which to write/read restart files. Make sure this exists before running.",
        :tests=>["Tst::STRING"],
        :code_name=>:restart_dir,
        :must_pass=>
@@ -3795,7 +3827,7 @@
        :type=>:Fortran_Bool,
        :module=>:gs2_diagnostics},
      :write_nl_flux=>
-      {:help=>"Write nonlinear fluxes as a function of time.",
+      {:help=>"Phi**2(kx,ky) written to runname.out",
        :should_include=>"true",
        :description=>"Write nonlinear fluxes as a function of time.",
        :tests=>["Tst::FORTRAN_BOOL"],
@@ -3929,7 +3961,7 @@
        :module=>:gs2_diagnostics},
      :write_omega=>
       {:help=>
-        "If (write_ascii = T) instantaneous omega to output file every nwrite timesteps. Very heavy output.",
+        "If (write_ascii = T) instantaneous omega to output file every nwrite timesteps. Very heavy output.\n*If true writes omega to netcdf file every nwrite timesteps.\n**Also writes out omegaavg (omega averaged over navg steps) to netcdf file no matter what the value of write_omavg is.",
        :should_include=>"true",
        :description=>
         "If (write_ascii = T) instantaneous omega to output file. Very heavy output",
@@ -3943,7 +3975,7 @@
        :module=>:gs2_diagnostics},
      :write_omavg=>
       {:help=>
-        "If (write_ascii = T) time-averaged frequencies written to runname.out every nwrite timesteps.\n** Average is over navg steps.",
+        "If (write_ascii = T) time-averaged frequencies written to runname.out every nwrite timesteps.\n** Average is over navg steps.\n** Worth noting that setting this to true does not result in omegaavg being written to netcdf file (see [[write_omega]]).",
        :should_include=>"true",
        :description=>
         "If (write_ascii = T) time-averaged growth rate and frequency to the output file.",
@@ -4096,8 +4128,9 @@
        :module=>:gs2_diagnostics},
      :write_ascii=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>" If true, some data is written to runname.out\n",
+       :description=>"",
+       :help=>
+        "If true, some data is written to runname.out\n** Also controls the creation of a large number of ascii data files (such as <run_name>.fields). Many of the write_* settings in this namelist will only have an effect when write_ascii= .TRUE.",
        :tests=>["Tst::FORTRAN_BOOL"],
        :gs2_name=>:write_ascii,
        :must_pass=>
@@ -5231,7 +5264,7 @@
       {:should_include=>"true",
        :description=>"Overrides naky in kt_grids_range_parameters.",
        :help=>
-        "Used for specifying toroidal mode numbers. Overrides naky in kt_grids_range_parameters.",
+        "Number of toroidal modes, only used if [[n0_min]]>0.  Overrides naky in kt_grids_range_parameters.",
        :code_name=>:nn0,
        :must_pass=>
         [{:test=>"kind_of? Integer",
@@ -5240,7 +5273,8 @@
      :n0_min=>
       {:should_include=>"true",
        :description=>"if (n0_min > 0) aky_min=n0_min*drhodpsi*rhostar_range",
-       :help=>"If n0_min is set, aky_min=n0_min*drhodpsi*rhostar_range.",
+       :help=>
+        "Minimum toroidal mode number. \n   if n0_min > 0 then\n      set [[aky_min]]=[[n0_min]]*drhodpsi*[[rhostar_range]]\n   endif",
        :code_name=>:n0_min,
        :must_pass=>
         [{:test=>"kind_of? Integer",
@@ -5249,7 +5283,8 @@
      :n0_max=>
       {:should_include=>"true",
        :description=>"If n0_min > 0, aky_max=n0_max*drhodpsi*rhostar_range",
-       :help=>"If n0_min is set, aky_max=n0_max*drhodpsi*rhostar_range",
+       :help=>
+        "Maximum toroidal mode number. \n   If [[n0_min]] > 0 then\n      if (mod([[n0_max]]-[[n0_min]],[[nn0]]).ne.0 .or. nn0 .eq. 1 .or. [[n0_min]].[[ge.n0_max]]) then\n        set [[naky]]=1, [[aky_max]]=[[aky_min]]\n      else\n        set [[naky]]=[[nn0]], [[aky_max]]=[[n0_max]]*drhodpsi*[[rhostar_range]] \n   endif",
        :code_name=>:n0_max,
        :must_pass=>
         [{:test=>"kind_of? Integer",
@@ -5260,7 +5295,7 @@
        :description=>
         "If n0_min > 0 aky_min=n0_min*drhodpsi*rhostar_range, etc",
        :help=>
-        "If n0_min is set, aky_min=n0_min*drhodpsi*rhostar_range and aky_max=n0_max*drhodpsi*rhostar_range",
+        "[[rhostar_range]] used to convert [[n0_min]], [[n0_max]] range into [[aky_min]], [[aky_max]], if [[n0_min]]>0.\n** If n0_min is set, aky_min=n0_min*drhodpsi*rhostar_range and aky_max=n0_max*drhodpsi*rhostar_range",
        :code_name=>:rhostar_range,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
