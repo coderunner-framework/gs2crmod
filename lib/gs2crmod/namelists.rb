@@ -244,7 +244,30 @@
        :autoscanned_defaults=>[0],
        :type=>:Integer,
        :code_name=>:nkpolar,
-       :module=>:kt_grids_box}}},
+       :module=>:kt_grids_box},
+     :n0=>
+      {:should_include=>"true",
+       :description=>
+        "if (rhostar_box .gt. 0.0 .and. n0 .gt. 0) y0=1.0/(n0*rhostar_box*drhodpsi)",
+       :help=>
+        "Number of toroidal mode numbers: if set, overrides y0... y0=1.0/(n0*rhostar_box*drhodpsi)",
+       :code_name=>:n0,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer},
+     :rhostar_box=>
+      {:should_include=>"true",
+       :description=>
+        "if (rhostar_box .gt. 0.0 .and. n0 .gt. 0) y0=1.0/(n0*rhostar_box*drhodpsi)",
+       :help=>
+        "If rhostar_box and n0 are set then  y0=1.0/(n0*rhostar_box*drhodpsi)",
+       :code_name=>:rhostar_box,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float}}},
  :kt_grids_single_parameters=>
   {:description=>"",
    :should_include=>"@grid_option=='single'",
@@ -289,7 +312,28 @@
        :autoscanned_defaults=>[0.0],
        :type=>:Float,
        :code_name=>:akx,
-       :module=>:kt_grids_single}}},
+       :module=>:kt_grids_single},
+     :n0=>
+      {:should_include=>"true",
+       :description=>"Overrides aky: aky=n0*drhodpsi*rhostar_single",
+       :help=>
+        "If specified, overrides aky in kt_grids_single: aky=n0*drhodpsi*rhostar_single",
+       :code_name=>:n0,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer},
+     :rhostar_single=>
+      {:should_include=>"true",
+       :description=>"If n0>0 aky=n0*drhodpsi*rhostar_single",
+       :help=>
+        "Used in conjunction with n0: aky=n0*drhodpsi*rhostar_single (if n0 is set).",
+       :code_name=>:rhostar_single,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float}}},
  :theta_grid_parameters=>
   {:description=>"",
    :should_include=>"true",
@@ -1511,28 +1555,6 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool},
-     :read_many=>
-      {:should_include=>"true",
-       :description=>"Allows reading of many restart files and writing to one. Compile with USE_PARALLEL_NETCDF=on.\n",
-       :help=>"Allows reading of many restart files and writing to one. Compile with USE_PARALLEL_NETCDF=on.\n",
-       :gs2_name=>:read_many,
-       :must_pass=>
-        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
-          :explanation=>
-           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool,
-       :code_name=>:read_many},
-     :save_many=>
-      {:should_include=>"true",
-       :description=>"Allows saving of many restart files. Compile with USE_PARALLEL_NETCDF=on.\n",
-       :help=>"Allows saving of many restart files. Compile with USE_PARALLEL_NETCDF=on.\n",
-       :gs2_name=>:save_many,
-       :must_pass=>
-        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
-          :explanation=>
-           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool,
-       :code_name=>:save_many},
      :mult_imp=>
       {:should_include=>"true",
        :description=>nil,
@@ -1659,6 +1681,26 @@
        :description=>"",
        :help=>"",
        :code_name=>:lf_decompose,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :cllc=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"Experimental",
+       :code_name=>:cllc,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :esv=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:esv,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
@@ -1927,7 +1969,28 @@
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool}}},
+       :type=>:Fortran_Bool},
+     :fixpar_secondary=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:fixpar_secondary,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer},
+     :margin_cpu_time=>
+      {:should_include=>"true",
+       :description=>
+        "Start finalising when (avail_cpu_time - margin_cpu_time) seconds have elapsed.",
+       :help=>
+        "Sets the safety margin in seconds for exiting before the time limit avail_cpu_time, i.e. the amount of time GS2 should leave for finalising before running out of wall clock time. In other words, GS2 will start finalising when (avail_cpu_time - margin_cpu_time) seconds have elapsed.",
+       :code_name=>:margin_cpu_time,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float}}},
  :reinit_knobs=>
   {:description=>"",
    :should_include=>"true",
@@ -2420,9 +2483,11 @@
        :type=>:String,
        :module=>:hyper},
      :const_amp=>
-      {:help=>'Determines whether hyperviscosity includes time dependent amplitude factor when calculating damping rate. Recommend TRUE for linear runs and FALSE for nolinear runs, since amplutide of turbulence grows linearly with time in linear run.',
+      {:help=>
+        "Determines whether hyperviscosity includes time dependent amplitude factor when calculating damping rate. Recommend TRUE for linear runs and FALSE for nolinear runs, since amplutide of turbulence grows linearly with time in linear run.",
        :should_include=>"true",
-       :description=>'Detrmines whether damping rate depends on amplitude variations. Recommend FALSE for nonlinear, TRUE for linear.',
+       :description=>
+        "Detrmines whether damping rate depends on amplitude variations. Recommend FALSE for nonlinear, TRUE for linear.",
        :tests=>["Tst::STRING"],
        :autoscanned_defaults=>[".false."],
        :must_pass=>
@@ -2947,6 +3012,16 @@
        :help=>
         "Alpha electron collion rate. Normalisation chosen so that this parameter should be roughly the same as nu_ee.",
        :code_name=>:gamma_ae,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float},
+     :bess_fac=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:bess_fac,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
@@ -3683,6 +3758,17 @@
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :read_many=>
+      {:should_include=>"true",
+       :description=>"Single/many restart files.",
+       :help=>
+        "Only applies if GS2 has been build with USE_PARALLEL_NETCDF=on. If .true., restart the old way from many restart files, if .false. use the new single restart file.",
+       :code_name=>:read_many,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool}}},
  :gs2_diagnostics_knobs=>
   {:description=>"DIAGNOSTICS",
@@ -4374,6 +4460,37 @@
        :description=>"Write final delta B.",
        :help=>"Write final delta B.",
        :code_name=>:write_final_db,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :save_many=>
+      {:should_include=>"true",
+       :description=>"Single/many restart files.",
+       :help=>
+        "Only applies if GS2 has been build with USE_PARALLEL_NETCDF=on. If .true., save for restart the old way to many restart files, if .false. save the new single restart file.",
+       :code_name=>:save_many,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_pflux_sym=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"Ask J-P Lee.",
+       :code_name=>:write_pflux_sym,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_pflux_tormom=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"Ask J-P Lee.",
+       :code_name=>:write_pflux_tormom,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
@@ -5101,7 +5218,47 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :module=>:kt_grids_range}}},
+       :module=>:kt_grids_range},
+     :nn0=>
+      {:should_include=>"true",
+       :description=>"Overrides naky in kt_grids_range_parameters.",
+       :help=>
+        "Used for specifying toroidal mode numbers. Overrides naky in kt_grids_range_parameters.",
+       :code_name=>:nn0,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer},
+     :n0_min=>
+      {:should_include=>"true",
+       :description=>"if (n0_min > 0) aky_min=n0_min*drhodpsi*rhostar_range",
+       :help=>"If n0_min is set, aky_min=n0_min*drhodpsi*rhostar_range.",
+       :code_name=>:n0_min,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer},
+     :n0_max=>
+      {:should_include=>"true",
+       :description=>"If n0_min > 0, aky_max=n0_max*drhodpsi*rhostar_range",
+       :help=>"If n0_min is set, aky_max=n0_max*drhodpsi*rhostar_range",
+       :code_name=>:n0_max,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer},
+     :rhostar_range=>
+      {:should_include=>"true",
+       :description=>
+        "If n0_min > 0 aky_min=n0_min*drhodpsi*rhostar_range, etc",
+       :help=>
+        "If n0_min is set, aky_min=n0_min*drhodpsi*rhostar_range and aky_max=n0_max*drhodpsi*rhostar_range",
+       :code_name=>:rhostar_range,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float}}},
  :kt_grids_specified_parameters=>
   {:description=>"",
    :should_include=>"@grid_option=='specified'",
