@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = "gs2crmod"
-  s.version = "0.11.0"
+  s.version = "0.11.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Edmund Highcock", "Ferdinand van Wyk"]
@@ -65,6 +65,8 @@ Gem::Specification.new do |s|
     "lib/gs2crmod/spectrogk/namelists.rb",
     "lib/gs2crmod/test_gs2.rb",
     "lib/gs2crmod_extension.rb",
+    "sync_mediawiki/helper.rb",
+    "sync_mediawiki/sync_mediawiki.rb",
     "sync_variables/helper.rb",
     "sync_variables/sync_variables.rb",
     "test/agk_slab_itg_low_kperp.in",
@@ -86,7 +88,7 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<coderunner>, [">= 0.13.13"])
+      s.add_runtime_dependency(%q<coderunner>, [">= 0.13.29"])
       s.add_runtime_dependency(%q<rubyhacks>, [">= 0.1.2"])
       s.add_runtime_dependency(%q<ruby-netcdf>, [">= 0.6.6.1"])
       s.add_development_dependency(%q<shoulda>, [">= 0"])
@@ -94,7 +96,7 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<bundler>, ["> 1.0.0"])
       s.add_development_dependency(%q<jeweler>, [">= 1.8.4"])
     else
-      s.add_dependency(%q<coderunner>, [">= 0.13.13"])
+      s.add_dependency(%q<coderunner>, [">= 0.13.29"])
       s.add_dependency(%q<rubyhacks>, [">= 0.1.2"])
       s.add_dependency(%q<ruby-netcdf>, [">= 0.6.6.1"])
       s.add_dependency(%q<shoulda>, [">= 0"])
@@ -103,7 +105,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<jeweler>, [">= 1.8.4"])
     end
   else
-    s.add_dependency(%q<coderunner>, [">= 0.13.13"])
+    s.add_dependency(%q<coderunner>, [">= 0.13.29"])
     s.add_dependency(%q<rubyhacks>, [">= 0.1.2"])
     s.add_dependency(%q<ruby-netcdf>, [">= 0.6.6.1"])
     s.add_dependency(%q<shoulda>, [">= 0"])
