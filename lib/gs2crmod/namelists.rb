@@ -5661,4 +5661,109 @@
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool}}},
+ :diagnostics_config=>
+  {:help=>
+    "This namelists controls the behaviour of the new diagnostics module (which can be enabled by setting USE_NEW_DIAG=on).",
+   :description=>"Options for the new diagnostics module",
+   :should_include=>"true",
+   :variables=>
+    {:nwrite=>
+      {:should_include=>"true",
+       :description=>
+        "Diagnostic quantities are written every nwrite timesteps.",
+       :help=>"Diagnostic quantities are written every nwrite timesteps.",
+       :code_name=>:nwrite,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer},
+     :write_any=>
+      {:should_include=>"true",
+       :description=>"If .false. disables the new diagnostics module.",
+       :help=>
+        "If .false. disables the new diagnostics module. No output is written.",
+       :code_name=>:write_any,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_fields=>
+      {:should_include=>"true",
+       :description=>
+        "If .true. write out values of phi, apar and bpar at the current time, as well as integrated quantities as a function of time.",
+       :help=>"If .true. write out values of phi, apar and bpar.",
+       :code_name=>:write_fields,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_phi_over_time=>
+      {:should_include=>"true",
+       :description=>"Write entire phi field to NetCDF file every nwrite.",
+       :help=>
+        "If this variable is set to true then the entire field phi will be written to the NetCDF file every nwrite. Useful for making films. This can cause the NetCDF file to be huge, if resolution is large or nwrite is small.",
+       :code_name=>:write_phi_over_time,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_apar_over_time=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>
+        "If this variable is set to true then the entire field apar will be written to the NetCDF file every nwrite. Useful for making films. This can cause the NetCDF file to be huge, if resolution is large or nwrite is small.",
+       :code_name=>:write_apar_over_time,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_bpar_over_time=>
+      {:should_include=>"true",
+       :description=>"Write entire bpar field to NetCDF file every nwrite.",
+       :help=>
+        "If this variable is set to true then the entire field bpar will be written to the NetCDF file every nwrite. Useful for making films. This can cause the NetCDF file to be huge, if resolution is large or nwrite is small.",
+       :code_name=>:write_bpar_over_time,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_fluxes=>
+      {:should_include=>"true",
+       :description=>"If .true. write fluxes of heat, momentum & particles.",
+       :help=>
+        "If .true. write fluxes of heat, momentum & particles to the new netcdf file.",
+       :code_name=>:write_fluxes,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_fluxes_by_mode=>
+      {:should_include=>"true",
+       :description=>
+        "If .true., write fluxes as a function of ky, kx, species and time.",
+       :help=>
+        "If .true., write fluxes as a function of ky, kx, species and time (otherwise they will only be written out as functions of species, time and kx or ky).",
+       :code_name=>:write_fluxes_by_mode,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_omega=>
+      {:should_include=>"true",
+       :description=>"Write growth rates and frequencies to the netcdf file",
+       :help=>
+        "If true writes omega (both growth rate and frequency) to netcdf file every nwrite timesteps.\n**Also writes out omegaavg (omega averaged over navg steps) to netcdf file is.",
+       :code_name=>:write_omega,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool}}}}

@@ -1023,7 +1023,7 @@ def run_heuristic_analysis
 	make_info_file(input_file, false)
 end
 	
-@source_code_subfolders = ['utils', 'geo']
+@source_code_subfolders = ['utils', 'geo', 'diagnostics']
 
 attr_accessor :iphi00, :saturation_time #Necessary for back. comp. due to an old bug
 
