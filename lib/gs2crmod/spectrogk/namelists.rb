@@ -2840,6 +2840,17 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool},
+    :write_in_z=>
+      {:should_include=>"true",
+       :description=>"Write out in z space",
+       :help=>nil,
+       :tests=>["Tst::FORTRAN_BOOL"],
+       :code_name=>:write_in_z,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
     :phi_method=>
       {:should_include=>"true",
        :description=>"Method of determining fields from the distribution in Hankel space",
