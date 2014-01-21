@@ -14,15 +14,19 @@ def auto_axiskits(name, options)
                 'apar2_over_time' => ['Apar^2 Total', ''],
                 'growth_rate_by_ky_over_time' => ['Growth Rate by ky', ''],
                  'growth_rate_by_kx_over_time' => ['Growth Rate by kx', ''],  
-								 'growth_rate_by_mode_over_time' => ["Growth Rate by mode", ''],
+		 'growth_rate_by_mode_over_time' => ["Growth Rate by mode", ''],
+# <MJL additions 2013-09-19>
+                 'frequency_by_ky_over_time' => ['Real frequency by ky', ''],
+                  'frequency_by_kx_over_time' => ['Real frequency by kx', ''],
+# </MJL>
                 'phi2_by_ky_over_time' => ['Phi^2 by ky', ''],
                  'phi2_by_kx_over_time' => ['Phi^2 by ky', ''],  
                 'es_heat_by_ky_over_time' => ['Phi^2 by ky', ''],
                  'es_heat_by_kx_over_time' => ['Phi^2 by kx', ''],  
-								 'phi2_by_mode_over_time' => ["Phi^2 by mode", ''],
-								 'tpar2_by_mode_over_time' => ["(delta T_parallel)^2 by mode", '%'],
-						 		'tperp2_by_mode_over_time' => ["(delta T_perp)^2 by mode", '%'],
-                                'hflux_tot' => ['Total Heat Flux', ''],
+		 'phi2_by_mode_over_time' => ["Phi^2 by mode", ''],
+	 'tpar2_by_mode_over_time' => ["(delta T_parallel)^2 by mode", '%'],
+ 		'tperp2_by_mode_over_time' => ["(delta T_perp)^2 by mode", '%'],
+                              'hflux_tot' => ['Total Heat Flux', ''],
                                 'es_heat_par' => ['Parallel electrostatic heat flux', ''],
                                 'es_heat_perp' => ['Perpendicular electrostatic heat flux', ''],
                 'ky' => ['ky', "1/rho_#{species_letter}"],
@@ -30,6 +34,9 @@ def auto_axiskits(name, options)
 	        'kpar' => ['kpar', "2 pi/qR"],
 	        'growth_rate_over_kx' => ['Growth Rate', "v_th#{species_letter}/a", 1],
 	        'growth_rate_over_ky' => ['Growth Rate', "v_th#{species_letter}/a", 1],
+	        'growth_rate_over_kx_slice' => ['Growth Rate', "v_th#{species_letter}/a", 1],
+	        'growth_rate_over_ky_slice' => ['Growth Rate', "v_th#{species_letter}/a", 1],
+	        'growth_rate_over_ky_over_kx' => ["Growth Rate", "v_th#{species_letter}/a", 2],
           'frequency_over_ky' => ['Frequency', "v_th#{species_letter}/a", 1],
 	        'transient_es_heat_flux_amplification_over_kx' => ['Transient Electrostatic Heat Amplification', "", 1],
 	        'transient_es_heat_flux_amplification_over_ky' => ['Transient Electrostatic Heat Amplification', "", 1],
@@ -39,7 +46,6 @@ def auto_axiskits(name, options)
 	        'zonal_spectrum' => ["Zonal spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
 	        'spectrum_over_ky' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
 	        'es_heat_over_ky' => ["Heat Flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", 'Q_gB', 1],
-	        'growth_rate_over_ky_over_kx' => ["Growth Rate", "v_th#{species_letter}/a", 2],
 	       	'es_heat_flux_over_ky_over_kx' => ["Heat flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
 	       	'spectrum_over_kpar' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
 	       	'spectrum_over_ky_over_kx' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
@@ -116,21 +122,23 @@ def self.generate_graphs_rdoc_file
 end
 def self.help_graphs
 # 	@@runner ||= CodeRunner.fetch_runner(U: true, 
+	string = ""
 	graphs = self.instance_methods.find_all{|m| m.to_s =~ /_graphkit$/}.sort_by{|m| m.to_s}
 	run = new(nil)
-	puts "-------------------------------------------\n    Available Graphs For #{self.to_s}\n-------------------------------------------\n"
+	string << "-------------------------------------------\n    Available Graphs For #{self.to_s}\n-------------------------------------------\n\n"
 	graphs.each do |graph|
 		help = run.send(graph, command: :help)
 		options = run.send(graph, command: :options)
-		puts "\n------------------------------------\n#{graph.to_s.sub(/_graphkit/, '')}\n------------------------------------\n\n#{help}"
+		string << "\n------------------------------------\n#{graph.to_s.sub(/_graphkit/, '')}\n------------------------------------\n\n#{help}\n"
 		if options and options.size > 0
-			puts "\n\tOptions:"
+			string << "\n\tOptions:\n"
 			options.each do |op|
-				puts "\t\t#{op}: #{GRAPHKIT_OPTIONS_HELP[op]}"
+				string << "\t\t#{op}: #{GRAPHKIT_OPTIONS_HELP[op]}\n"
 			end
 		end
 		
 	end
+	string.paginate
 end
 
 GRAPHKIT_OPTIONS_HELP = {
@@ -186,7 +194,7 @@ GRAPHKIT_OPTIONS_HELP = {
 def graphkit(name, options={})
 	logf :graphkit
 	# If an array of t, kx or ky values is provided, plot one graph for each value and then sum the graphs together
-	[:t, :kx, :ky].each do |var|
+	[:t, :kx, :ky, :X, :Y, :e, :l, :theta].each do |var|
 		#ep 'index', var
 		if options[var].class == Symbol and options[var] == :all
 			options[var] = list(var).values
@@ -212,10 +220,15 @@ def graphkit(name, options={})
 	
 
 
-	# If a method from the new GraphKits module can generate this graphkit use it 
-	#ep name + '_graphkit'
- 	#ep self.class.instance_methods.find{|meth| (name + '_graphkit').to_sym == meth}
 
+	# Smart graphkits are defined in the file read_netcdf
+	if name =~ /^cdf_/
+		return smart_graphkit(options + {graphkit_name: name})
+	elsif name =~ /^nc_/
+		return old_smart_graphkit(options + {graphkit_name: name})
+	end
+
+	# If a method from the new GraphKits module can generate this graphkit use it 
 	if method = self.class.instance_methods.find{|meth| (name + '_graphkit').to_sym == meth}
 		options[:graphkit_name] = name
 		return send(method, options)
@@ -311,24 +324,6 @@ module GraphKits
 				options[:imrc] ||= :real
 				ep options
 				options.convert_to_index(self, :ky)
-				#ep 'converted options: ', options
-				
-				#decode naming scheme
-				#mag = nil
-				#options[:imrc] = :real
-				#case name
-				#when /im/
-					#options[:imrc] = :im
-				#when /mag/
-					#options[:imrc] = :mag
-					#options[:mag] = true
-				#when /corr/
-					#options[:imrc] = :corr
-				#end 
-				#options[:flip] = true if name =~ /flip/
-				#options[:norm] = true if name =~ /norm/
-				#options[:rev] = true if name =~ /rev/
-				#options[:z] = true if name =~ /z/
 				
 				
 				kit = GraphKit.autocreate({x: axiskit('theta_along_field_line', options), y: axiskit('phi_along_field_line', options)})
@@ -342,10 +337,10 @@ module GraphKits
 				kit.data[0].with = "linespoints"
 	# 			kit.data[0].axes[:x].data *= -1 #if options[:rev]
 				#(eputs 'reversing'; gets)
-				if (@s_hat_input||@shat).abs >= 1.0e-5
-					range = options[:range] == 0 ? nil : (options[:range] or options[:z] ? 1 / (@s_hat_input||@shat) : 2 * Math::PI / (@s_hat_input||@shat))
-					kit.xrange = [-range, range] if range
-				end
+				#if (@s_hat_input||@shat).abs >= 1.0e-5
+					#range = options[:range] == 0 ? nil : (options[:range] or options[:z] ? 1 / (@s_hat_input||@shat) : 2 * Math::PI / (@s_hat_input||@shat))
+					#kit.xrange = [-range, range] if range
+				#end
 				return kit
 		end
 	end
@@ -542,6 +537,64 @@ module GraphKits
 			kxy = options[:kxy]
 			kit = GraphKit.autocreate({x: axiskit(kxy.to_s, options), y: axiskit("growth_rate_over_#{kxy}", options)})
 			kit.title  = "Growth Rates by #{kxy}"
+			kit.data[0].with = "lp"
+			kit.data[0].title = @run_name
+			kit.file_name = options[:graphkit_name]
+			kit
+		end 
+	end
+
+	def growth_rate_vs_kx_slice_graphkit(options={})
+	    case options[:command]
+	    when :help
+	    	 return "Growth rates vs kx at a fixed ky, not integrated over ky."
+	    when :options
+	    	 return [:ky, :ky_index]
+	    else
+		options[:kxy] = :kx
+		if options[:ky_index].nil?
+		   raise "You must specify ky or ky_index." if options[:ky].nil?
+		   options[:title] = "Growth rate vs kx at ky = "+options[:ky].to_s
+		else
+		   options[:ky] = list(:ky)[options[:ky_index]]
+		   options[:title] = "Growth rate vs kx at ky_index = "+options[:ky_index].to_s		   
+		end
+		eputs "For run " + @id.to_s + ", using ky = " + options[:ky].to_s
+		growth_rate_vs_kxy_slice_graphkit(options)
+	    end
+	end
+
+	def growth_rate_vs_ky_slice_graphkit(options={})
+	    case options[:command]
+	    when :help
+	    	 return "Growth rates vs ky at a fixed kx, not integrated over kx."
+	    when :options
+	    	 return [:kx, :kx_index]
+	    else
+		options[:kxy] = :ky
+		if options[:kx_index].nil?
+		   raise "You must specify kx or kx_index." if options[:kx].nil?
+		   options[:title] = "Growth rate vs ky at kx = "+options[:kx].to_s
+		else
+		   options[:kx] = list(:kx)[options[:kx_index]]
+		   options[:title] = "Growth rate vs ky at kx_index = "+options[:kx_index].to_s
+		end
+		eputs "For run " + @id.to_s + ", using kx = " + options[:kx].to_s
+	    	growth_rate_vs_kxy_slice_graphkit(options)
+	    end
+	end
+
+	def growth_rate_vs_kxy_slice_graphkit(options={})
+		case options[:command]
+		when :help
+		when :options
+			return []
+		else
+			raise "Growth Rates are not available in non-linear mode" if @nonlinear_mode == "on"
+			raise "growth_rate_at_ky_at_kx was not calculated for this run, probably because the environment variable GS2_CALCULATE_ALL was not set when the run was analyzed. Try setting this variable and re-analyzing the run." if @growth_rate_at_ky_at_kx.nil?
+			kxy = options[:kxy]
+			kit = GraphKit.autocreate({x: axiskit(kxy.to_s, options), y: axiskit("growth_rate_over_#{kxy}_slice", options)})
+			kit.title  = options[:title]
 			kit.data[0].with = "lp"
 			kit.data[0].title = @run_name
 			kit.file_name = options[:graphkit_name]
@@ -1846,13 +1899,49 @@ module GraphKits
       x = axiskit('t', options)
 			x.data = x.data.subvector(0, x.data.size-1)
 			kit = GraphKit.autocreate({x: x , y: phiax})
-			kit.data[0].title = "Growth Rate: #{kxy} = #{options[kxy]}"	
-			kit.data[0].title = "gs2:#@run_name"
+			#kit.data[0].title = "Growth Rate: #{kxy} = #{options[kxy]}"	
+			#kit.data[0].title = "gs2:#@run_name"
+# <MJL additions on 2013-09-19>
+          		kxy_index = kxy + :_index
+  		  	kit.data[0].title = "gs2:#@run_name, #{kxy}_index = #{options[kxy_index]}"
+# </MJL>
 			kit.data[0].with = "l" #"linespoints"
 			kit.file_name = options[:graphkit_name]
 			kit
 		end
 	end
+
+# <MJL additions on 2013-09-19>
+      def frequency_by_kx_vs_time_graphkit(options={})
+        options[:direction] = :kx
+        frequency_by_kxy_or_mode_vs_time_graphkit(options)
+      end
+ 
+      def frequency_by_ky_vs_time_graphkit(options={})
+ 	options[:direction] = :ky
+	frequency_by_kxy_or_mode_vs_time_graphkit(options)
+      end
+ 
+      def frequency_by_kxy_or_mode_vs_time_graphkit(options={})
+ 	case options[:command]
+ 	  when :help
+	    return  "'frequency_by_ky_vs_time' or 'frequency_by_kx_vs_time': Real part of the frequency vs time for a given kx or ky, integrated over the other direction"
+ 	  when :options
+	    return  [:ky, :ky_index, :kx, :kx_index]
+          else
+	    raise "Frequencies are not available in non-linear mode" if @nonlinear_mode == "on"
+ 	    kxy = options[:direction]
+ 	    x_data = axiskit('t', options)
+ 	    y_data = axiskit("frequency_by_#{kxy}_over_time", options) 
+            kit = GraphKit.autocreate({x: x_data , y: y_data})
+  	    kxy_index = kxy + :_index
+ 	    kit.data[0].title = "gs2:#@run_name, #{kxy}_index = #{options[kxy_index]}"
+       	    kit.data[0].with = "l" #"linespoints"
+ 	    kit.file_name = options[:graphkit_name]
+ 	    kit
+        end
+      end
+# </MJL>
 
 	def es_heat_by_mode_vs_time_graphkit(options={})
 		options[:direction] = :mode

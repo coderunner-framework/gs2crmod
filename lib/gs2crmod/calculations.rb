@@ -336,10 +336,11 @@ def calculate_growth_rates_and_frequencies
 		trap(0){eputs "Calculation of spectrum did not complete: run 'cgrf' (i.e. calculate_growth_rates_and_frequencies) for this run. E.g. from the command line \n $ coderunner rc 'cgrf' -j #{@id}"; exit}
 		@growth_rate_at_ky_at_kx ||= FloatHash.new
 		list(:ky).values.sort.each do |kyv|
-			@growth_rate_at_ky_at_kx[kyv] ||= FloatHash.new
-			#p @growth_rate_at_ky_at_kx[kyv]
+			# MJL 2013-11-07: The line below originally used ||= instead of =. I'm not sure why, since ||= does not seem to work.
+			@growth_rate_at_ky_at_kx[kyv] = FloatHash.new
 			list(:kx).values.sort.each do |kxv|	
-				next if @growth_rate_at_ky_at_kx[kyv].keys.include? kxv
+				# MJL 2013-11-07: I'm not sure why this next line was originally included. It seemed to cause almost all k's to be skipped.
+				#next if @growth_rate_at_ky_at_kx[kyv].keys.include? kxv
 				Terminal.erewind(1)
 				eputs sprintf("Calculating growth rate for kx = % 1.5e and ky = % 1.5e#{Terminal::CLEAR_LINE}", kxv, kyv) 
 				(@growth_rate_at_ky_at_kx[kyv][kxv] = 0.0; next) if kyv == 0.0 # Mode has 0 growth rate at ky==0

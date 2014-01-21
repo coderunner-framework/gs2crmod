@@ -81,6 +81,7 @@ require folder + '/calculations.rb'
 require folder + '/ingen.rb'
 require folder + '/properties.rb'
 require folder + '/test_gs2.rb'
+require folder + '/read_netcdf.rb'
 
 NaN = GSL::NAN
 # GSL::Neg
@@ -94,9 +95,13 @@ module load openmpi
 EOF
 	when /helios/
 		<<EOF
+module purge
 module load intel
 module load bullxmpi
-module load netcdf
+module load netcdf_p
+module load hdf5_p
+module load fftw
+module load bullxde scalasca libbcs papi
 EOF
 	else
 		""
@@ -547,6 +552,13 @@ def list_of_restart_files
 		if files.size == 0
 			(Dir.entries.find_all{|dir| FileTest.directory? dir} - ['.', '..']).each do |dir|
 				files = Dir.entries(dir).grep(/\.nc(?:\.\d|_ene)/).map{|file| dir + "/" + file}
+				break if files.size == 0
+			end
+		end #if files.size == 0
+    # This just finds a .nc file (w/o a number) if using single restart file
+		if files.size == 0
+			(Dir.entries.find_all{|dir| FileTest.directory? dir} - ['.', '..']).each do |dir|
+				files = Dir.entries(dir).grep(/\.nc/).map{|file| dir + "/" + file}
 				break if files.size == 0
 			end
 		end #if files.size == 0
@@ -1011,7 +1023,7 @@ def run_heuristic_analysis
 	make_info_file(input_file, false)
 end
 	
-@source_code_subfolders = ['utils', 'geo']
+@source_code_subfolders = ['utils', 'geo', 'diagnostics']
 
 attr_accessor :iphi00, :saturation_time #Necessary for back. comp. due to an old bug
 
