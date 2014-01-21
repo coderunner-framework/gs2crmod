@@ -2840,39 +2840,6 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool},
-    :write_in_z=>
-      {:should_include=>"true",
-       :description=>"Write out in z space",
-       :help=>nil,
-       :tests=>["Tst::FORTRAN_BOOL"],
-       :code_name=>:write_in_z,
-       :must_pass=>
-        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
-          :explanation=>
-           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool},
-    :fourier_filter=>
-      {:should_include=>"true",
-       :description=>"Method of Fourier filtering: hou_li, two_thirds",
-       :help=>
-        "Method of Fourier filtering: hou_li, two_thirds",
-       :tests=>["Tst::STRING"],
-       :code_name=>:fourier_filter,
-       :must_pass=>
-        [{:test=>"kind_of? String",
-          :explanation=>"This variable must be a string."}],
-       :type=>:String},
-    :suppress_kz=>
-      {:should_include=>"true",
-       :description=>"Method of suppressing low kz modes: none, zero, krook",
-       :help=>
-        "Method of suppressing low kz modes: none, zero, krook",
-       :tests=>["Tst::STRING"],
-       :code_name=>:suppress_kz,
-       :must_pass=>
-        [{:test=>"kind_of? String",
-          :explanation=>"This variable must be a string."}],
-       :type=>:String},
     :phi_method=>
       {:should_include=>"true",
        :description=>"Method of determining fields from the distribution in Hankel space",

@@ -2241,28 +2241,6 @@ module GraphKits
 			return GraphKit.quick_create([x_axis,g2])
 		end
 	end
-	def g2_by_energy_mode_graphkit(options={})
-		case options[:command]
-		when :help
-			return "Plots g**2 vs Hankel mode for fixed wavenumber and Hankel mode. JTP"
-		when :options
-			return []
-		else
-			raise "Velocity space diagnostics not found" unless FileTest.exist? "#@directory/#@run_name.vpg" 
-			g2 = []
-			x_axis = []
-                        #File.open("#@directory/#@run_name.vpx#{options[:kx_index]}y#{options[:ky_index]}g","r").each_line do | line |
-                        File.open("#@directory/#@run_name.vpg","r").each_line do | line |
-				line_array = line.split(/\s+/).map{|v| v.to_f}
-				if( options[:il_index] == line_array[5]  )
-					g2.push line_array[1]**2+line_array[2]**2 
-					x_axis.push line_array[4]
-				end
-			end
-
-			return GraphKit.quick_create([x_axis,g2])
-		end
-	end
 	def g2_by_energy_graphkit(options={})
 		case options[:command]
 		when :help
@@ -2278,7 +2256,7 @@ module GraphKits
 				line_array = line.split(/\s+/).map{|v| v.to_f}
 				if( options[:il_index] == line_array[5]  )
 					g2.push line_array[1]**2+line_array[2]**2 
-					x_axis.push line_array[6]
+					x_axis.push line_array[4]
 				end
 			end
 
