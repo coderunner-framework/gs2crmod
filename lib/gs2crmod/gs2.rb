@@ -531,7 +531,7 @@ def restart(new_run)
 	new_run.restart_id = @id
 	new_run.restart_run_name = @run_name
 	@runner.nprocs = @nprocs if @runner.nprocs == "1" # 1 is the default so this means the user probably didn't specify nprocs 
-	raise "Restart must be on the same number of processors as the previous run: new is #{new_run.nprocs.inspect} and old is #{@nprocs.inspect}" if !new_run.nprocs or new_run.nprocs != @nprocs
+	raise "Restart must be on the same number of processors as the previous run: new is #{new_run.nprocs.inspect} and old is #{@nprocs.inspect}" if !new_run.nprocs or new_run.actual_number_of_processors != actual_number_of_processors
 # 	@runner.parameters.each{|var, value| new_run.set(var,value)} if @runner.parameters
 #   ep @runner.parameters
   new_run.run_name = nil
