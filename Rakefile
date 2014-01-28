@@ -53,6 +53,11 @@ Rake::TestTask.new(:sync_variables) do |test|
   test.pattern = 'sync_variables/sync_variables.rb'
   test.verbose = true
 end
+Rake::TestTask.new(:sync_variables_sgk) do |test|
+  test.libs << 'lib' << 'sync_variables_sgk'
+  test.pattern = 'sync_variables_sgk/sync_variables_sgk.rb'
+  test.verbose = true
+end
 Rake::TestTask.new(:sync_mediawiki) do |test|
   test.libs << 'lib' << 'sync_mediawiki'
   test.pattern = 'sync_mediawiki/sync_mediawiki.rb'

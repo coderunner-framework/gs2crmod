@@ -141,7 +141,7 @@ def self.defaults_file_header
 EOF1
 end
 
-@source_code_subfolders = ['utils']
+@source_code_subfolders = ['utils', 'diagnostics', 'easy_namelists']
 
 folder = File.dirname(File.expand_path(__FILE__)) # i.e. the directory this file is in
 
