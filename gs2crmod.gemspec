@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = "gs2crmod"
-  s.version = "0.11.4"
+  s.version = "0.11.5"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Edmund Highcock", "Ferdinand van Wyk"]
@@ -62,6 +62,7 @@ Gem::Specification.new do |s|
     "lib/gs2crmod/read_netcdf.rb",
     "lib/gs2crmod/species_dependent_namelists.rb",
     "lib/gs2crmod/spectrogk.rb",
+    "lib/gs2crmod/spectrogk/deleted_variables.rb",
     "lib/gs2crmod/spectrogk/namelists.rb",
     "lib/gs2crmod/test_gs2.rb",
     "lib/gs2crmod_extension.rb",
