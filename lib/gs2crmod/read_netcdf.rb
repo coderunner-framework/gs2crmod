@@ -102,6 +102,10 @@ class NetcdfSmartReader
 			'lambda'
 		when 't'
 			n
+		when 'm'
+			'hermite'
+		when 'p'
+			'hankel'
 		else
 			raise "Unknown dimension #{n}"
 		end
