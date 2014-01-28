@@ -96,6 +96,8 @@ class NetcdfSmartReader
 			'kx'
 		when 'Y'
 			'ky'
+		when 'z'
+			'kz'
 		when 'e'
 			'energy'
 		when 'l'
