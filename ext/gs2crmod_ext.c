@@ -105,6 +105,7 @@ VALUE gs2crmod_tensor_field_gsl_tensor(VALUE self, VALUE options)
 	shape = RFCALL_10_ON(field, "shape");
 
 
+
 	workspacex = RFCALL_11_ON(cgsl_vector_complex, "alloc", RARRAY_PTR(shape)[1]);
 	shape0 = NUM2INT(RARRAY_PTR(shape)[0]);
 	workspacey = RFCALL_11_ON(cgsl_vector, "alloc", INT2NUM(shape0 * 2 - 2 + shape0%2));
