@@ -5792,7 +5792,7 @@
    :description=>"Options for the new diagnostics module",
    :should_include=>"true",
    :variables=>
-    {:nwrite=>
+    {:nwrite_new=>
       {:should_include=>"true",
        :description=>
         "Diagnostic quantities are written every nwrite timesteps.",
