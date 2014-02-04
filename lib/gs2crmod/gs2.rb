@@ -659,7 +659,13 @@ def get_status
 				elsif @nonlinear_mode == "on" or !@omegatol or @omegatol < 0.0 or (@exit_when_converged and @exit_when_converged.fortran_false?)
 				   	eputs 'No omegatol'
 					if FileTest.exist?(@run_name + ".out.nc")
-						get_completed_timesteps
+						#p ['pwd', Dir.pwd, netcdf_file, netcdf_file.dim('t'), netcdf_file.dims]
+						if netcdf_file.dim('t').length > 0
+							get_completed_timesteps
+						else
+							@status = :Failed
+							return
+						end
 					else		
 						eputs "Warning: no netcdf file #@run_name.out.nc"
 						@status = :Failed
@@ -667,7 +673,7 @@ def get_status
 					end
 						#ep "completed_timesteps", @completed_timesteps
 					eputs "#{percent_complete}% of Timesteps Complete"
-					if percent_complete == 100.0
+					if percent_complete >= 100.0
 						@status = :Complete
 					elsif percent_complete > 5 and FileUtils.tail(output_file, 200) =~ /total from timer is/
 						@status = :Complete
@@ -767,7 +773,7 @@ def recheck
 end
 
 
-def generate_input_file
+def generate_input_file(&block)
 	raise CRFatal("No Input Module File Given or Module Corrupted") unless methods.include? (:input_file_text)
 	run_namelist_backwards_compatibility
 	if @restart_id
@@ -808,9 +814,15 @@ def generate_input_file
 	set_nprocs
 
 
-	######### Check for errors and inconsistencies 
-	ingen
-	#########
+	if block
+		##### Allow the user to define their own pre-flight checks and changes
+		instance_eval(&block)
+	else
+		######### Check for errors and inconsistencies 
+		ingen
+		#########
+  end
+	
 
 	write_input_file
 end
