@@ -299,9 +299,9 @@ end
 
 #
 
-def generate_phantom_runs
-	@phantom_runs = []
-	logf(:generate_phantom_runs)
+def generate_component_runs
+	@component_runs = []
+	logf(:generate_component_runs)
 	return if @grid_option == "single" and @scan_type == "none"
 	begin 
 		list(:ky) # This will fail unless the run has output the netcdf file
@@ -315,13 +315,13 @@ def generate_phantom_runs
 # 		raise CRFatal.new("no @ky_list") unless @ky_list
 # 		log list(:ky)
 		list(:ky).each do |id, ky|
-			phantom_run = create_phantom #self.dup
-			phantom_run.ky = ky
-			phantom_run.gamma_r = @growth_rates[ky]
-			phantom_run.gamma_i = @real_frequencies[ky]
-			log @runner.phantom_ids
+			component_run = create_component #self.dup
+			component_run.ky = ky
+			component_run.gamma_r = @growth_rates[ky]
+			component_run.gamma_i = @real_frequencies[ky]
+			log @runner.component_ids
 # 			log('@runner.class', @runner.class)
-# 			@runner.add_phantom_run(phantom_run)
+# 			@runner.add_component_run(component_run)
 		end
 	elsif (not gryfx?) and @scan_type and @scan_type != "none" 
 		t = gsl_vector('t')
@@ -330,14 +330,14 @@ def generate_phantom_runs
 		start = 0
 		for i in 0...t.size
 			if scan_vals[i] != current
-				phantom = create_phantom
-				phantom.scan_index_window = [start+1, i] #remember indexes are elements + 1
-				#ep 'scan_index_window', phantom.scan_index_window
-				phantom.scan_parameter_value = current
-				phantom.growth_rate_at_ky = nil
-				phantom.growth_rate_at_kx = nil
-				phantom.growth_rate_at_ky_at_kx = nil
-				phantom.calculate_results
+				component = create_component
+				component.scan_index_window = [start+1, i] #remember indexes are elements + 1
+				#ep 'scan_index_window', component.scan_index_window
+				component.scan_parameter_value = current
+				component.growth_rate_at_ky = nil
+				component.growth_rate_at_kx = nil
+				component.growth_rate_at_ky_at_kx = nil
+				component.calculate_results
 				current = scan_vals[i]
 				start = i
 			end
