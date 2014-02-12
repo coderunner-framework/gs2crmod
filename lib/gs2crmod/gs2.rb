@@ -253,6 +253,7 @@ def calculate_results
 	if @nonlinear_mode == "off"
 	
 		calculate_growth_rates_and_frequencies
+    calculate_transient_amplifications
 	elsif @nonlinear_mode == "on"
 		calculate_saturation_time_index
 		calculate_time_averaged_fluxes

@@ -685,7 +685,7 @@ def calculate_transient_amplification(vector, options={})
 	##end	
 	#ep "vector[0..5]: #{vector.subvector(0,5)}\n"
 	#return Math.sqrt(vector[turning_points[:first_max]]/@phiinit)
-	return vector.max/@phiinit
+	return vector.max/vector[1]
 end
 
 def ctan
