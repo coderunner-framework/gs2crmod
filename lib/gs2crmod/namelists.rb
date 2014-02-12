@@ -1767,7 +1767,7 @@
         [{:test=>"kind_of? String",
           :explanation=>"This variable must be a string."}],
        :type=>:String,
-       :text_options=>["default", "implicit", "explicit", "test"],
+       :text_options=>["default", "implicit", "explicit", "test", "local"],
        :module=>:fields},
      :field_subgath=>
       {:should_include=>"true",
