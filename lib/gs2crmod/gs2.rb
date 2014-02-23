@@ -519,6 +519,7 @@ end
 def restart(new_run)
 	#new_run = self.dup
 	(rcp.variables).each{|v| new_run.set(v, send(v)) if send(v)}
+  @naming_pars.delete(:preamble)
 	SUBMIT_OPTIONS.each{|v| new_run.set(v, self.send(v)) unless new_run.send(v)}
 	#(rcp.results + rcp.gs2_run_info).each{|result| new_run.set(result, nil)}
 	new_run.is_a_restart = true
@@ -540,7 +541,6 @@ def restart(new_run)
 	new_run.naming_pars = @naming_pars
 	new_run.update_submission_parameters(new_run.parameter_hash.inspect, false) if new_run.parameter_hash 
 	new_run.naming_pars.delete(:restart_id)
-	new_run.naming_pars.delete(:preamble)
 	new_run.generate_run_name
 	#@runner.submit(new_run)
 	new_run
