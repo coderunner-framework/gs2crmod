@@ -1750,6 +1750,18 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false."]},
+     :opt_init_bc=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>
+        "If true then use an optimised init_connected_bc. This routine can become quite expensive for large problems and currently does not scale well. The optimised routine improves serial performance but does not yet help with scaling.  ",
+       :code_name=>:opt_init_bc,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool,
        :autoscanned_defaults=>[".false."]}}},
  :fields_knobs=>
   {:description=>"ALGORITHMIC CHOICES",
@@ -1757,7 +1769,7 @@
    :variables=>
     {:field_option=>
       {:help=>
-        "The field_option variable controls which time-advance algorithm is used for the linear terms. Allowed values are:                                          \n** 'implicit' Advance linear terms with Kotschenreuther's implicit algorithm.                                                                   \n** 'default'  Same as 'implicit'                                                                                                                     \n** 'explicit' Use second-order Runge-Kutta.  Experimental.                                                                                          \n** 'test' Use for debugging.",
+        "The field_option variable controls which time-advance algorithm is used for the linear terms. Allowed values are:                                          \n** 'implicit' Advance linear terms with Kotschenreuther's implicit algorithm.                                                                   \n** 'default'  Same as 'implicit'                                                                                                                     \n** 'local' Same implicit algorithm as 'implicit' but with different data decomposition (typically much faster for flux tube runs).\n** 'explicit' Use second-order Runge-Kutta.  Experimental.                                                                                          \n** 'test' Use for debugging.",
        :should_include=>"true",
        :description=>
         "Controls which time-advance algorithm is used for the linear terms.",
@@ -1774,7 +1786,7 @@
        :description=>
         "Set to TRUE to use allgatherv to fetch part of the field update calculated on other procs. FALSE uses a sum_allreduce instead.",
        :help=>
-        "Set to true to use allgatherv to fetch parts of the field update vector calculated on other procs. When false uses a sum_allreduce instead. This doesn't rely on sub-communicators so should work for any layout and processor count. ",
+        "Set to true to use allgatherv to fetch parts of the field update vector calculated on other procs. When false uses a sum_allreduce instead. This doesn't rely on sub-communicators so should work for any layout and processor count.\n* Note: This only impacts field_option='implicit'",
        :code_name=>:field_subgath,
        :must_pass=>
         [{:test=>"kind_of? String  and FORTRAN_BOOLS.include? self",
@@ -1793,6 +1805,64 @@
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
        :module=>:fields,
+       :autoscanned_defaults=>[".false."]},
+     :force_maxwell_reinit=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:force_maxwell_reinit,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".true."]},
+     :dump_response=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>
+        "Writes files containing the field response matrix after initialisation. This currently works for field_option='implicit' or 'local'.\n* Note: We write to netcdf files by default but fall back to fortran unformatted (binary) files (which are not really portable) in the absence of netcdf.\n",
+       :code_name=>:dump_response,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false."]},
+     :read_response=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>
+        "Reads files containing the field response matrix and uses to initialise GS2s response matrix rather than using the usual initialisation process.",
+       :code_name=>:read_response,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false."]},
+     :minnrow=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>
+        "Used with field_option='local' to set the minimum block size (in a single supercell) assigned to a single processor. Tuning this parameter changes the balance between work parallelisation and communication. The lower this is set the more communication has to be done but the fewer processors don't get assigned work (i.e. helps reduce computation time). The optimal value is likely to depend upon the size of the problem and the number of processors being used. Furthermore it will effect intialisation and advance in different ways. ",
+       :code_name=>:minnrow,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer,
+       :autoscanned_defaults=>[64]},
+     :do_smart_update=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>
+        "Used with field_option='local'. If .true. and x/y distributed then in advance only update local part of field in operations like \"phinew=phinew+phi\" etc.  ",
+       :code_name=>:do_smart_update,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool,
        :autoscanned_defaults=>[".false."]}}},
  :knobs=>
   {:description=>"",
@@ -1868,9 +1938,10 @@
        :module=>:run_parameters},
      :delt_option=>
       {:help=>
-        "Deprecated.  Do not use. Is this really right? History of svn suggests this comment may be meant for margin.  (Use 'check_restart' to get initial timestep from restart file, 'default' otherwise.)",
+        "Determines how the initial timestep is set.  Options: \"default\", \"set_by_hand\" (identical to \"default\") and \"check_restart\". \n* When delt_option=\"default\", the initial timestep is set to delt. \n* If delt_option=\"check_restart\" when restarting a job, the initial timestep will be set to the last timestep of the job you are restarting, even if delt is larger. Thus, you usually want to set delt_option=\"check_restart\" when restarting a job and delt_option=\"default\" otherwise.",
        :should_include=>"true",
-       :description=>"Deprecated.",
+       :description=>
+        "\"default\", \"set_by_hand\", \"check_restart\". Determines how the initial timestep is set.",
        :tests=>["Tst::STRING"],
        :autoscanned_defaults=>["default"],
        :must_pass=>
@@ -2042,7 +2113,20 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[300.0]}}},
+       :autoscanned_defaults=>[300.0]},
+     :trinity_linear_fluxes=>
+      {:should_include=>"true",
+       :description=>
+        "If true and running linearly, return linear diffusive flux estimates to Trinity.",
+       :help=>
+        "If true and running linearly, return linear diffusive flux estimates to Trinity.",
+       :code_name=>:trinity_linear_fluxes,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false."]}}},
  :reinit_knobs=>
   {:description=>"",
    :should_include=>"true",
@@ -2538,7 +2622,19 @@
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
        :module=>:collisions,
-       :autoscanned_defaults=>[0.01]}}},
+       :autoscanned_defaults=>[0.01]},
+     :special_wfb_lorentz=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>
+        "If true (the default) then the wfb is treated in a special way in the lorentz collision operator. This is the standard behaviour. Setting to false has been seen to help an issue in linear flux tube simulations in which the zonal modes at large kx grow rapidly.   ",
+       :code_name=>:special_wfb_lorentz,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".true."]}}},
  :hyper_knobs=>
   {:description=>"",
    :should_include=>"true",
@@ -4633,7 +4729,70 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".false."]}},
+       :autoscanned_defaults=>[".false."]},
+     :file_safety_check=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>
+        "If .true. and either [[save_for_restart]] or [[save_distfn]] are true then checks that files can be created in restart_dir near the start of the simulation. This should probably be turned on by default after some \"in the wild\" testing.\n ",
+       :code_name=>:file_safety_check,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".true."]},
+     :conv_nstep_av=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:conv_nstep_av,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer,
+       :autoscanned_defaults=>[4000]},
+     :conv_test_multiplier=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:conv_test_multiplier,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float,
+       :autoscanned_defaults=>[]},
+     :conv_min_step=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:conv_min_step,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer,
+       :autoscanned_defaults=>[4000]},
+     :conv_max_step=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:conv_max_step,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer,
+       :autoscanned_defaults=>[80000]},
+     :conv_nsteps_converged=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:conv_nsteps_converged,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer,
+       :autoscanned_defaults=>[4000]}},
    :help=>
     "Controls what information is output by GS2 during and at the end of a simulation."},
  :testgridgen=>

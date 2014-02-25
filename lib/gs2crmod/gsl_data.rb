@@ -426,6 +426,7 @@ module GSLVectors
 			kxy = options[:direction]
 			kxy_index = kxy + :_index
 			options.convert_to_index(self, kxy)
+			raise "Please provide species_index " unless options[:species_index]
 			if kxy==:ky
 				lkx = list(:kx)
 				es_heat_av = (lkx.keys.map do |kx_index|		
