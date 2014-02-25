@@ -685,10 +685,7 @@ def calculate_transient_amplification(vector, options={})
 	##end	
 	#ep "vector[0..5]: #{vector.subvector(0,5)}\n"
 	#return Math.sqrt(vector[turning_points[:first_max]]/@phiinit)
-<<<<<<< HEAD
 	#return vector.max/@phiinit
-=======
->>>>>>> d91048d1acd5e5f532e835e8703f7ee28645eb84
 	return vector.max/vector[1]
 end
 
