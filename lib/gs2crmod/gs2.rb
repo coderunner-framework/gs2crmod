@@ -100,8 +100,9 @@ module load intel
 module load bullxmpi
 module load netcdf_p
 module load hdf5_p
-module load fftw
-module load bullxde scalasca libbcs papi
+module load fftw/3.3.3
+module load bullxde papi
+module load /csc/softs/cscst/modulefiles/scalasca-1.4.2
 EOF
 	else
 		""
@@ -253,6 +254,7 @@ def calculate_results
 	if @nonlinear_mode == "off"
 	
 		calculate_growth_rates_and_frequencies
+    calculate_transient_amplifications
 	elsif @nonlinear_mode == "on"
 		calculate_saturation_time_index
 		calculate_time_averaged_fluxes
@@ -517,6 +519,7 @@ end
 def restart(new_run)
 	#new_run = self.dup
 	(rcp.variables).each{|v| new_run.set(v, send(v)) if send(v)}
+  @naming_pars.delete(:preamble)
 	SUBMIT_OPTIONS.each{|v| new_run.set(v, self.send(v)) unless new_run.send(v)}
 	#(rcp.results + rcp.gs2_run_info).each{|result| new_run.set(result, nil)}
 	new_run.is_a_restart = true
@@ -555,12 +558,9 @@ def list_of_restart_files
 				break if files.size == 0
 			end
 		end #if files.size == 0
-    # This just finds a .nc file (w/o a number) if using single restart file
+    # This just finds a .nc file (w/o a number) in the nc folder if using single restart file
 		if files.size == 0
-			(Dir.entries.find_all{|dir| FileTest.directory? dir} - ['.', '..']).each do |dir|
-				files = Dir.entries(dir).grep(/\.nc/).map{|file| dir + "/" + file}
-				break if files.size == 0
-			end
+				files = Dir.entries('nc').grep(/\.nc/).map{|file| 'nc' + "/" + file}
 		end #if files.size == 0
 		return files
 	end # Dir.chdir(@directory) do
