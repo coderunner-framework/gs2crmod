@@ -2986,7 +2986,18 @@
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float}}},
+       :type=>:Float},
+     :hou_li_vpara=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>
+        "Flag to turn on Hou-Li filter in parallel velocity (recommended for large Hermite resolution).",
+       :code_name=>:hou_li_vpara,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool}}},
  :parameters_knobs=>
   {:description=>"",
    :should_include=>"true",
@@ -3505,7 +3516,16 @@
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool}}},
+       :type=>:Fortran_Bool},
+     :nwrite2_new=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:nwrite2,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer}}},
  :solver=>
   {:description=>"",
    :should_include=>"true",
