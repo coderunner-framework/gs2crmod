@@ -1159,6 +1159,90 @@ end
 		end
 	end
 
+  #This function will handle running the correlation analysis and writing the results to a NetCDF file.
+  #Cases need to be handled differently since perp, par and full are just subsets of the full correlation function
+  #but the time correlation calculation needs to deal with each radial location separately. Time correlation
+  #uses the zonal flows in the toroidal direction to calculate the correlation time.
+  #
+  #This function takes in the same options as field_real_space_standard_representation, along with the following
+  #new options dealing with interpolation and binning:
+  #
+  # correlation_type: determines which subset of correlation function should be calculated (perp/par/full/time)
+  # nbins_array: array giving number of bins to use in the binning procedure. Index order (x, y, z ,t)
+  # nt_reg: Most of the time you have many more time points than you need for spatial correlations. This sets
+  #         number of new interpolation points in time.
+  #
+  # Using this function: Since this can only be single threaded, this can be a very expensive calculation when
+  # trying to do the full correlation function, so this is not recommended for highly resolved nonlinear runs. This is
+  # why the perp/par/full splitting is implemented, allowing one dimension to be taken out essentially.
+  def correlation_analysis(options={})
+
+    #Sanity checks: 
+    #Cannot only have one bin since require difference between bins for index calculation 
+    if options[:nbins_array].include?1
+      raise('Cannot have only one bin in nbins_array. Minuimum is two.')
+    end
+    #Thetamin shouldn't be equal to thetamax to avoid possibili
+    #
+    
+    case options[:correlation_type]
+    when 'perp', 'par', 'full'
+      gsl_tensor = field_correlation_gsl_tensor(options)
+      shape = gsl_tensor.shape
+
+      #Set up dimensions
+      file = NumRu::NetCDF.create(@run_name + "_correlation_analysis_#{options[:correlation_type]}.nc")
+      ydim = file.def_dim('x',shape[0])
+      xdim = file.def_dim('y',shape[1])
+      zdim = file.def_dim('z',shape[2])
+      tdim = file.def_dim('t',shape[3])
+      correlation_var = file.def_var("correlation", 'sfloat', [xdim, ydim, zdim, tdim])
+      file.enddef
+      #Write out array
+      correlation_var.put(NArray.to_na(gsl_tensor.to_a))
+      file.close
+    when 'time'
+        nakx_actual = NumRu::NetCDF.open(@run_name + ".out.nc").var('kx').get
+        kx_len = nakx_actual.length
+      if options[:nakx] == nil
+        radial_pts = kx_len
+      elsif options[:nakx] <= kx_len
+        radial_pts = options[:nakx]
+      else
+        raise('nakx exceeds the total number of kx\'s in simulation')
+      end
+
+      #Check whether t_index_window is specified, if not, set to entire t range
+      if options[:t_index_window] == nil
+        options[:t_index_window] = [1, -1]
+      end
+
+
+      #Now loop through the radial locations and calculate the correlation function in y and t.
+      for x in 0...radial_pts
+        options[:xmin] = x
+        options[:xmax] = x
+        gsl_tensor = field_correlation_gsl_tensor(options)
+        shape = gsl_tensor.shape
+
+        if x == 0 #Write dimensions to NetCDF file
+          file = NumRu::NetCDF.create(@run_name + "_correlation_analysis_#{options[:correlation_type]}.nc")
+          ydim = file.def_dim('x',shape[0])
+          xdim = file.def_dim('y',shape[1])
+          zdim = file.def_dim('z',shape[2])    
+          tdim = file.def_dim('t',shape[3])
+        end
+        file.redef
+        correlation_var = file.def_var("correlation_x_#{x}", 'sfloat', [xdim, ydim, zdim, tdim])
+        file.enddef
+        #Write out array
+        correlation_var.put(NArray.to_na(gsl_tensor.to_a))
+      end
+        file.close #only close after loop over radial points
+    else
+      raise 'Please specify correlation_type as perp/par/time/full'
+    end
+  end
 	end # class GS2
 	# For backwards compatibility
 

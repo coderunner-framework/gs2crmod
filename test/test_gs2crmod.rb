@@ -59,6 +59,12 @@ class TestAnalysis < Test::Unit::TestCase
 		assert_equal(6.6036e-01, @run.frequency_at_ky_at_kx[0.5][2.5133])
 		#p @run.gsl_vector('kx'); STDIN.gets
 		assert_equal(6.6036e-01, @run.frequency_at_ky_at_kx[0.5][@run.gsl_vector('kx')[3]])
+
+    #Correlation analysis testing
+    CodeRunner.run_command('correlation_analysis(correlation_type:"full", field_name:"density", gs2_coordinate_factor:1.0, species_index: 1, nbins_array:[4,4,4,25], nt_reg:25, Rgeo:3, n0:1)', {j:1, Y:tfolder})
+    corr_file = NumRu::NetCDF.open("#{tfolder}/v/id_1/v_write_moments_.true._write_line_.true._id_1_correlation_analysis_full.nc")
+    corr_function = corr_file.var('correlation').get
+    assert_equal([4,4,4,25], corr_function.shape)
 	end
 	def test_interpolation
 		assert_equal(5, @run.gsl_vector('kx').size)
