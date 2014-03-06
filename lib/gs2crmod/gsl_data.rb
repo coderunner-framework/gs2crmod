@@ -262,7 +262,7 @@ module GSLVectors
 		options[:direction] = :kx
 		transient_amplification_over_kxy_gsl_vector(options)
 	end
-	def transient_amplification_over_kxy_gsl_vector(options)
+	def transient_amplification_over_ky_gsl_vector(options)
 		options[:direction] = :ky
 		transient_amplification_over_kxy_gsl_vector(options)
 	end
