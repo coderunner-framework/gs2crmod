@@ -585,7 +585,9 @@ end
 #
 
 def delete_restart_files(options={})
-	return unless Feedback.get_boolean("Deleting restart files. This action cannot be reversed. Do you wish to continue?") unless options[:no_confirm]
+  puts 'You are about to delete the restart files for:'
+  puts @run_name
+	return unless Feedback.get_boolean("This action cannot be reversed. Do you wish to continue?") unless options[:no_confirm]
 	list_of_restart_files.each{|file| FileUtils.rm file}
 end
 
