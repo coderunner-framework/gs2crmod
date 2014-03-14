@@ -50,7 +50,8 @@ def auto_axiskits(name, options)
 	       	'spectrum_over_kpar' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
 	       	'spectrum_over_ky_over_kx' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
 	       	'spectrum_over_ky_over_kpar' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
-	        'phi0_over_x_over_y' => ["Phi at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
+	        #'phi0_over_x_over_y' => ["Phi at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
+	        'phi0_over_x_over_y' => ["Phi at theta = 0", '', 2],
 	        'es_mom_flux_over_time' => ["#{species_type((options[:species_index] or 1)).capitalize} Momentum Flux", '', 1]
 
                   
@@ -1852,20 +1853,19 @@ module GraphKits
 		when :help
 			return  "The potential at the outboard midplane"
 		when :options
-			return  [:rgbformulae, :limit]
+			return  [:rgbformulae, :limit, :xres, :x_resolution, :yres, :y_resolution, :no_zonal, :t_index]
 		else
 			zaxis = axiskit('phi0_over_x_over_y', options)
 			zaxis.data = zaxis.data.transpose
 			shape = zaxis.data.shape
-			kit = GraphKit.autocreate({x: GraphKit::AxisKit.autocreate({data: (GSL::Vector.alloc((0...shape[0]).to_a)/shape[0] -  0.5) * (@x0 or @y0 * @jwist / 2 / Math::PI / @shat), title: "x", units: "rho_#{species_letter}"}), y: AxisKit.autocreate({data: (GSL::Vector.alloc((0...shape[1]).to_a)/shape[1] - 0.5) * @y0, title: "y", units: "rho_#{species_letter}"}), z: zaxis})
-# 			kit.xrange = [0,shape[0]]
-# 			kit.yrange = [0,shape[1]]
+			kit = GraphKit.autocreate({x: GraphKit::AxisKit.autocreate({data: (GSL::Vector.alloc((0...shape[0]).to_a)/shape[0] -  0.5) * 2*Math::PI * (@x0 or @y0 * @jtwist / 2 / Math::PI / @shat), title: "x", units: "rho_#{species_letter}"}), y: AxisKit.autocreate({data: (GSL::Vector.alloc((0...shape[1]).to_a)/shape[1] - 0.5) * 2*Math::PI * @y0, title: "y", units: "rho_#{species_letter}"}), z: zaxis})
 			kit.zrange = options[:limit] if options[:limit]
 			kit.title = "Spectrum"
 			kit.palette = "rgbformulae #{(options[:rgbformulae] or "-3,3,0")}"
-			kit.view = "map"
-			kit.style = "data pm3d"
-			kit.title = "Phi at the outboard midplane"
+			kit.gp.view = "map"
+			kit.gp.style = "data pm3d"
+                        kit.gp.size = "ratio #{@y0 / (@x0 or @y0 * @jtwist / 2 / Math::PI / @shat)}"
+			kit.title = "Phi at theta = 0, t = #{sprintf("%.3f" ,list(:t)[options[:t_index]])}"
 # 			kit.data[0].with = (options[:with] or 'pm3d palette')
 			kit.file_name = options[:graphkit_name]
 			kit
