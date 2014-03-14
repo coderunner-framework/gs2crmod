@@ -2,7 +2,6 @@
 #include <math.h>
 #include <string.h>
 #include <gsl/gsl_spline.h>
-#include <gsl/gsl_spline.h>
 
 VALUE gs2crmod_tensor_complexes_field_gsl_tensor_complex_2(VALUE self, VALUE options)
 {
@@ -409,9 +408,9 @@ VALUE gs2crmod_tensor_field_correlation_gsl_tensor(VALUE self, VALUE options)
     //Write some as floats to avoid flooring to wrong (lower) number later
     float *lx_bin, *ly_bin, *lz_bin, *lt_bin;
     float lxmin, lxmax, lymin, lymax, lzmin, lzmax, ltmin, ltmax, lx, ly, lz, *lt;
-    double *x, *y, *z, *t, *field, *coarray, *corr_norm, amin;
+    double *x, *y, *z, *t, *field, *coarray, *corr_norm;
     int *c_shape, tot_size, ith, ix, iy, it, t_size, first=1;
-    int index, i, i2, i3, i4, tot_bins, *count;
+    int index, i2, i3, i4, tot_bins, *count;
     long int i1;
 
     printf("Starting correlation analysis\n");
@@ -426,12 +425,6 @@ VALUE gs2crmod_tensor_field_correlation_gsl_tensor(VALUE self, VALUE options)
     {
         t[it] = NUM2DBL(CR_TELMT_R1(t_gsl_vector, it));
     }
-
-    //Read from options
-	  if(RTEST(CR_HKS(options, "amin")))
-        amin = NUM2DBL(CR_HKS(options, "amin"));
-    else
-        amin = 1.0;
 
     VALUE nbins_array=CR_HKS(options, "nbins_array");
     int *nbins;
@@ -471,6 +464,7 @@ VALUE gs2crmod_tensor_field_correlation_gsl_tensor(VALUE self, VALUE options)
 
         if(first)
         {
+            //ALLOC_N is used since it works correctly with ruby garbage collector
             tot_size = c_shape[0]*c_shape[1]*c_shape[2]*t_size; 
             x = ALLOC_N(double, tot_size);
             y = ALLOC_N(double, tot_size);
@@ -496,8 +490,8 @@ VALUE gs2crmod_tensor_field_correlation_gsl_tensor(VALUE self, VALUE options)
     
 
     /******************************
-     * GSL Interpolation of field *
-     *        in time             *
+     *    GSL Interpolation of    *
+     *       field in time        *
      *****************************/
     //Read t interp from options (default is 100)
     int nt_reg;
@@ -508,7 +502,6 @@ VALUE gs2crmod_tensor_field_correlation_gsl_tensor(VALUE self, VALUE options)
     int idx, ti;
     double *x_reg, *y_reg, *z_reg, *t_reg, *field_reg, delta_t_reg, *y1;
     tot_size = c_shape[0]*c_shape[1]*c_shape[2]*nt_reg; 
-    //printf("Start interpolation, %d, %d, %d, %d, %d\n", c_shape[0], c_shape[1], c_shape[2], nt_reg, tot_size);
     delta_t_reg = (t[t_size-1]-t[0])/(nt_reg-1);
 
     y1 = ALLOC_N(double, t_size);
@@ -520,11 +513,9 @@ VALUE gs2crmod_tensor_field_correlation_gsl_tensor(VALUE self, VALUE options)
 
     for(i1=0; i1<c_shape[0]*c_shape[1]*c_shape[2]*t_size; i1+=t_size)
     {
-        //printf("%d, %d\n", i1, c_shape[0]*c_shape[1]*c_shape[2]*t_size);
         for (i2 = 0; i2 < t_size; i2++)
         {
             y1[i2] = field[i1+i2];
-            //printf ("%d, %lf %lf\n", i2, t[i2], y1[i2]);
         }
 
         gsl_interp_accel *acc 
@@ -534,7 +525,6 @@ VALUE gs2crmod_tensor_field_correlation_gsl_tensor(VALUE self, VALUE options)
 
         gsl_spline_init (spline, t, y1, t_size);
 
-        //printf("Interpolated:\n");
         for (ti = 0; ti < nt_reg; ti++)
         {
             t_reg[ti] = t[0]+ti*delta_t_reg;
@@ -549,7 +539,7 @@ VALUE gs2crmod_tensor_field_correlation_gsl_tensor(VALUE self, VALUE options)
 
     }
     
-    //Can now free the original pointers
+    //Can now free the original pointers since redefined variables on a regular grid
     free(x); x=0;
     free(y); y=0;
     free(z); z=0;
@@ -567,7 +557,6 @@ VALUE gs2crmod_tensor_field_correlation_gsl_tensor(VALUE self, VALUE options)
      * since the binning will be done at each step since there is too much*
      * info to store.                                                     *
      * ********************************************************************/
-    double lx_pos_min=20;
     i3=0;
     lxmin=0; lymin=0; lzmin=0;
     for(i1=0; i1<tot_size; i1+=nt_reg){
