@@ -102,7 +102,7 @@ module load netcdf_p
 module load hdf5_p
 module load fftw/3.3.3
 module load bullxde papi
-module load /csc/softs/cscst/modulefiles/scalasca-1.4.2
+module load scalasca
 EOF
 	else
 		""
