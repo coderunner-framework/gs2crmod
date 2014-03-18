@@ -439,6 +439,7 @@ VALUE gs2crmod_tensor_field_correlation_gsl_tensor(VALUE self, VALUE options)
     VALUE test_proc = rb_eval_string("Proc.new {|options| case options[:correlation_type]; when 'perp'; 0; when 'par'; 1; when 'time'; 2; when 'full'; 3 ;else; raise 'Please specify correlation_type as a string (perp/par/time/full)'; end}");
     int corr_type = FIX2INT(RFCALL_11_ON(test_proc, "call", options));
     
+    printf("Reading in data\n");
     for(it=0; it<t_size; it++)
     {   
         /*options[:t_index] = it+1*/
@@ -489,6 +490,7 @@ VALUE gs2crmod_tensor_field_correlation_gsl_tensor(VALUE self, VALUE options)
 
     
 
+    printf("Interpolating\n");
     /******************************
      *    GSL Interpolation of    *
      *       field in time        *
@@ -661,8 +663,12 @@ VALUE gs2crmod_tensor_field_correlation_gsl_tensor(VALUE self, VALUE options)
         break;
     }
 
+    printf("Main calculation loop\n\n");
     //Start main loop for correlation function calculation
     for(i1=0; i1<tot_size; i1+=nt_reg){
+        printf("\33[2K\r"); //Clear line in terminal
+        printf("\33[1A");   //Go back one line in terminal
+        printf("main loop iterator = %ld of %ld\n", i1/nt_reg, tot_size/nt_reg);
         for(i2=i1; i2<tot_size; i2+=nt_reg)
         {
             //Calculate spatial and temporal separation
