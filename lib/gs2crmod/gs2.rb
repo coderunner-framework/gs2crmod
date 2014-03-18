@@ -524,7 +524,7 @@ def restart(new_run)
 	#(rcp.results + rcp.gs2_run_info).each{|result| new_run.set(result, nil)}
 	new_run.is_a_restart = true
 	new_run.ginit_option = "many"
-	new_run.delt_option = "default"
+	new_run.delt_option = "check_restart"
 	#if Dir.entries(@directory).include? "nc"
 		#old_restart_run_name =  (@restart_run_name or Dir.entries(@directory + '/nc').grep(/\.nc/)[0].sub(/\.nc\.\d+$/, ''))
 		#new_run.restart_file = File.expand_path("#@directory/nc/#{old_restart_run_name}.nc")
@@ -542,6 +542,23 @@ def restart(new_run)
 	new_run.update_submission_parameters(new_run.parameter_hash.inspect, false) if new_run.parameter_hash 
 	new_run.naming_pars.delete(:restart_id)
 	new_run.generate_run_name
+	eputs 'Copying Restart files', ''
+	FileUtils.makedirs('nc')
+	#old_dir = File.dirname(@restart_file)
+	new_run.restart_file = "#@run_name.nc" #+ File.basename(@restart_file) #.sub(/\.nc/, '')
+	new_run.restart_dir = "nc"
+	#files = Dir.entries(old_dir).grep(/\.nc(?:\.\d|_ene)/)
+	#files = Dir.entries(old_dir).grep(/^\.\d+$/) if files.size == 0
+	files = list_of_restart_files.map do |file|
+		@directory + "/" + file
+	end
+	files.each_with_index do |file , index|
+		eputs "\033[2A" # Terminal jargon - go back one line
+		eputs "#{index+1} out of #{files.size}"
+		num = file.scan(/(?:\.\d+|_ene)$/)[0]
+		#FileUtils.cp("#{old_dir}/#{file}", "nc/#@restart_file#{num}")
+		FileUtils.cp(file, new_run.directory + "/nc/#@restart_file#{num}")
+	end
 	#@runner.submit(new_run)
 	new_run
 end	
@@ -778,23 +795,6 @@ def generate_input_file(&block)
 	run_namelist_backwards_compatibility
 	if @restart_id
 		@runner.run_list[@restart_id].restart(self)
-		eputs 'Copying Restart files', ''
-		FileUtils.makedirs('nc')
-		#old_dir = File.dirname(@restart_file)
-		@restart_file = "#@restart_run_name.nc" #+ File.basename(@restart_file) #.sub(/\.nc/, '')
-		@restart_dir = "nc"
-		#files = Dir.entries(old_dir).grep(/\.nc(?:\.\d|_ene)/)
-		#files = Dir.entries(old_dir).grep(/^\.\d+$/) if files.size == 0
-		files = @runner.run_list[@restart_id].list_of_restart_files.map do |file|
-			@runner.run_list[@restart_id].directory + "/" + file
-		end
-		files.each_with_index do |file , index|
-			eputs "\033[2A" # Terminal jargon - go back one line
-			eputs "#{index+1} out of #{files.size}"
-			num = file.scan(/(?:\.\d+|_ene)$/)[0]
-			#FileUtils.cp("#{old_dir}/#{file}", "nc/#@restart_file#{num}")
-			FileUtils.cp(file, "nc/#@restart_file#{num}")
-		end
 	elsif @save_for_restart and @save_for_restart.fortran_true?
 		@restart_dir = "nc"
 		#if CODE_OPTIONS[:gs2] and CODE_OPTIONS[:gs2][:list]
