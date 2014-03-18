@@ -795,7 +795,7 @@ end
 def generate_input_file(&block)
 	raise CRFatal("No Input Module File Given or Module Corrupted") unless methods.include? (:input_file_text)
 	run_namelist_backwards_compatibility
-	if @restart_id
+	if @restart_id and not @is_a_restart  # The second test checks that the restart function has not been called manually earlier (e.g. in Trinity)
 		@runner.run_list[@restart_id].restart(self)
 	elsif @save_for_restart and @save_for_restart.fortran_true?
 		@restart_dir = "nc"
