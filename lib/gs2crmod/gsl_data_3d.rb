@@ -171,7 +171,7 @@ class CodeRunner::Gs2
 			case options[:field_name].to_s
 			when /density/
 				options.convert_to_index(self, :species)
-				ep 'options', options
+				#ep 'options', options
 				options[:species_index] - 1
 			else
 				nil
@@ -179,7 +179,7 @@ class CodeRunner::Gs2
 		end
 		def field_gsl_tensor(options)
 			species_element = field_species_element(options)
-			ep 'species_element', species_element
+			#ep 'species_element', species_element
 			if options[:t_index]
 				#ep options; gets
                 #raise CRFatal.new("write_phi_over_time is not enabled so this function won't work") unless @write_phi_over_time

@@ -262,7 +262,7 @@ module GSLVectors
 		options[:direction] = :kx
 		transient_amplification_over_kxy_gsl_vector(options)
 	end
-	def transient_amplification_over_kxy_gsl_vector(options)
+	def transient_amplification_over_ky_gsl_vector(options)
 		options[:direction] = :ky
 		transient_amplification_over_kxy_gsl_vector(options)
 	end
@@ -1175,11 +1175,10 @@ module GSLMatrices
 	def phi0_over_x_over_y_gsl_matrix(options)
 	Dir.chdir(@directory) do
 
-			options.convert_to_index(:t) if options[:t] or options[:t_element]
+			#options.convert_to_index(:t) if options[:t] or options[:t_element]
+			options.convert_to_index(self, :t) if options[:t] or options[:t_element]
 			options[:t_index] ||= list(:t).keys.max
-			#phi2_by_mode index order (in Fortran) is kx, ky, t
 			phi_re_narray = netcdf_file.var("phi0").get('start' => [0, 0, 0, options[:t_index] - 1], 'end' => [0, -1, -1, options[:t_index] - 1])
-# 			ep phi_re_narray.shape
 			phi_re_narray.reshape!(*phi_re_narray.shape.slice(1..2))
 			# The narray has index order ky, kx, but we want kx, ky for historical reasons, hence the transpose. 
 			gm_re = phi_re_narray.to_gm
@@ -1188,60 +1187,82 @@ module GSLMatrices
 			# The narray has index order ky, kx, but we want kx, ky for historical imasons, hence the transpose. 
 			gm_im = phi_im_narray.to_gm
 			gm = GSL::Matrix::Complex.re_im(gm_re, gm_im)
-# 			ep gm.shape
 
-			if options[:no_zonal]
-				
+			ntheta0_temp = gm.shape[1]
+			naky_temp = gm.shape[0]
+			
+
+			# Due to a strange GS2 convention, non zonal modes must be divided by 2:
+			for i in 1...naky_temp
+			        for j in 0...ntheta0_temp
+					gm[i,j] = gm[i,j]/2.0
+				end
+			end
+
+			if options[:no_zonal]				
 				for i in 0...gm.shape[1]
 					gm[0,i] = GSL::Complex.alloc([0,0])
 				end
 			end
 			if xres = (options[:xres] or options[:x_resolution])
-				mat = GSL::Matrix::Complex.calloc(gm.shape[0], xres)
-				extra = ((xres - gm.shape[1])).floor
-				for i in 0...gm.shape[0]
-					for j in 0...((gm.shape[1] + 1) / 2 )
-# 						j+= extra if 
-						mat[i, j] = gm[i,j]
-						mat[i, j+extra] = gm[i,-j] unless j==0
-					end
-				end
-				gm = mat
-				
-				
-# 				gm = mat.vertcat(gm).vertcat(mat)
+			   if xres < nx
+			      puts "Warning: xres should be at least nx. Using nx instead of the xres you specified."
+			      xres = nx
+			   end
+			else
+			   xres = nx
 			end
 			if yres = (options[:yres] or options[:y_resolution])
-				mat = GSL::Matrix::Complex.calloc(yres, gm.shape[1])
-				extra = ((yres - gm.shape[0])).floor
-				for i in 0...gm.shape[0]
-					for j in 0...gm.shape[1]
-# 						j+= extra if 
-						mat[i, j] = gm[i,j]
-# 						mat[i, j+extra] = gm[i,-j] unless j==0
-					end
-				end
-				gm = mat
-				
-				
-# 				gm = mat.vertcat(gm).vertcat(mat)
+			   if yres < ny
+			      puts "Warning: yres should be at least ny. Using ny instead of the yres you specified."
+			      yres = ny
+			   end
+			else
+			   yres = ny
 			end
-# 			ep gm_re, gm_im
-# 			re = GSL::Complex.alloc([1.0, 0.0])
-# 			gm = GSL::Matrix::Complex.calloc(*gm_re.shape)
-# 			gm = gm_re * re  + gm_im * GSL::Complex.alloc([0.0, 1.0])
-# 			gm_re, gm_im = fourier_transform_gm_matrix_complex_rows(gm_re, gm_im)
-			
-			gm = gm.backward_cols_c2c(true).backward_rows_cc2r(true)  
+
+			# Next, pad with 0's:
+			padded = GSL::Matrix::Complex.calloc(yres, xres)
+			# Zonal modes first:
+			for ix in 0...((ntheta0_temp+1)/2)
+			    padded[0, ix] = gm[0, ix]
+			end
+			for ix in ((ntheta0_temp+1)/2)...ntheta0_temp
+			    padded[0, ix+xres-ntheta0_temp] = gm[0, ix]
+			end
+			# Now include the non-zonal modes in the padded matrix mat:
+			for iy in 1...naky_temp
+			    for ix in 0...((ntheta0_temp + 1)/2)
+			       padded[iy, ix] = gm[iy, ix]
+			    end
+			    for ix in ((ntheta0_temp+1)/2)...ntheta0_temp
+			       padded[iy, ix+xres-ntheta0_temp] = gm[iy, ix]
+			    end
+			    padded[yres-iy, 0] = gm[iy,0].conj
+			    for ix in 1...xres
+			       padded[yres-iy, ix] = padded[iy, xres-ix].conj
+			    end
+			 end
+			gm = padded
+
+			gm = gm.backward_cols_c2c(false).backward_rows_c2c(false)
+			# At this point, gm should be purely real (within machine precision), but let's check to be sure:
+			should_be_zero = gm.imag.abs.max
+			if should_be_zero > 1.0e-10
+			   puts "should_be_zero = #{should_be_zero}"
+			   raise "Something went wrong - reconstructed phi is not purely real."
+			end
+
+			gm = gm.real
+
 			if options[:limit]
 				for i in 0...gm.shape[0]
 					for j in 0...gm.shape[1]
-# 						j+= extra if 
 						gm[i, j] = [[gm[i,j], options[:limit][0]].max, options[:limit][1]].min
-# 						mat[i, j+extra] = gm[i,-j] unless j==0
 					end
 				end
 			end
+
 			return gm
 	end
 	end

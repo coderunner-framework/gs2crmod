@@ -85,6 +85,22 @@ class GSL::Matrix::Complex
 		gm
 	end
 
+	def backward_rows_c2c(normalise = false)
+		gm = self.dup
+		rows, cols = gm.shape
+		table = GSL.cache[[:fft_table, :complex, cols]] ||= GSL::FFT::ComplexWavetable.alloc(cols)
+		work = GSL.cache[[:fft_work, :complex, cols]] ||= GSL::FFT::ComplexWorkspace.alloc(cols)
+		for i in 0...rows
+			vec = gm.row(i)
+			vec.backward!(table, work)
+			for j in 0...cols
+				gm[i,j] =  vec[j]
+			end
+		end
+		gm = gm / cols if normalise
+		gm
+	end
+
 	def forward_cols_c2c
 		gm = self.dup
 		rows, cols = gm.shape
