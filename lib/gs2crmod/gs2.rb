@@ -543,7 +543,7 @@ def restart(new_run)
 	new_run.naming_pars.delete(:restart_id)
 	new_run.generate_run_name
 	eputs 'Copying Restart files', ''
-	FileUtils.makedirs('nc')
+	FileUtils.makedirs(new_run.directory + '/nc')
 	#old_dir = File.dirname(@restart_file)
 	new_run.restart_file = "#@run_name.nc" #+ File.basename(@restart_file) #.sub(/\.nc/, '')
 	new_run.restart_dir = "nc"
