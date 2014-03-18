@@ -797,7 +797,7 @@ def generate_input_file(&block)
 	run_namelist_backwards_compatibility
 	if @restart_id and not @is_a_restart  # The second test checks that the restart function has not been called manually earlier (e.g. in Trinity)
 		@runner.run_list[@restart_id].restart(self)
-	elsif @save_for_restart and @save_for_restart.fortran_true?
+	elsif @save_for_restart and @save_for_restart.fortran_true? and not @is_a_restart
 		@restart_dir = "nc"
 		#if CODE_OPTIONS[:gs2] and CODE_OPTIONS[:gs2][:list]
 			#FileUtils.makedirs "#{@runner.root_folder}/#@restart_dir"
