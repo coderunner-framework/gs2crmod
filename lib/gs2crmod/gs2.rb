@@ -557,7 +557,7 @@ def restart(new_run)
 		eputs "#{index+1} out of #{files.size}"
 		num = file.scan(/(?:\.\d+|_ene)$/)[0]
 		#FileUtils.cp("#{old_dir}/#{file}", "nc/#@restart_file#{num}")
-		FileUtils.cp(file, new_run.directory + "/nc/#@restart_file#{num}")
+		FileUtils.cp(file, new_run.directory + "/nc/#{new_run.restart_file}#{num}")
 	end
 	#@runner.submit(new_run)
 	new_run
