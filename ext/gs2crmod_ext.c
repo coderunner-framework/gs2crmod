@@ -668,7 +668,7 @@ VALUE gs2crmod_tensor_field_correlation_gsl_tensor(VALUE self, VALUE options)
     for(i1=0; i1<tot_size; i1+=nt_reg){
         printf("\33[2K\r"); //Clear line in terminal
         printf("\33[1A");   //Go back one line in terminal
-        printf("main loop iterator = %ld of %ld\n", i1/nt_reg, tot_size/nt_reg);
+        printf("Main loop iterator = %ld of %ld\n", i1/nt_reg, tot_size/nt_reg);
         for(i2=i1; i2<tot_size; i2+=nt_reg)
         {
             //Calculate spatial and temporal separation

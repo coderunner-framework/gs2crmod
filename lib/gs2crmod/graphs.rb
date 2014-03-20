@@ -1011,7 +1011,8 @@ module GraphKits
 			#shape = zaxis.data.shape
 			#carts = cartesian_coordinates_gsl_tensor(options)
 			#torphiout = 2.6
-			torphiout = options[:constant_torphi] || options[:torphi]
+			torphiout = options[:constant_torphi] || options[:torphi] #if constant_torphi is specified this is the toroidal angle at which data is printed
+      torphiactual = options[:torphi] #This is the actual tor_phi used in the calculation
 			raise "Please specify a toroidal angle (options[:torphi])" unless torphiout
 			field = options[:field] || field_real_space_gsl_tensor(options)
 			torphi_const =  constant_torphi_surface_gsl_tensor(options)
@@ -1045,12 +1046,25 @@ module GraphKits
 				i = torphi_const[j,k]
 				torphi1 = cyls[2,i,j,k]
 				torphi2 = cyls[2,i+1,j,k]
-				#ep cyls[2,true,j,k].to_a
 				deltorphi = cyls[2,shpc[1]-1,j,k] - cyls[2,0,j,k]
+        
+        #This options tests whether the point is inside or outside a single
+        #flux tube and defines a factor which will zero all other points.
+        #This will give the projection of a single flux tube onto a poloidal plane.
+        if options[:no_flux_tube_copies]
+          if torphiactual <= cyls[2,shpc[1]-1,j,k] and torphiactual >= cyls[2,0,j,k]
+            field_fac = 1.0
+          else
+            field_fac = 0.0
+          end
+        else
+          field_fac = 1.0
+        end
+
 				#raise "Periodicity not satisfied: #{(2*Math::PI/deltorphi+1.0e-8)%1.0}, #{(2*Math::PI/deltorphi+1.0e-5)}" unless ((2*Math::PI/deltorphi)+1.0e-8)%1.0 < 1.0e-5
 				m1 = (torphi1 )%deltorphi 
 				m2 = (torphi2 )%deltorphi 
-				m3 = (torphiout)%deltorphi
+				m3 = (torphiactual)%deltorphi
 				#bracketed = ((m1-m3).abs < 1.0e-4) || (
 										#(m2-m3.abs) > 1.0e-4 &&
 										#(m2 - m3) *
@@ -1114,7 +1128,7 @@ module GraphKits
 					#ep ['bracketed', i, j, k]
 					#ep ['field', field[i,j,k]]
 					#new_phi[j,k] = theta_vec[k]
-					new_field[j,k] = field[i,j,k] * (1-dfac) +  field[(i+1)%shp[0],j,k] * dfac
+					new_field[j,k] = (field[i,j,k] * (1-dfac) +  field[(i+1)%shp[0],j,k] * dfac) * field_fac
 					#raise "Mismatched radii" unless
 					#new_X[j,k] = cyls[0,i,j,k] * Math.cos(cyls[2,i,j,k])
 					#new_X[j,k] =  x_vec[j]
