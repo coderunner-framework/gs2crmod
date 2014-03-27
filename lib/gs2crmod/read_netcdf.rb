@@ -202,7 +202,7 @@ def hyperviscosity_graphkit(options)
 			#p dimhash
 			#p dimhash['Y']
 			ky = dimhash['Y'].to_a.to_gslv
-			kx = dimhash['X'].to_a.to_gslv.to_box_order
+			kx = dimhash['X'].to_a.to_gslv
 			shape = narray.shape
 			for ig in 0...shape[0]
 				for it in 0...shape[1]
