@@ -47,8 +47,21 @@ class NetcdfSmartReader
 	end
 	def read_variable(varname, options)
 		#start = get_start(dims, options)
+		if varname == 's' # dummy response for species index
+			return NArray.float(@nspec||1)
+		end
 		dims = dimensions(varname)
 		narray = @file.var(varname).get('start'=>starts(dims, options), 'end'=>ends(dims, options))
+		if options[:modify_variable]
+			dimhash = dims.inject({}){|hash, dim| 
+				opts = options.dup
+				opts[:modify_variable] = nil
+				dimval = read_variable(dimension_variable_name(dim.name), opts)
+				hash[dim.name] = dimval
+				hash
+			}
+			narray = options[:modify_variable].call(varname, narray, hash)
+		end
 		shape = narray.shape
 		shape.delete_if{|i| i==1}
 		#p 'shape', shape; STDIN.gets
@@ -108,6 +121,8 @@ class NetcdfSmartReader
 			'hermite'
 		when 'p'
 			'hankel'
+		when 's'
+			's'
 		else
 			raise "Unknown dimension #{n}"
 		end
@@ -176,5 +191,86 @@ def old_smart_graphkit(options)
 	 vars = OldNetcdfSmartReader.new(netcdf_file).graphkit(options[:graphkit_name].sub(/^nc_/, ''), options)
 	end
 end
+
+def hyperviscosity_graphkit(options)
+	raise "This only works for spectrogk"  unless spectrogk?
+	options[:modify_variable] = Proc.new do |varname, narray, dimhash|
+		#dimnames = dimhash.keys
+		ky = gsl_vector('ky')
+		kx = gsl_vector('kx').to_box_order
+		shape = narray.shape
+		if  varname == "gnew2_ta"
+			shape = narray.shape
+			for ig in 0...shape[0]
+				for ik in 0...shape[1]
+					for it in 0...shape[2]
+						for il in 0...shape[3]
+							for ie in 0...shape[4]
+								for is in 0...shape[5]
+									narray[ig,ik,it,il,ie,is]*=(ky(ik)**2.0 + kx(it)**2.0)*@d_hypervsic
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+		narray
+	end
+	options[:graphkit_name] = 'cdf_gnew2_ta'
+	kit = smart_graphkit(options)
+end
+def hypercoll_graphkit(options)
+	raise "This only works for spectrogk"  unless spectrogk?
+	options[:modify_variable] = Proc.new do |varname, narray, dimhash|
+		#dimnames = dimhash.keys
+		if  varname == "gnew2_ta"
+			shape = narray.shape
+			p 'shape',shape
+			for ig in 0...shape[0]
+				for ik in 0...shape[1]
+					for it in 0...shape[2]
+						for il in 0...shape[3]
+							for ie in 0...shape[4]
+								for is in 0...shape[5]
+									narray[ig,ik,it,il,ie,is]*=send(:nu_h_ + (is+1).to_sym)*(il/(shape[3]-1))**send(:nexp_h_ + (is+1).to_sym)
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+		narray
+	end
+	options[:graphkit_name] = 'cdf_gnew2_ta'
+	kit = smart_graphkit(options)
+end
+def lenardbern_graphkit(options)
+	raise "This only works for spectrogk"  unless spectrogk?
+	options[:modify_variable] = Proc.new do |varname, narray, dimhash|
+		#dimnames = dimhash.keys
+		if  varname == "gnew2_ta"
+			shape = narray.shape
+			for ig in 0...shape[0]
+				for ik in 0...shape[1]
+					for it in 0...shape[2]
+						for il in 0...shape[3]
+							for ie in 0...shape[4]
+								for is in 0...shape[5]
+									narray[ik,it,il,ie,is]*=send(:nu_ + (is+1).to_sym)*il
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+		narray
+	end
+	options[:graphkit_name] = 'cdf_gnew2_ta'
+	kit = smart_graphkit(options)
+end
+
 
 end 

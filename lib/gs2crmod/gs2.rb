@@ -1245,6 +1245,11 @@ end
       raise 'Please specify correlation_type as perp/par/time/full'
     end
   end
+
+	def input_file_extension
+		'.in'
+	end
+
 	end # class GS2
 	# For backwards compatibility
 
