@@ -197,10 +197,12 @@ def hyperviscosity_graphkit(options)
 	raise "This only works for spectrogk"  unless spectrogk?
 	options[:modify_variable] = Proc.new do |varname, narray, dimhash|
 		#dimnames = dimhash.keys
-		ky = dimhash['Y'].to_a.to_gslv
-		kx = dimhash['X'].to_a.to_gslv.to_box_order
 		shape = narray.shape
 		if  varname == "gnew2_ta"
+			#p dimhash
+			#p dimhash['Y']
+			ky = dimhash['Y'].to_a.to_gslv
+			kx = dimhash['X'].to_a.to_gslv.to_box_order
 			shape = narray.shape
 			for ig in 0...shape[0]
 				for it in 0...shape[1]
