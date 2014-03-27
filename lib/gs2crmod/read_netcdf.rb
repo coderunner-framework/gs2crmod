@@ -207,7 +207,7 @@ def hyperviscosity_graphkit(options)
 						for il in 0...shape[3]
 							for ie in 0...shape[4]
 								for is in 0...shape[5]
-									narray[ig,ik,it,il,ie,is]*=(ky[ik]**2.0 + kx[it]**2.0)*@d_hypervisc
+									narray[ig,ik,it,il,ie,is]*=(ky[ik]**2.0 + kx[it]**2.0)**(2*@nexp)*@d_hypervisc
 								end
 							end
 						end
