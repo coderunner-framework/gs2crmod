@@ -53,14 +53,14 @@ class NetcdfSmartReader
 		dims = dimensions(varname)
 		narray = @file.var(varname).get('start'=>starts(dims, options), 'end'=>ends(dims, options))
 		if options[:modify_variable]
-			dimhash = dims.inject({}){|hash, dim| 
+			hsh = dims.inject({}){|hsh, dim| 
 				opts = options.dup
 				opts[:modify_variable] = nil
 				dimval = read_variable(dimension_variable_name(dim.name), opts)
-				hash[dim.name] = dimval
-				hash
+				hsh[dim.name] = dimval
+				hsh
 			}
-			narray = options[:modify_variable].call(varname, narray, hash)
+			narray = options[:modify_variable].call(varname, narray, hsh)
 		end
 		shape = narray.shape
 		shape.delete_if{|i| i==1}
@@ -197,8 +197,8 @@ def hyperviscosity_graphkit(options)
 	raise "This only works for spectrogk"  unless spectrogk?
 	options[:modify_variable] = Proc.new do |varname, narray, dimhash|
 		#dimnames = dimhash.keys
-		ky = gsl_vector('ky')
-		kx = gsl_vector('kx').to_box_order
+		ky = dimhash['Y'].to_a.to_gslv
+		kx = dimhash['X'].to_a.to_gslv.to_box_order
 		shape = narray.shape
 		if  varname == "gnew2_ta"
 			shape = narray.shape
@@ -225,8 +225,11 @@ def hypercoll_graphkit(options)
 	raise "This only works for spectrogk"  unless spectrogk?
 	options[:modify_variable] = Proc.new do |varname, narray, dimhash|
 		#dimnames = dimhash.keys
+		p varname, dimhash
 		if  varname == "gnew2_ta"
 			shape = narray.shape
+			m = dimhash['m']
+			mmax = new_netcdf_file.var('hermite').get.to_a.size - 1
 			p 'shape',shape
 			for ig in 0...shape[0]
 				for it in 0...shape[1]
@@ -234,7 +237,7 @@ def hypercoll_graphkit(options)
 						for il in 0...shape[3]
 							for ie in 0...shape[4]
 								for is in 0...shape[5]
-									narray[ig,it,ik,il,ie,is]*=send(:nu_h_ + (is+1).to_sym)*(il.to_f/(shape[3]-1))**send(:nexp_h_ + (is+1).to_sym)
+									narray[ig,it,ik,il,ie,is]*=send(:nu_h_ + (is+1).to_sym)*(m[il]/mmax)**send(:nexp_h_ + (is+1).to_sym)
 								end
 							end
 						end
@@ -252,6 +255,7 @@ def lenardbern_graphkit(options)
 	options[:modify_variable] = Proc.new do |varname, narray, dimhash|
 		#dimnames = dimhash.keys
 		if  varname == "gnew2_ta"
+			m = dimhash['m']
 			shape = narray.shape
 			for ig in 0...shape[0]
 				for it in 0...shape[1]
@@ -259,7 +263,7 @@ def lenardbern_graphkit(options)
 						for il in 0...shape[3]
 							for ie in 0...shape[4]
 								for is in 0...shape[5]
-									narray[ig,it,ik,il,ie,is]*=send(:nu_ + (is+1).to_sym)*il
+									narray[ig,it,ik,il,ie,is]*=send(:nu_ + (is+1).to_sym)*m[il]
 								end
 							end
 						end
