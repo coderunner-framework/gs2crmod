@@ -139,6 +139,7 @@ class NetcdfSmartReader
 		axiskits.each_with_index{|ax, i| hash[axes[i]] = ax}
 		kit = GraphKit.autocreate(hash)
 		opts = options.dup
+		opts.delete(:modify_variable)
 		opts.delete(:graphkit_name)
 		#kit.data[0].title += " with options: " + opts.to_s
 		kit.data[0].title += " " + opts.to_s.gsub(/_(index|element)/, '')
@@ -202,8 +203,8 @@ def hyperviscosity_graphkit(options)
 		if  varname == "gnew2_ta"
 			shape = narray.shape
 			for ig in 0...shape[0]
-				for ik in 0...shape[1]
-					for it in 0...shape[2]
+				for it in 0...shape[1]
+					for ik in 0...shape[2]
 						for il in 0...shape[3]
 							for ie in 0...shape[4]
 								for is in 0...shape[5]
@@ -228,8 +229,8 @@ def hypercoll_graphkit(options)
 			shape = narray.shape
 			p 'shape',shape
 			for ig in 0...shape[0]
-				for ik in 0...shape[1]
-					for it in 0...shape[2]
+				for it in 0...shape[1]
+					for ik in 0...shape[2]
 						for il in 0...shape[3]
 							for ie in 0...shape[4]
 								for is in 0...shape[5]
@@ -253,8 +254,8 @@ def lenardbern_graphkit(options)
 		if  varname == "gnew2_ta"
 			shape = narray.shape
 			for ig in 0...shape[0]
-				for ik in 0...shape[1]
-					for it in 0...shape[2]
+				for it in 0...shape[1]
+					for ik in 0...shape[2]
 						for il in 0...shape[3]
 							for ie in 0...shape[4]
 								for is in 0...shape[5]
