@@ -396,7 +396,7 @@ class CodeRunner::Gs2
 							opts = options.dup
 							opts[:interpolate_theta] = nil
 							theta_vec_short = gsl_vector(:theta, {})
-							p 'sizes', [theta_vec_short.size, values[i+1].to_gslv.size]
+							#p 'sizes', [theta_vec_short.size, values[i+1].to_gslv.size]
 							interp = GSL::ScatterInterp.alloc(:linear, [theta_vec_short, values[i+1].to_gslv], true)
 							for j in 0...theta_vec.size
 								factors[i,j] = interp.eval(theta_vec[j])

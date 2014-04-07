@@ -71,6 +71,9 @@ class TestAnalysis < Test::Unit::TestCase
     corr_file = NumRu::NetCDF.open("#{tfolder}/v/id_1/v_write_moments_.true._write_line_.true._id_1_correlation_analysis_full.nc")
     corr_function = corr_file.var('correlation').get
     assert_equal([4,4,4,25], corr_function.shape)
+    
+    #BES output test
+    CodeRunner.run_command('bes_output(field_name:"density", n0:1, Rgeo:3, species_index:1, no_flux_tube_copies:true, torphi:0.0, constant_torphi:0.0, output_box_size:[0.05, 0.1], output_box_points:[10,10], t_index_window:[1,10])', {j:1, Y:tfolder})
 	end
 	def test_interpolation
 		assert_equal(5, @run.gsl_vector('kx').size)
