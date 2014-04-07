@@ -437,7 +437,11 @@ class CodeRunner::Gs2
 			IRRELEVANT_INDICES.each{|v| ops.delete(v)}
 			return  cache[[:constant_torphi_surface_gsl_tensor, ops]] if cache[[:constant_torphi_surface_gsl_tensor, ops]]
 			correct_3d_options(options)
-			torphiout = options[:torphi]
+			if options[:torphi]
+        torphiout = options[:torphi]
+      else
+        raise 'Need to specify a torphi value'
+      end
 			cyls = cylindrical_coordinates_gsl_tensor(options.absorb({extra_points: :y}))
 			shpc = cyls.shape
 			factors = geometric_factors_gsl_tensor(options)
