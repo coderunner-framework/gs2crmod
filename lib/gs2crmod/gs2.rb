@@ -1282,16 +1282,23 @@ end
       t_index_beg = options[:t_index_window][0]
       t_index_end = options[:t_index_window][1]
     end
-    if options[:amin] == nil
-      amin = 1.0
-    else
+    if options[:amin]
       amin = options[:amin]
+    end
+    if options[:v_ref] # velocity of reference species
+      v_ref = options[:v_ref]
+    end
+    if options[:omega] # angular velocity of plasma
+      omega = options[:omega]
+    end
+    if options[:omega] and (options[:v_ref] == nil or options[:amin] == nil)
+      raise 'Need to specify amin AND v_ref options when specifying omega to move to LAB frame!'
     end
     if options[:output_box_size] and options[:output_box_size].kind_of?Array
       r_box_size = options[:output_box_size][0]
       z_box_size = options[:output_box_size][1]
-    else
-      raise 'Option output_box_size must be specified (in units of amin) and must be an Array.'
+    #else
+    #  raise 'Option output_box_size must be specified (in units of amin) and must be an Array.'
     end
     if options[:output_box_points] and options[:output_box_points].kind_of?Array
       r_box_pts = options[:output_box_points][0]
@@ -1327,6 +1334,11 @@ end
 			Terminal.erewind(1) #go back one line in terminal
 			eputs sprintf("Writing time index = %d of %d#{Terminal::CLEAR_LINE}", i, t_index_end-t_index_beg+1) #clear line and print time index
       options[:t_index] = i
+      #Need to test whether omega is specified to change torphi at each time step. If not, do nothing since torphi must be
+      #set to a value to call the graphkit below
+      if options[:omega]
+        options[:torphi] = omega * (gsl_vector(:t)[i] - gsl_vector(:t)[0]) * (amin/v_ref) 
+      end
       kit = field_real_space_poloidal_plane_graphkit(options)
       t_var.put(gsl_vector(:t)[i], 'index'=>[i-t_index_beg]) #Write time to unlimited time NetCDF variable
       field_var.put(NArray.to_na((kit.data[0].f.data).to_a), 'start'=>[0,0,i-t_index_beg], 'end'=>[-1,-1,i-t_index_beg])
