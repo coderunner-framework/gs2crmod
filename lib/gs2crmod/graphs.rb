@@ -996,7 +996,7 @@ module GraphKits
 		when :help
 			return  "The potential as a function of cartesian coordinates showing a cut at one toroidal angle, with multiple periodic copies of the flux tube used to fill the whole circle.."
 		when :options
-			return  [:Rgeo, :n0, :rho_star, :t_index, :nakx, :naky,  :xmax, :xmin, :thetamax, :thetamin, :torphi]
+			return  [:Rgeo, :n0, :rho_star, :t_index, :nakx, :naky,  :xmax, :xmin, :thetamax, :thetamin, :torphi, :constant_torphi, :no_flux_tube_copies]
 		else
 			#if options[:ncopies]
 				#ops = options.dup

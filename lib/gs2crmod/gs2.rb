@@ -1250,6 +1250,156 @@ end
 		'.in'
 	end
 
+  #This function will interpolate and output either phi or density at the outboard midplane
+  #on a 40x40 grid appropriate to analyse as experimental data. It called as a run_command
+  #e.g. rc 'bes_output(options)', j:<run number>. It will call field_real_space_poloidal_plane_graphkit
+  #for every time step, interpolate at outboard midplane, and write fields and grids out to NetCDF file.
+  #
+  #Options: Same as field_real_space_poloidal_plane, field name must also be specified for generality. New options:
+  #
+  # no_flux_tube_copies: ensures only one flux tube is printed out with zeroes everywhere else.
+  # amin: Minor radius (to which R,Z are normalized) so that grid is in right units
+  # output_box_size: Array of sizes of output box (in units of amin) either side of middle of fluxtube at outboard midplane
+  # in R direction and either side of outboard midplane in Z direction.
+  # output_box_points: Array of number of points in output box (R,Z). Default will be 50x50.
+  #
+  #The interpolation routine used will only interpolate correctly inside the fluxtube and produce garbage outside. Regular points are checked
+  #for being inside or outside the fluxtube and values of the field outside the fluxtube are set to zero.
+  def bes_output(options={})
+    #******************
+    # Read in options *
+    #******************
+    #In order to interpolate on constant grids, ensure constant_torphi is set to some value (default 0.0)
+    if options[:constant_torphi] == nil
+      p 'constant_torphi not set! Setting it to 0.0.'
+      options[:constant_torphi] = 0.0
+    end
+    #Check whether t_index_window is specified, if not, set to entire t range
+    if options[:t_index_window] == nil
+      t_index_beg = 1
+      t_index_end = gsl_vector(:t).length
+    else
+      t_index_beg = options[:t_index_window][0]
+      t_index_end = options[:t_index_window][1]
+    end
+    if options[:amin]
+      amin = options[:amin]
+    end
+    if options[:v_ref] # velocity of reference species
+      v_ref = options[:v_ref]
+    end
+    if options[:omega] # angular velocity of plasma
+      omega = options[:omega]
+    end
+    if options[:omega] and (options[:v_ref] == nil or options[:amin] == nil)
+      raise 'Need to specify amin AND v_ref options when specifying omega to move to LAB frame!'
+    end
+    if options[:output_box_size] and options[:output_box_size].kind_of?Array
+      r_box_size = options[:output_box_size][0]
+      z_box_size = options[:output_box_size][1]
+    #else
+    #  raise 'Option output_box_size must be specified (in units of amin) and must be an Array.'
+    end
+    if options[:output_box_points] and options[:output_box_points].kind_of?Array
+      r_box_pts = options[:output_box_points][0]
+      z_box_pts = options[:output_box_points][1]
+    else
+      r_box_pts = 50
+      z_box_pts = 50
+    end
+
+    #Call at first time step to set up arrays and grids
+    options[:t_index] = t_index_beg
+    kit = field_real_space_poloidal_plane_graphkit(options)
+    x = kit.data[0].x.data
+    y = kit.data[0].y.data
+    z = kit.data[0].z.data
+
+    #Set up NetCDf file
+    file = NumRu::NetCDF.create(@run_name + "_bes_output.nc")
+    xdim = file.def_dim('y', x.shape[0])
+    zdim = file.def_dim('z', z.shape[1])
+    tdim = file.def_dim('t', 0) #zero means unlimited
+    x_var = file.def_var("x", 'sfloat', [xdim, zdim])
+    z_var = file.def_var("z", 'sfloat', [xdim, zdim])
+    t_var = file.def_var("t", 'sfloat', [tdim])
+    field_var = file.def_var("field", 'sfloat', [xdim, zdim, tdim])
+    file.enddef
+    #Write dimensions to file
+    x_var.put(NArray.to_na(x.to_a))
+    z_var.put(NArray.to_na(z.to_a))
+
+    #Loop over time, load field as function of space at each time index, write to file
+    for i in t_index_beg...t_index_end #inclusive of end
+			Terminal.erewind(1) #go back one line in terminal
+			eputs sprintf("Writing time index = %d of %d#{Terminal::CLEAR_LINE}", i, t_index_end-t_index_beg+1) #clear line and print time index
+      options[:t_index] = i
+      #Need to test whether omega is specified to change torphi at each time step. If not, do nothing since torphi must be
+      #set to a value to call the graphkit below
+      if options[:omega]
+        options[:torphi] = omega * (gsl_vector(:t)[i] - gsl_vector(:t)[0]) * (amin/v_ref) 
+      end
+      kit = field_real_space_poloidal_plane_graphkit(options)
+      t_var.put(gsl_vector(:t)[i], 'index'=>[i-t_index_beg]) #Write time to unlimited time NetCDF variable
+      field_var.put(NArray.to_na((kit.data[0].f.data).to_a), 'start'=>[0,0,i-t_index_beg], 'end'=>[-1,-1,i-t_index_beg])
+    end
+    file.close
+
+    #Ignore this until interpolation issue is sorted
+=begin    
+    #**************************
+    # Set up new regular grid *
+    #**************************
+    th_grid_size = x.shape[1]
+    flux_tube_midpt = x[0, (th_grid_size-1)/2] + (x[-1, (th_grid_size-1)/2] - x[1, (th_grid_size-1)/2])/2
+    x_vec_reg = GSL::Vector.linspace(flux_tube_midpt - r_box_size, flux_tube_midpt + r_box_size, r_box_pts)
+    z_vec_reg = GSL::Vector.linspace(-z_box_size, z_box_size, z_box_pts)
+    x_reg = GSL::Matrix.alloc(r_box_pts, z_box_pts)
+    z_reg = GSL::Matrix.alloc(r_box_pts, z_box_pts)
+    field_reg = GSL::Matrix.alloc(r_box_pts, z_box_pts)
+    for i in 0...r_box_pts
+      for j in 0...z_box_pts
+        x_reg[i,j] = x_vec_reg[i]
+        z_reg[i,j] = z_vec_reg[j]
+      end
+    end
+    
+    #************************************************
+    # Find the field at every point on regular grid *
+    #************************************************
+    #To evaluate field on a regular grid given the field on an irregular grid, need to interpolate. The rubygem
+    #gsl_extras contains an interpolation routine called ScatterInterp which does exactly this based on a 
+    #'Radial Basis Function' method.
+    
+    #Have R, Z, and field on an irregular grid in the form of matrices. ScatterInterp only takes in GSL vectors
+    #so simply convert these matrices to vectors (of size row*col) since the order of the pts don't matter.
+    x_vec = GSL::Vector.alloc(x.shape[0]*x.shape[1])
+    z_vec = GSL::Vector.alloc(x.shape[0]*x.shape[1])
+    field_vec = GSL::Vector.alloc(x.shape[0]*x.shape[1])
+    for i in 0...x.shape[0]
+      for j in 0...x.shape[1]
+        x_vec[x.shape[1]*i + j] = x[i,j]
+        z_vec[x.shape[1]*i + j] = z[i,j]
+        field_vec[x.shape[1]*i + j] = field[i,j]
+      end
+    end
+
+    #Now pass these vectors to ScatterInterp. This creates an object with instance method 'eval' which can be given an x,z coord
+    #at which to evaluate the interpolated function.
+    p 'Interpolating'
+    interp = GSL::ScatterInterp.alloc(:linear, [x_vec, z_vec, field_vec], false, r0=0.1)
+    p 'Finished interpolating'
+    for i in 0...x_vec_reg.size
+      for j in 0...z_vec_reg.size
+        field_reg[i,j] = interp.eval(x_vec_reg[i], z_vec_reg[j])
+      end
+    end 
+
+	  kit = GraphKit.quick_create([x_vec_reg, z_vec_reg, field_reg])
+	  #kit2 = GraphKit.quick_create([x_vec, z_vec, field_vec])
+=end
+
+  end
 	end # class GS2
 	# For backwards compatibility
 
