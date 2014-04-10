@@ -1,7 +1,7 @@
 source "http://rubygems.org"
 # Add dependencies required to use your gem here.
 # Example:
-   gem "coderunner", ">= 0.14.10"
+   gem "coderunner", ">= 0.14.15"
 	 gem "rubyhacks", ">= 0.1.2"
 # It seems necessary to have the following line un-commented on some systems but commented out on other systems:
   gem "ruby-netcdf-updated", ">= 0.6.6.1"
