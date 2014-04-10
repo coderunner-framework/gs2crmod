@@ -539,7 +539,7 @@ def restart(new_run)
 #   ep @runner.parameters
   new_run.run_name = nil
 	new_run.naming_pars = @naming_pars
-	new_run.update_submission_parameters(new_run.parameter_hash.inspect, false) if new_run.parameter_hash 
+	new_run.update_submission_parameters(new_run.parameter_hash_string, false) if new_run.parameter_hash 
 	new_run.naming_pars.delete(:restart_id)
 	new_run.generate_run_name
 	eputs 'Copying Restart files', ''
@@ -795,9 +795,9 @@ end
 def generate_input_file(&block)
 	raise CRFatal("No Input Module File Given or Module Corrupted") unless methods.include? (:input_file_text)
 	run_namelist_backwards_compatibility
-	if @restart_id and not @is_a_restart  # The second test checks that the restart function has not been called manually earlier (e.g. in Trinity)
+	if @restart_id and (not @is_a_restart or @resubmit_id)   # The second test checks that the restart function has not been called manually earlier (e.g. in Trinity), but we must check that it is not in fact a resubmitted run
 		@runner.run_list[@restart_id].restart(self)
-	elsif @save_for_restart and @save_for_restart.fortran_true? and not @is_a_restart
+	elsif @save_for_restart and @save_for_restart.fortran_true? and (not @is_a_restart or @resubmit_id)
 		@restart_dir = "nc"
 		#if CODE_OPTIONS[:gs2] and CODE_OPTIONS[:gs2][:list]
 			#FileUtils.makedirs "#{@runner.root_folder}/#@restart_dir"
