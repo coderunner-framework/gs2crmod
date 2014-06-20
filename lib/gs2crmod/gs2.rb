@@ -104,7 +104,16 @@ module load fftw/3.3.3
 module load bullxde papi
 module load scalasca
 EOF
+	when /archer/
+		<<EOF
+module swap PrgEnv-cray PrgEnv-intel
+module load intel/14.0.0.080
+module load fftw
+module load netcdf-hdf5parallel
+module load cray-hdf5-parallel
+EOF
 	else
+
 		""
 	end
 end
