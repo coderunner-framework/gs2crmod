@@ -74,14 +74,7 @@ Gem::Specification.new do |s|
     "sync_variables/helper.rb",
     "sync_variables/sync_variables.rb",
     "sync_variables_sgk/helper.rb",
-    "sync_variables_sgk/sync_variables_sgk.rb",
-    "test/agk_slab_itg_low_kperp.in",
-    "test/agk_slab_itg_low_kperp.tgz",
-    "test/cyclone_low_res.in",
-    "test/cyclone_low_res.tgz",
-    "test/helper.rb",
-    "test/slab_itg/dummy",
-    "test/test_gs2crmod.rb"
+    "sync_variables_sgk/sync_variables_sgk.rb"
   ]
   s.homepage = "http://gs2crmod.sourceforge.net"
   s.licenses = ["GSLv3"]
