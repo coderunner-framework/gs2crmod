@@ -402,7 +402,7 @@
        :should_include=>"true",
        :description=>"",
        :tests=>["Tst::FLOAT"],
-       :autoscanned_defaults=>[0.0, 0.75],
+       :autoscanned_defaults=>[0.0, 0.20013433062472832, 0.75],
        :must_pass=>
         [{:test=>"kind_of? Float or kind_of? Integer",
           :explanation=>
@@ -442,7 +442,7 @@
        :description=>
         "Flux surface label. Usually rho = diameter/diameter of LCFS",
        :tests=>["Tst::FLOAT"],
-       :autoscanned_defaults=>[0.5, 0.6, 0.8, 1.0],
+       :autoscanned_defaults=>[0.33, 0.5, 0.6, 0.8, 1.0],
        :must_pass=>
         [{:test=>"kind_of? Float or kind_of? Integer",
           :explanation=>
@@ -456,7 +456,7 @@
        :description=>
         "Sets value of the safety factor when using local toroidal equilibrium model.",
        :tests=>["Tst::FLOAT"],
-       :autoscanned_defaults=>[1.5],
+       :autoscanned_defaults=>[1.147066305282792, 1.5],
        :must_pass=>
         [{:test=>"kind_of? Float or kind_of? Integer",
           :explanation=>
@@ -470,7 +470,7 @@
        :description=>
         "Sets local elongation when local toroidal equilibrium is specified.",
        :tests=>["Tst::FLOAT"],
-       :autoscanned_defaults=>[1.0],
+       :autoscanned_defaults=>[1.0, 1.3185652797218639],
        :must_pass=>
         [{:test=>"kind_of? Float or kind_of? Integer",
           :explanation=>
@@ -483,7 +483,7 @@
        :should_include=>"true",
        :description=>"akappri = dkappa/drho",
        :tests=>["Tst::FLOAT"],
-       :autoscanned_defaults=>[0.0],
+       :autoscanned_defaults=>[-0.006360432757579471, 0.0],
        :must_pass=>
         [{:test=>"kind_of? Float or kind_of? Integer",
           :explanation=>
@@ -496,7 +496,7 @@
        :should_include=>"true",
        :description=>"tri = arcsin[(R(max(Z))-R_major)/r_mid]",
        :tests=>["Tst::FLOAT"],
-       :autoscanned_defaults=>[0.0],
+       :autoscanned_defaults=>[0.0, 0.004358569789972528],
        :must_pass=>
         [{:test=>"kind_of? Float or kind_of? Integer",
           :explanation=>
@@ -509,7 +509,7 @@
        :should_include=>"true",
        :description=>"tripri =  dtri/drho",
        :tests=>["Tst::FLOAT"],
-       :autoscanned_defaults=>[0.0],
+       :autoscanned_defaults=>[0.0, 0.12435021170306493],
        :must_pass=>
         [{:test=>"kind_of? Float or kind_of? Integer",
           :explanation=>
@@ -522,7 +522,7 @@
        :should_include=>"true",
        :description=>"shift = -R q**2 dbeta/drho (>0)",
        :tests=>["Tst::FLOAT"],
-       :autoscanned_defaults=>[0.0, 0],
+       :autoscanned_defaults=>[-0.17067265951553612, 0.0, 0],
        :must_pass=>
         [{:test=>"kind_of? Float or kind_of? Integer",
           :explanation=>
@@ -642,7 +642,29 @@
        :autoscanned_defaults=>[".false."],
        :type=>:Fortran_Bool,
        :code_name=>:gb_to_cv,
-       :module=>:theta_grid}}},
+       :module=>:theta_grid},
+     :cvdriftknob=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:cvdriftknob,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float,
+       :autoscanned_defaults=>[1.0]},
+     :gbdriftknob=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:gbdriftknob,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float,
+       :autoscanned_defaults=>[1.0]}}},
  :theta_grid_salpha_knobs=>
   {:description=>"",
    :should_include=>"true",
@@ -937,7 +959,7 @@
        :should_include=>"true",
        :description=>nil,
        :tests=>["Tst::FLOAT"],
-       :autoscanned_defaults=>[0.8, 1],
+       :autoscanned_defaults=>[0.0, 0.8, 1],
        :must_pass=>
         [{:test=>"kind_of? Float or kind_of? Integer",
           :explanation=>
@@ -1163,7 +1185,17 @@
           :explanation=>"This variable must be an integer."}],
        :autoscanned_defaults=>[],
        :type=>:Integer,
-       :code_name=>:invLp_input}}},
+       :code_name=>:invLp_input},
+     :chs_eq=>
+      {:should_include=>"true",
+       :description=>"Use equilbrium data from the CHEASE file ogyropsi.dat",
+       :help=>"Use equilbrium data from the CHEASE file ogyropsi.dat",
+       :code_name=>:chs_eq,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool}}},
  :le_grids_knobs=>
   {:description=>"PITCH ANGLE/ENERGY GRID SETUP",
    :should_include=>"true",
@@ -1762,6 +1794,28 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false."]},
+     :wfb_cmr=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:wfb_cmr,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false."]},
+     :opt_source=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:opt_source,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool,
        :autoscanned_defaults=>[".false."]}}},
  :fields_knobs=>
   {:description=>"ALGORITHMIC CHOICES",
@@ -1858,6 +1912,28 @@
        :help=>
         "Used with field_option='local'. If .true. and x/y distributed then in advance only update local part of field in operations like \"phinew=phinew+phi\" etc.  ",
        :code_name=>:do_smart_update,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false."]},
+     :field_local_allreduce=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:field_local_allreduce,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false."]},
+     :field_local_allreduce_sub=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:field_local_allreduce_sub,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
@@ -2126,6 +2202,18 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false."]},
+     :do_eigsolve=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>
+        "A new eigenvalue solve mode has been implemented. Contact David Dickinson for details.",
+       :code_name=>:do_eigsolve,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool,
        :autoscanned_defaults=>[".false."]}}},
  :reinit_knobs=>
   {:description=>"",
@@ -2322,6 +2410,28 @@
        :help=>
         "Setting to .true. enables optimising redistribute code, used in FFTs for evaluating nonlinear terms, that avoids indirect addressing. \nThis can introduces worthwhile savings in nonlinear GS2 simulations at lower core counts. \n* [http://www.gyrokinetics.sourceforge.net/wikifiles/CMR/GS2_Final_report_NAG_Version_v1.0.pdf See Adrian Jackson's DCSE report \"Improved Data Distribution Routines for Gyrokinetic Plasma Simulations\"]\n",
        :code_name=>:opt_local_copy,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false."]},
+     :opt_redist_persist=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:opt_redist_persist,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false."]},
+     :opt_redist_persist_overlap=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:opt_redist_persist_overlap,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
@@ -4792,7 +4902,18 @@
         [{:test=>"kind_of? Integer",
           :explanation=>"This variable must be an integer."}],
        :type=>:Integer,
-       :autoscanned_defaults=>[4000]}},
+       :autoscanned_defaults=>[10000]},
+     :use_nonlin_convergence=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:use_nonlin_convergence,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false."]}},
    :help=>
     "Controls what information is output by GS2 during and at the end of a simulation."},
  :testgridgen=>
@@ -6118,4 +6239,112 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".true."]}}}}
+       :autoscanned_defaults=>[".true."]}}},
+ :eigval_knobs=>
+  {:description=>"",
+   :should_include=>"true",
+   :variables=>
+    {:n_eig=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:n_eig,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer,
+       :autoscanned_defaults=>[1]},
+     :max_iter=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:max_iter,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer,
+       :autoscanned_defaults=>["PETSC_DECIDE"]},
+     :tolerance=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:tolerance,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float,
+       :autoscanned_defaults=>[1.0e-06]},
+     :solver_option=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:solver_option,
+       :must_pass=>
+        [{:test=>"kind_of? String",
+          :explanation=>"This variable must be a string."}],
+       :type=>:String,
+       :autoscanned_defaults=>["default"]},
+     :extraction_option=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:extraction_option,
+       :must_pass=>
+        [{:test=>"kind_of? String",
+          :explanation=>"This variable must be a string."}],
+       :type=>:String,
+       :autoscanned_defaults=>["default"]},
+     :which_option=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:which_option,
+       :must_pass=>
+        [{:test=>"kind_of? String",
+          :explanation=>"This variable must be a string."}],
+       :type=>:String,
+       :autoscanned_defaults=>["default"]},
+     :transform_option=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:transform_option,
+       :must_pass=>
+        [{:test=>"kind_of? String",
+          :explanation=>"This variable must be a string."}],
+       :type=>:String,
+       :autoscanned_defaults=>["default"]},
+     :targ_re=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:targ_re,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float,
+       :autoscanned_defaults=>[0.5]},
+     :targ_im=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:targ_im,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float,
+       :autoscanned_defaults=>[0.5]},
+     :use_ginit=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:use_ginit,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false."]}}}}
