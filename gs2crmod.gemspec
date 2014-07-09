@@ -94,7 +94,6 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<bundler>, ["> 1.0.0"])
       s.add_development_dependency(%q<jeweler>, [">= 1.8.4"])
       s.add_development_dependency(%q<minitest>, ["~> 4"])
-      s.add_development_dependency(%q<rake-compiler>, [">= 0"])
     else
       s.add_dependency(%q<coderunner>, [">= 0.14.15"])
       s.add_dependency(%q<rubyhacks>, [">= 0.1.2"])
@@ -104,7 +103,6 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<bundler>, ["> 1.0.0"])
       s.add_dependency(%q<jeweler>, [">= 1.8.4"])
       s.add_dependency(%q<minitest>, ["~> 4"])
-      s.add_dependency(%q<rake-compiler>, [">= 0"])
     end
   else
     s.add_dependency(%q<coderunner>, [">= 0.14.15"])
@@ -115,7 +113,6 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<bundler>, ["> 1.0.0"])
     s.add_dependency(%q<jeweler>, [">= 1.8.4"])
     s.add_dependency(%q<minitest>, ["~> 4"])
-    s.add_dependency(%q<rake-compiler>, [">= 0"])
   end
 end
 
