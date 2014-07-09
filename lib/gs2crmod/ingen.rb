@@ -240,6 +240,13 @@ def ingen
 
 	warning("Recommend that const_amp = TRUE for linear runs.") if @nonlinear_mode == "off" and (!@const_amp or @const_amp.fortran_false?)
 
+	##################
+	# Geometry Errors
+	# ###############
+	
+
+	error("You must set bishop = 4 for Miller(local) geometry. Remember also that s_hat_input will override shat") if (@bishop!=4 and (@local_eq and @local_eq.fortran_true?))
+
 end
 
 #  A hash which gives the actual numbers of gridpoints indexed by their corresponding letters in the layout string.
