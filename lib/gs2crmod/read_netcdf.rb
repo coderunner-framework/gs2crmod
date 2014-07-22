@@ -194,89 +194,111 @@ def old_smart_graphkit(options)
 end
 
 def hyperviscosity_graphkit(options)
-	raise "This only works for spectrogk"  unless spectrogk?
-	options[:modify_variable] = Proc.new do |varname, narray, dimhash|
-		#dimnames = dimhash.keys
-		shape = narray.shape
-		if  varname == "gnew2_ta"
-			#p dimhash
-			#p dimhash['Y']
-			ky = dimhash['Y'].to_a.to_gslv
-			kx = dimhash['X'].to_a.to_gslv
-			shape = narray.shape
-			for ig in 0...shape[0]
-				for it in 0...shape[1]
-					for ik in 0...shape[2]
-						for il in 0...shape[3]
-							for ie in 0...shape[4]
-								for is in 0...shape[5]
-									narray[ig,it,ik,il,ie,is]*=(ky[ik]**2.0 + kx[it]**2.0)**(2*@nexp)*@d_hypervisc
-								end
-							end
-						end
-					end
-				end
-			end
-		end
-		narray
-	end
-	options[:graphkit_name] = 'cdf_gnew2_ta'
-	kit = smart_graphkit(options)
+  case options[:command]
+  when :help
+    "Plot of the effect of hyperviscosity"
+  when :options
+    return []
+  else
+    raise "This only works for spectrogk"  unless spectrogk?
+    options[:modify_variable] = Proc.new do |varname, narray, dimhash|
+      #dimnames = dimhash.keys
+      shape = narray.shape
+      if  varname == "gnew2_ta"
+        #p dimhash
+        #p dimhash['Y']
+        ky = dimhash['Y'].to_a.to_gslv
+        kx = dimhash['X'].to_a.to_gslv
+        shape = narray.shape
+        for ig in 0...shape[0]
+          for it in 0...shape[1]
+            for ik in 0...shape[2]
+              for il in 0...shape[3]
+                for ie in 0...shape[4]
+                  for is in 0...shape[5]
+                    narray[ig,it,ik,il,ie,is]*=(ky[ik]**2.0 + kx[it]**2.0)**(2*@nexp)*@d_hypervisc
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+      narray
+    end
+    options[:graphkit_name] = 'cdf_gnew2_ta'
+    return smart_graphkit(options)
+  end
 end
 def hypercoll_graphkit(options)
-	raise "This only works for spectrogk"  unless spectrogk?
-	options[:modify_variable] = Proc.new do |varname, narray, dimhash|
-		#dimnames = dimhash.keys
-		p varname, dimhash
-		if  varname == "gnew2_ta"
-			shape = narray.shape
-			m = dimhash['m']
-			mmax = new_netcdf_file.var('hermite').get.to_a.size - 1
-			p 'shape',shape
-			for ig in 0...shape[0]
-				for it in 0...shape[1]
-					for ik in 0...shape[2]
-						for il in 0...shape[3]
-							for ie in 0...shape[4]
-								for is in 0...shape[5]
-									narray[ig,it,ik,il,ie,is]*=send(:nu_h_ + (is+1).to_sym)*(m[il]/mmax)**send(:nexp_h_ + (is+1).to_sym)
-								end
-							end
-						end
-					end
-				end
-			end
-		end
-		narray
-	end
-	options[:graphkit_name] = 'cdf_gnew2_ta'
-	kit = smart_graphkit(options)
+  case options[:command]
+  when :help
+    "Plot of the effect of hypercollisions"
+  when :options
+    return []
+  else
+    raise "This only works for spectrogk"  unless spectrogk?
+    options[:modify_variable] = Proc.new do |varname, narray, dimhash|
+      #dimnames = dimhash.keys
+      p varname, dimhash
+      if  varname == "gnew2_ta"
+        shape = narray.shape
+        m = dimhash['m']
+        mmax = new_netcdf_file.var('hermite').get.to_a.size - 1
+        p 'shape',shape
+        for ig in 0...shape[0]
+          for it in 0...shape[1]
+            for ik in 0...shape[2]
+              for il in 0...shape[3]
+                for ie in 0...shape[4]
+                  for is in 0...shape[5]
+                    narray[ig,it,ik,il,ie,is]*=send(:nu_h_ + (is+1).to_sym)*(m[il]/mmax)**send(:nexp_h_ + (is+1).to_sym)
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+      narray
+    end
+    options[:graphkit_name] = 'cdf_gnew2_ta'
+    return smart_graphkit(options)
+  end
 end
 def lenardbern_graphkit(options)
-	raise "This only works for spectrogk"  unless spectrogk?
-	options[:modify_variable] = Proc.new do |varname, narray, dimhash|
-		#dimnames = dimhash.keys
-		if  varname == "gnew2_ta"
-			m = dimhash['m']
-			shape = narray.shape
-			for ig in 0...shape[0]
-				for it in 0...shape[1]
-					for ik in 0...shape[2]
-						for il in 0...shape[3]
-							for ie in 0...shape[4]
-								for is in 0...shape[5]
-									narray[ig,it,ik,il,ie,is]*=send(:nu_ + (is+1).to_sym)*m[il]
-								end
-							end
-						end
-					end
-				end
-			end
-		end
-		narray
-	end
-	options[:graphkit_name] = 'cdf_gnew2_ta'
-	kit = smart_graphkit(options)
+  case options[:command]
+  when :help
+    "Plot of the effect of Lenard Bernstein collisions"
+  when :options
+    return []
+  else
+    raise "This only works for spectrogk"  unless spectrogk?
+    options[:modify_variable] = Proc.new do |varname, narray, dimhash|
+      #dimnames = dimhash.keys
+      if  varname == "gnew2_ta"
+        m = dimhash['m']
+        shape = narray.shape
+        for ig in 0...shape[0]
+          for it in 0...shape[1]
+            for ik in 0...shape[2]
+              for il in 0...shape[3]
+                for ie in 0...shape[4]
+                  for is in 0...shape[5]
+                    narray[ig,it,ik,il,ie,is]*=send(:nu_ + (is+1).to_sym)*m[il]
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+      narray
+    end
+    options[:graphkit_name] = 'cdf_gnew2_ta'
+    kit = smart_graphkit(options)
+    return kit
+  end
 end
 
 
