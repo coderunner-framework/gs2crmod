@@ -250,7 +250,7 @@ def ingen
 	# Damping Rate #
 	################
 
-	error("Linear runs with hyperviscosity are NOT recommended!") if @nonlinear_mode="off" and (@hyper_option and @hyper_option=="visc_only") and (@d_hypervisc and @d_hypervisc!=0)
+	error("Linear runs with hyperviscosity are NOT recommended!") if @nonlinear_mode=="off" and (@hyper_option and @hyper_option=="visc_only") and (@d_hypervisc and @d_hypervisc!=0)
 
 	warning("Amplitude dependent part of hyperviscosity being ignored since const_amp = true") if (@hyper_option and @hyper_option=="visc_only") and (@d_hypervisc and @d_hypervisc!=0)
 
