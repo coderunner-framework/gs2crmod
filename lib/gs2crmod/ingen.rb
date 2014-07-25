@@ -129,8 +129,6 @@ def ingen
 	
 	warning("You have set both ny and naky; naky will override ny.") if @ny and @naky
 
-	error("Boundary options should not be periodic with finite magnetic shear") if @boundary_option == "periodic" and ((@s_hat_input and @s_hat_input.abs > 1.0e-6) or (@shat and @shat.abs > 1.0e-6))
-
 	error("abs(shat) should not be less that 1.0e-6") if @shat and @shat.abs < 1.0e-6 and not agk?
 	error("abs(s_hat_input) should not be less that 1.0e-6") if @s_hat_input and @s_hat_input.abs < 1.0e-6 and not agk?
 	
@@ -147,6 +145,13 @@ def ingen
 
     # nakx
 	warning("You have set both nx and ntheta0; ntheta0 will override nx.") if @nx and @ntheta0
+
+	warning("Do you have a reason for setting equal_arc = true (default)? If not set false.") if !@equal_arc or @equal_arc.fortran_true?
+
+	warning("Recommend nperiod > 1 for linear runs.") if @nonlinear_mode == "off" and (!@nperiod or @nperiod == 1)
+	warning("Recommend nperiod = 1 for nonlinear runs.") if @nonlinear_mode == "on" and (@nperiod > 1)
+  
+	warning("Look into using field_option = local and associated optimizations.") if @field_option and @field_option == "implicit"
 	
 	#################################
 	# Parallelisation/Layout Errors #
@@ -174,6 +179,8 @@ def ingen
 	error("Setting @restart_file as an empty string will result in hidden restart files.") if @restart_file == ""
 
 	error("ginit_option is 'many' but is_a_restart is false") if @ginit_option == "many" and not @is_a_restart
+
+	error("chop_side should not be used (remove test if default changes from T to F)") if !@chop_side or @chop_side.fortran_true?
 
 	#####################
 	# Diagnostic errors #
@@ -218,11 +225,16 @@ def ingen
 
 	warning("The system will abort with rapid timestep changes...") if !@abort_rapid_time_step_change or @abort_rapid_time_step_change.fortran_true?
 
+	warning("local_field_solve is an old variable that should not really be used.") if @local_field_solve and  @local_field_solve.fortran_true?
+
 	#############################
 	# Boundary Condition Errors #
 	#############################
 
-	warning("The correct BC is not being implemented. Preferably specify nonad_zero = true in input file.") if (not (@nonad_zero and @nonad_zero.fortran_true?) and not agk?)
+	error("Boundary options should be linked with finite magnetic shear.") if (!@boundary_option or @boundary_option != "linked") and ((@s_hat_input and @s_hat_input.abs > 1.0e-6) or (@shat and @shat.abs > 1.0e-6))
+
+	error("Set nonad_zero = true.") if @nonad_zero and not @nonad_zero.fortran_true?
+
 
   ###################
   # Spectrogk tests #
@@ -238,14 +250,29 @@ def ingen
 	# Damping Rate #
 	################
 
-	warning("Recommend that const_amp = TRUE for linear runs.") if @nonlinear_mode == "off" and (!@const_amp or @const_amp.fortran_false?)
+	error("Linear runs with hyperviscosity are NOT recommended!") if @nonlinear_mode="off" and (@hyper_option and @hyper_option=="visc_only") and (@d_hypervisc and @d_hypervisc!=0)
 
-	##################
-	# Geometry Errors
-	# ###############
-	
+	warning("Amplitude dependent part of hyperviscosity being ignored since const_amp = true") if (@hyper_option and @hyper_option=="visc_only") and (@d_hypervisc and @d_hypervisc!=0)
+
+	###################
+	# Geometry Errors #
+	###################
 
 	error("You must set bishop = 4 for Miller(local) geometry. Remember also that s_hat_input will override shat") if (@bishop!=4 and (@local_eq and @local_eq.fortran_true?))
+
+	error("Shift should be > 0 for s-alpha equilibrium.") if @equilibrium_option=="s-alpha" and (@shift and @shift < 0)
+	error("Shift should be < 0 for Miller equilibrium.") if @equilibrium_option=="eik" and @local_eq.fortran_true? and (@shift and @shift > 0)
+
+	error("irho must be 2 for Miller equilibrium.") if @equilibrium_option=="eik" and @local_eq.fortran_true? and (@irho and @irho!=2)
+
+	warning("Note that shat != s_hat_input") if @shat and @s_hat_input and @shat!=@s_hat_input
+
+	##################
+	# Species Errors #
+	##################
+
+	error("Must set z = -1 for electron species.") if (@type_2 and @z_2 and @type_2=='electron' and @z_2 != -1)
+
 
 end
 
