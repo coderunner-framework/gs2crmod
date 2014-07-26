@@ -146,12 +146,12 @@ def ingen
     # nakx
 	warning("You have set both nx and ntheta0; ntheta0 will override nx.") if @nx and @ntheta0
 
-	warning("Do you have a reason for setting equal_arc = true (default)? If not set false.") if !@equal_arc or @equal_arc.fortran_true?
+	warning("Do you have a reason for setting equal_arc = true (default)? If not set false.") if @equilibrium_option=="eik" and (!@equal_arc or @equal_arc.fortran_true?)
 
 	warning("Recommend nperiod > 1 for linear runs.") if @nonlinear_mode == "off" and (!@nperiod or @nperiod == 1)
 	warning("Recommend nperiod = 1 for nonlinear runs.") if @nonlinear_mode == "on" and (@nperiod > 1)
   
-	warning("Look into using field_option = local and associated optimizations.") if @field_option and @field_option == "implicit"
+	warning("Consider using field_option = local and associated optimizations.") if @field_option and @field_option == "implicit"
 	
 	#################################
 	# Parallelisation/Layout Errors #
@@ -252,7 +252,7 @@ def ingen
 
 	error("Linear runs with hyperviscosity are NOT recommended!") if @nonlinear_mode=="off" and (@hyper_option and @hyper_option=="visc_only") and (@d_hypervisc and @d_hypervisc!=0)
 
-	warning("Amplitude dependent part of hyperviscosity being ignored since const_amp = true") if (@hyper_option and @hyper_option=="visc_only") and (@d_hypervisc and @d_hypervisc!=0)
+	warning("Amplitude dependent part of hyperviscosity being ignored since const_amp = true") if (@hyper_option and @hyper_option=="visc_only") and (@const_amp and @const_amp.fortran_true?)
 
 	###################
 	# Geometry Errors #
