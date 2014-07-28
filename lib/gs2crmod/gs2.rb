@@ -378,7 +378,7 @@ def get_time
 end
 
 def get_completed_timesteps	
- 	#raise CRFatal.new("Couldn't find outfile #{@run_name}.out") unless FileTest.exist?(@run_name + ".out")
+	#raise CRFatal.new("Couldn't find outfile #{@run_name}.out") unless FileTest.exist?(@run_name + ".out")
 	#p 'try to get completed_timesteps', Dir.pwd, 'nwrite', @nwrite, 'delt', @delt
 	@completed_timesteps = (list(:t).size - 1) * (@nwrite || 1)
 	#p 'tried to get completed_timesteps'
