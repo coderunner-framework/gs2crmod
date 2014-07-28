@@ -281,7 +281,7 @@ def check_parameters
   if CODE_OPTIONS[:gs2] and CODE_OPTIONS[:gs2][:show_opt]
     eputs("Optimisation Summary:")
     optimisation_flags.each do |flag|
-      eputs("-------------------------  #{flag}: #{send(flag)}\n* #{rcp.variables_with_help[flag].gsub(/\n/, "\n\t")}") 
+      eputs("-------------------------  #{flag}: #{send(flag)}\n* #{rcp.variables_with_help[flag].gsub(/\n/, "\n\t").sub(/\A([^.]*.).*\Z/m, '\1')}") 
     end
     #not_set = [:operator, :save_for_restart, :write_nl_flux, :write_final_fields, :write_final_moments].find_all do  |diagnostic|
       #not (send(diagnostic) and send(diagnostic).fortran_true?)
