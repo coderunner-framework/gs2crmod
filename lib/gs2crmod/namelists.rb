@@ -1823,13 +1823,15 @@
      :zero_forbid=>
       {:should_include=>"true",
        :description=>"",
-       :help=>"",
+       :help=>
+        "If true then force `gnew=0` in the forbidden region at the end of invert_rhs_1 (this is the original behaviour).\n*Nothing should depend on the forbidden region so g should be 0 here and if it's not for some reason then it shouldn't impact on results. If the results of your simulation depend upon this flag then something has likely gone wrong somewhere.\n\n",
        :code_name=>:zero_forbid,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool}}},
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false."]}}},
  :fields_knobs=>
   {:description=>"ALGORITHMIC CHOICES",
    :should_include=>"true",
@@ -1934,7 +1936,8 @@
      :field_local_allreduce=>
       {:should_include=>"true",
        :description=>"",
-       :help=>"",
+       :help=>
+        "Set to true to use an allreduce (on mp_comm) in field calculation ([[field_option]]='local' only) rather than a reduction on a sub-communicator followed by a global broadcast.\n* Typically a little faster than default performance but may depend on MPI implementation. ",
        :code_name=>:field_local_allreduce,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -1945,7 +1948,8 @@
      :field_local_allreduce_sub=>
       {:should_include=>"true",
        :description=>"",
-       :help=>"",
+       :help=>
+        "Set to true, along with [[field_local_allreduce]] and [[intspec_sub]], to replace the allreduce used in field calculation with an allreduce on a sub-communicator followed by a reduction on a \"perpendicular\" communicator.\n*Typically a bit faster than default and scales slightly more efficiently.\n*Note if this option is active only proc0 has knowledge of the full field arrays. Other processors know the full field for any supercell (connected x-y domains) for which it has any of the xy indices local in the g_lo layout. ",
        :code_name=>:field_local_allreduce_sub,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -2218,9 +2222,10 @@
        :autoscanned_defaults=>[".false."]},
      :do_eigsolve=>
       {:should_include=>"true",
-       :description=>"",
+       :description=>
+        "If true then use eigensolver instead of initial value solver.",
        :help=>
-        "A new eigenvalue solve mode has been implemented. Contact David Dickinson for details.",
+        "If true then use eigensolver instead of initial value solver. Only valid for executables compiled with WITH_EIG=on and linked with PETSC+SLEPC libraries. Should only be used in linear simulations with a single ky and theta0.",
        :code_name=>:do_eigsolve,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -2237,7 +2242,8 @@
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool}}},
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".true."]}}},
  :reinit_knobs=>
   {:description=>"",
    :should_include=>"true",
@@ -2292,7 +2298,18 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".true."]}}},
+       :autoscanned_defaults=>[".true."]},
+     :in_memory=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>
+        "If true then attempts to create temporary copies of the dist fn and fields in memory to be restored after the time step reset rather than dumping to fields.\n* This could be faster on machines with slow file systems.\n* If the required memory allocation fails then we set `in_memory=.false.` and fall back to the traditional file based approach.",
+       :code_name=>:in_memory,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool}}},
  :layouts_knobs=>
   {:description=>"",
    :should_include=>"true",
@@ -2445,7 +2462,7 @@
        :description=>
         "Set to true to use persistent (non-blocking) comms in the redistribute routines.",
        :help=>
-        "Set to true to use persistent (non-blocking) comms in the redistribute routines. \n* Must also set opt_redist_nbk=.true. \n* Can help improve scaling efficiency at large core counts, but can cause slow down at low core counts.",
+        "Set to true to use persistent (non-blocking) comms in the redistribute routines.\n* Must also set opt_redist_nbk=.true.\n* Can help improve scaling efficiency at large core counts, but can cause slow down at low core counts.",
        :code_name=>:opt_redist_persist,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -2458,7 +2475,7 @@
        :description=>
         "Set to true to try to overlap the mpi and local parts of the gather/scatter routines.",
        :help=>
-        "Set to true to try to overlap the mpi and local parts of the gather/scatter routines. \n* Should only be used with opt_redist_persist=.true. \n* See Optimising your runs for more details.",
+        "Set to true to try to overlap the mpi and local parts of the gather/scatter routines.\n* Should only be used with opt_redist_persist=.true.\n* See [[Optimising your runs]] for more details.",
        :code_name=>:opt_redist_persist_overlap,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -2469,13 +2486,15 @@
      :fft_measure_plan=>
       {:should_include=>"true",
        :description=>"",
-       :help=>"",
+       :help=>
+        "When set to true fft will use timing data during plan creation to select optimal settings. When false it will fall back to a simple heuristic estimate.\n ",
        :code_name=>:fft_measure_plan,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool}}},
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".true."]}}},
  :collisions_knobs=>
   {:description=>"COLLISIONS",
    :should_include=>"true",
@@ -2813,7 +2832,7 @@
        :module=>:hyper},
      :const_amp=>
       {:help=>
-        "Determines whether hyperviscosity includes time dependent amplitude factor when calculating damping rate. Not recommended for linear runs.",
+        "Determines whether hyperviscosity includes time dependent amplitude factor when calculating damping rate. Recommend TRUE for linear runs and FALSE for nolinear runs, since amplutide of turbulence grows linearly with time in linear run.",
        :should_include=>"true",
        :description=>
         "Detrmines whether damping rate depends on amplitude variations. Recommend FALSE for nonlinear, TRUE for linear.",
@@ -6288,7 +6307,8 @@
     {:n_eig=>
       {:should_include=>"true",
        :description=>"",
-       :help=>"",
+       :help=>
+        "The number of eigenmodes to search for. number of modes found may be larger than this.\n",
        :code_name=>:n_eig,
        :must_pass=>
         [{:test=>"kind_of? Integer",
@@ -6298,7 +6318,8 @@
      :max_iter=>
       {:should_include=>"true",
        :description=>"",
-       :help=>"",
+       :help=>
+        "Sets the maximum number of SLEPC iterations used. \n** If not set (recommended) then let SLEPC decide what to use (varies with different options).\n",
        :code_name=>:max_iter,
        :must_pass=>
         [{:test=>"kind_of? Integer",
@@ -6308,7 +6329,7 @@
      :tolerance=>
       {:should_include=>"true",
        :description=>"",
-       :help=>"",
+       :help=>"Sets tolerance on SLEPC eigenmode search.\n",
        :code_name=>:tolerance,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
@@ -6319,7 +6340,8 @@
      :solver_option=>
       {:should_include=>"true",
        :description=>"",
-       :help=>"",
+       :help=>
+        "Sets the type of solver to use, must be one of:\n** 'default' (Krylov-Schur)\n** 'slepc_default' (Krylov-Schur)\n** 'power'\n** 'subspace'\n** 'arnoldi'\n** 'lanczos'\n** 'krylov'\n** 'GD'\n** 'JD'\n** 'RQCG'\n** 'CISS'\n** 'lapack'\n** 'arpack'\n** 'blzpack'\n** 'trlan'\n** 'blopex'\n** 'primme'\n** 'feast'\n* Not all solver types are compatible with other eigenvalue options, some options may not be supported in older SLEPC versions and some may require certain flags to be set when SLEPC is compiled.\n",
        :code_name=>:solver_option,
        :must_pass=>
         [{:test=>"kind_of? String",
@@ -6329,7 +6351,8 @@
      :extraction_option=>
       {:should_include=>"true",
        :description=>"",
-       :help=>"",
+       :help=>
+        "Sets the extraction technique, must be one of:\n** 'default' (use SLEPC default)\n** 'slepc_default' (use SLEPC default)\n** 'ritz'\n** 'harmonic'\n** 'harmonic_relative'\n** 'harmonic_right'\n** 'harmonic_largest'\n** 'refined'\n** 'refined_harmonic'\n",
        :code_name=>:extraction_option,
        :must_pass=>
         [{:test=>"kind_of? String",
@@ -6339,7 +6362,8 @@
      :which_option=>
       {:should_include=>"true",
        :description=>"",
-       :help=>"",
+       :help=>
+        "Sets SLEPC mode of operation (i.e. what sort of eigenvalues it looks for). Must be one of\n** 'default' (equivalent to 'target_magnitude')\n** 'slepc_default' (let SLEPC decide)\n** 'largest_magnitude'\n** 'smallest_magnitude'\n** 'largest_real'\n** 'smallest_real'\n** 'largest_imaginary'\n** 'smallest_imaginary'\n** 'target_magnitude' (complex eigenvalue magnitude closest to magnitude of target)\n** 'target_real'\n** 'target_imaginary'\n** 'all' (only some solver types, e.g. lapack)\n** 'user' (will use a user specified function to pick between eigenmodes, note not currently implemented)\n",
        :code_name=>:which_option,
        :must_pass=>
         [{:test=>"kind_of? String",
@@ -6349,7 +6373,8 @@
      :transform_option=>
       {:should_include=>"true",
        :description=>"",
-       :help=>"",
+       :help=>
+        "Sets the type of spectral transform to be used. Must be one of\n** 'default' (let SLEPC decide)\n** 'slepc_default' (let SLEPC decide)\n** 'shell'\n** 'shift'\n** 'invert'\n** 'cayley'\n** 'fold'\n** 'precond' (not implemented)\n* Not all options are available in all versions of the library.\n",
        :code_name=>:transform_option,
        :must_pass=>
         [{:test=>"kind_of? String",
@@ -6359,7 +6384,8 @@
      :targ_re=>
       {:should_include=>"true",
        :description=>"",
-       :help=>"",
+       :help=>
+        "Real part of the eigenvalue target\n** Often beneficial to set this fairly small (e.g. ~0)\n",
        :code_name=>:targ_re,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
@@ -6370,7 +6396,8 @@
      :targ_im=>
       {:should_include=>"true",
        :description=>"",
-       :help=>"",
+       :help=>
+        "Imaginary part of the eigenvalue target\n** Often beneficial to set this fairly large (e.g. 10)\n",
        :code_name=>:targ_im,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
@@ -6381,7 +6408,8 @@
      :use_ginit=>
       {:should_include=>"true",
        :description=>"",
-       :help=>"",
+       :help=>
+        "If true then provide an initial guess for the eigenmode based on using init_g routines to initialise g. \n** Probably most useful with ginit_option='many' (etc.) to start an eigenvalue search from a previously obtained solution.\n",
        :code_name=>:use_ginit,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
