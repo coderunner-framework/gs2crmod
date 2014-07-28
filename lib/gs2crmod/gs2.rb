@@ -437,9 +437,9 @@ def print_out_line
 	name += " (res: #@restart_id)" if @restart_id
 	name += " real_id: #@real_id" if @real_id
 	beginning = sprintf("%2d:%d %-60s %1s:%2.1f(%s) %3s%1s %1s",  @id, @job_no, name, @status.to_s[0,1],  @run_time.to_f / 60.0, @nprocs.to_s, percent_complete, "%", @converged.to_s)
-	 if @ky
+	if @ky
 		beginning += sprintf("%3s %4s %4s", @ky, @growth_rates[@ky], @real_frequencies[@ky])
-	 elsif @nonlinear_mode == "off"
+	elsif @nonlinear_mode == "off"
 	    beginning += sprintf("%3s %4s %4s", 
 	     @fastest_growing_mode, @max_growth_rate, 
 	    @freq_of_max_growth_rate)

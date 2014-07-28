@@ -1043,7 +1043,7 @@
        :should_include=>"true",
        :description=>nil,
        :tests=>["Tst::FORTRAN_BOOL"],
-       :autoscanned_defaults=>[".false.", ".true."],
+       :autoscanned_defaults=>[".true."],
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
@@ -1808,8 +1808,8 @@
        :autoscanned_defaults=>[".false."]},
      :opt_source=>
       {:should_include=>"true",
-       :description=>"",
-       :help=>"",
+       :description=>"If true then use an optimised linear source calculation which uses pre-calculated coefficients.",
+       :help=>"If true then use an optimised linear source calculation which uses pre-calculated coefficients, calculates both sigma together and skips work associated with empty fields. Can contribute 10-25% savings for linear electrostatic collisionless simulations. For more complicated runs the savings will likely be less. If enabled memory usage will increase due to using an additional array of size 2-4 times gnew. Can potentially slow down certain runs.",
        :code_name=>:opt_source,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -2406,7 +2406,7 @@
        :autoscanned_defaults=>[".false."]},
      :opt_local_copy=>
       {:should_include=>"true",
-       :description=>"A recent optimisation ..please add better help!",
+       :description=>"Setting to .true. enables optimising redistribute code, used in FFTs for evaluating nonlinear terms, that avoids indirect addressing.",
        :help=>
         "Setting to .true. enables optimising redistribute code, used in FFTs for evaluating nonlinear terms, that avoids indirect addressing. \nThis can introduces worthwhile savings in nonlinear GS2 simulations at lower core counts. \n* [http://www.gyrokinetics.sourceforge.net/wikifiles/CMR/GS2_Final_report_NAG_Version_v1.0.pdf See Adrian Jackson's DCSE report \"Improved Data Distribution Routines for Gyrokinetic Plasma Simulations\"]\n",
        :code_name=>:opt_local_copy,
@@ -2418,8 +2418,8 @@
        :autoscanned_defaults=>[".false."]},
      :opt_redist_persist=>
       {:should_include=>"true",
-       :description=>"",
-       :help=>"",
+       :description=>"Set to true to use persistent (non-blocking) comms in the redistribute routines.",
+       :help=>"Set to true to use persistent (non-blocking) comms in the redistribute routines. \n* Must also set opt_redist_nbk=.true. \n* Can help improve scaling efficiency at large core counts, but can cause slow down at low core counts.",
        :code_name=>:opt_redist_persist,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -2429,8 +2429,8 @@
        :autoscanned_defaults=>[".false."]},
      :opt_redist_persist_overlap=>
       {:should_include=>"true",
-       :description=>"",
-       :help=>"",
+       :description=>"Set to true to try to overlap the mpi and local parts of the gather/scatter routines.",
+       :help=>"Set to true to try to overlap the mpi and local parts of the gather/scatter routines. \n* Should only be used with opt_redist_persist=.true. \n* See Optimising your runs for more details.",
        :code_name=>:opt_redist_persist_overlap,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -2775,7 +2775,7 @@
        :module=>:hyper},
      :const_amp=>
       {:help=>
-        "Determines whether hyperviscosity includes time dependent amplitude factor when calculating damping rate. Recommend TRUE for linear runs and FALSE for nolinear runs, since amplutide of turbulence grows linearly with time in linear run.",
+        "Determines whether hyperviscosity includes time dependent amplitude factor when calculating damping rate. Not recommended for linear runs.",
        :should_include=>"true",
        :description=>
         "Detrmines whether damping rate depends on amplitude variations. Recommend FALSE for nonlinear, TRUE for linear.",
@@ -2842,9 +2842,9 @@
        :code_name=>:nexp,
        :module=>:hyper},
      :d_hypervisc=>
-      {:help=>nil,
+      {:help=>"Sets hyperviscosity parameter multiplying damping term. See Belli (2006) thesis for more information.",
        :should_include=>"true",
-       :description=>nil,
+       :description=>"Sets hyperviscosity parameter multiplying damping term. See Belli (2006) thesis for more information.",
        :tests=>["Tst::FLOAT"],
        :autoscanned_defaults=>[],
        :must_pass=>
@@ -3496,9 +3496,10 @@
        :tests=>["Tst::STRING"],
        :autoscanned_defaults=>[".true."],
        :must_pass=>
-        [{:test=>"kind_of? String",
-          :explanation=>"This variable must be a string."}],
-       :type=>:String},
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
      :width0=>
       {:help=>
         "Initial perturbation has Gaussian envelope in theta, with width width0",

@@ -123,6 +123,12 @@ class TestAnalysis < Test::Unit::TestCase
 		kit = @run.graphkit('frequency_vs_ky', {kx_index:1})
 		assert_equal(@run.frequency_at_ky_at_kx[0.5][0.0], kit.data[0].y.data[1])
 		#kit.gnuplot
+
+    #Test heat flux as a function of kxy
+		kit = @run.graphkit('es_heat_vs_kx', {species_index:1})
+		assert_equal(5, kit.data[0].y.data.size)
+		kit = @run.graphkit('es_heat_vs_ky', {species_index:1})
+		assert_equal(3, kit.data[0].y.data.size)
 	end
 	def test_3d_graphs
 		kit = @runner.run_list[1].graphkit('phi_real_space', {n0: 3, Rgeo: 3})

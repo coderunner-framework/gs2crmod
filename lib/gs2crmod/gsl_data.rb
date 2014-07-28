@@ -449,6 +449,47 @@ module GSLVectors
 	end
 	private :es_heat_by_kxy_over_time_gsl_vector
 
+	def es_heat_over_kx_gsl_vector(options)
+		options[:direction] = :kx
+		es_heat_over_kxy_gsl_vector(options)
+	end
+	def es_heat_over_ky_gsl_vector(options)
+		options[:direction] = :ky
+		es_heat_over_kxy_gsl_vector(options)
+	end
+
+  #This function will output the heat flux as a function of kx or ky.
+  #Default behaviour will be to average the heat flux over the time domain.
+	def es_heat_over_kxy_gsl_vector(options)
+		Dir.chdir(@directory) do
+			kxy = options[:direction]
+			raise "Please provide species_index " unless options[:species_index]
+			if kxy==:ky
+				es_heat = (netcdf_file.var('es_heat_by_k').get({'start' => [0,0,options[:species_index]-1, 0], 'end' => [-1,-1,options[:species_index]-1, -1]})) #index = [kx,ky,spec,t]
+        #Need to average over time and sum over kx
+        shape = es_heat.shape
+        es_heat_av = []; temp = [];
+        for iy in 0...shape[1]
+          for ix in 0...shape[0]
+            temp[ix] = es_heat[ix,iy,0,0..-1].sum / shape[3]
+          end
+          es_heat_av[iy] = temp.sum
+        end
+				return es_heat_av.to_gslv
+			else
+				es_heat = (netcdf_file.var('es_heat_by_k').get({'start' => [0,0,options[:species_index]-1, 0], 'end' => [-1,-1,options[:species_index]-1, -1]})) #index = [kx,ky,spec,t]
+        shape = es_heat.shape
+        es_heat_av = []; temp = [];
+        for ix in 0...shape[0]
+          for iy in 0...shape[1]
+            temp[iy] = es_heat[ix,iy,0,0..-1].sum / shape[3]
+          end
+          es_heat_av[ix] = temp.sum
+        end
+				return es_heat_av.to_gslv
+			end
+		end
+	end
 	def phi2_by_kx_over_time_gsl_vector(options)
 		options[:direction] = :kx
 	 	phi2_by_kxy_over_time_gsl_vector(options)
