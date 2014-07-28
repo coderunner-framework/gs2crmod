@@ -402,7 +402,7 @@
        :should_include=>"true",
        :description=>"",
        :tests=>["Tst::FLOAT"],
-       :autoscanned_defaults=>[0.0, 0.20013433062472832, 0.75],
+       :autoscanned_defaults=>[0.0, 0.75],
        :must_pass=>
         [{:test=>"kind_of? Float or kind_of? Integer",
           :explanation=>
@@ -442,7 +442,7 @@
        :description=>
         "Flux surface label. Usually rho = diameter/diameter of LCFS",
        :tests=>["Tst::FLOAT"],
-       :autoscanned_defaults=>[0.33, 0.5, 0.6, 0.8, 1.0],
+       :autoscanned_defaults=>[0.5, 0.6, 0.8, 1.0],
        :must_pass=>
         [{:test=>"kind_of? Float or kind_of? Integer",
           :explanation=>
@@ -456,7 +456,7 @@
        :description=>
         "Sets value of the safety factor when using local toroidal equilibrium model.",
        :tests=>["Tst::FLOAT"],
-       :autoscanned_defaults=>[1.147066305282792, 1.5],
+       :autoscanned_defaults=>[1.5],
        :must_pass=>
         [{:test=>"kind_of? Float or kind_of? Integer",
           :explanation=>
@@ -470,7 +470,7 @@
        :description=>
         "Sets local elongation when local toroidal equilibrium is specified.",
        :tests=>["Tst::FLOAT"],
-       :autoscanned_defaults=>[1.0, 1.3185652797218639],
+       :autoscanned_defaults=>[1.0],
        :must_pass=>
         [{:test=>"kind_of? Float or kind_of? Integer",
           :explanation=>
@@ -483,7 +483,7 @@
        :should_include=>"true",
        :description=>"akappri = dkappa/drho",
        :tests=>["Tst::FLOAT"],
-       :autoscanned_defaults=>[-0.006360432757579471, 0.0],
+       :autoscanned_defaults=>[0.0],
        :must_pass=>
         [{:test=>"kind_of? Float or kind_of? Integer",
           :explanation=>
@@ -496,7 +496,7 @@
        :should_include=>"true",
        :description=>"tri = arcsin[(R(max(Z))-R_major)/r_mid]",
        :tests=>["Tst::FLOAT"],
-       :autoscanned_defaults=>[0.0, 0.004358569789972528],
+       :autoscanned_defaults=>[0.0],
        :must_pass=>
         [{:test=>"kind_of? Float or kind_of? Integer",
           :explanation=>
@@ -509,7 +509,7 @@
        :should_include=>"true",
        :description=>"tripri =  dtri/drho",
        :tests=>["Tst::FLOAT"],
-       :autoscanned_defaults=>[0.0, 0.12435021170306493],
+       :autoscanned_defaults=>[0.0],
        :must_pass=>
         [{:test=>"kind_of? Float or kind_of? Integer",
           :explanation=>
@@ -522,7 +522,7 @@
        :should_include=>"true",
        :description=>"shift = -R q**2 dbeta/drho (>0)",
        :tests=>["Tst::FLOAT"],
-       :autoscanned_defaults=>[-0.17067265951553612, 0.0, 0],
+       :autoscanned_defaults=>[0.0, 0],
        :must_pass=>
         [{:test=>"kind_of? Float or kind_of? Integer",
           :explanation=>
@@ -959,7 +959,7 @@
        :should_include=>"true",
        :description=>nil,
        :tests=>["Tst::FLOAT"],
-       :autoscanned_defaults=>[0.0, 0.8, 1],
+       :autoscanned_defaults=>[0.8, 1],
        :must_pass=>
         [{:test=>"kind_of? Float or kind_of? Integer",
           :explanation=>
@@ -1043,7 +1043,7 @@
        :should_include=>"true",
        :description=>nil,
        :tests=>["Tst::FORTRAN_BOOL"],
-       :autoscanned_defaults=>[".true."],
+       :autoscanned_defaults=>[".false.", ".true."],
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
@@ -1195,7 +1195,8 @@
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool}}},
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false.", ".true."]}}},
  :le_grids_knobs=>
   {:description=>"PITCH ANGLE/ENERGY GRID SETUP",
    :should_include=>"true",
@@ -1808,15 +1809,27 @@
        :autoscanned_defaults=>[".false."]},
      :opt_source=>
       {:should_include=>"true",
-       :description=>"If true then use an optimised linear source calculation which uses pre-calculated coefficients.",
-       :help=>"If true then use an optimised linear source calculation which uses pre-calculated coefficients, calculates both sigma together and skips work associated with empty fields. Can contribute 10-25% savings for linear electrostatic collisionless simulations. For more complicated runs the savings will likely be less. If enabled memory usage will increase due to using an additional array of size 2-4 times gnew. Can potentially slow down certain runs.",
+       :description=>
+        "If true then use an optimised linear source calculation which uses pre-calculated coefficients.",
+       :help=>
+        "If true then use an optimised linear source calculation which uses pre-calculated coefficients, calculates both sigma together and skips work associated with empty fields. Can contribute 10-25% savings for linear electrostatic collisionless simulations. For more complicated runs the savings will likely be less. If enabled memory usage will increase due to using an additional array of size 2-4 times gnew. Can potentially slow down certain runs.",
        :code_name=>:opt_source,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".false."]}}},
+       :autoscanned_defaults=>[".false."]},
+     :zero_forbid=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:zero_forbid,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool}}},
  :fields_knobs=>
   {:description=>"ALGORITHMIC CHOICES",
    :should_include=>"true",
@@ -2214,7 +2227,17 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".false."]}}},
+       :autoscanned_defaults=>[".false."]},
+     :immediate_reset=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:immediate_reset,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool}}},
  :reinit_knobs=>
   {:description=>"",
    :should_include=>"true",
@@ -2406,7 +2429,8 @@
        :autoscanned_defaults=>[".false."]},
      :opt_local_copy=>
       {:should_include=>"true",
-       :description=>"Setting to .true. enables optimising redistribute code, used in FFTs for evaluating nonlinear terms, that avoids indirect addressing.",
+       :description=>
+        "Setting to .true. enables optimising redistribute code, used in FFTs for evaluating nonlinear terms, that avoids indirect addressing.",
        :help=>
         "Setting to .true. enables optimising redistribute code, used in FFTs for evaluating nonlinear terms, that avoids indirect addressing. \nThis can introduces worthwhile savings in nonlinear GS2 simulations at lower core counts. \n* [http://www.gyrokinetics.sourceforge.net/wikifiles/CMR/GS2_Final_report_NAG_Version_v1.0.pdf See Adrian Jackson's DCSE report \"Improved Data Distribution Routines for Gyrokinetic Plasma Simulations\"]\n",
        :code_name=>:opt_local_copy,
@@ -2418,8 +2442,10 @@
        :autoscanned_defaults=>[".false."]},
      :opt_redist_persist=>
       {:should_include=>"true",
-       :description=>"Set to true to use persistent (non-blocking) comms in the redistribute routines.",
-       :help=>"Set to true to use persistent (non-blocking) comms in the redistribute routines. \n* Must also set opt_redist_nbk=.true. \n* Can help improve scaling efficiency at large core counts, but can cause slow down at low core counts.",
+       :description=>
+        "Set to true to use persistent (non-blocking) comms in the redistribute routines.",
+       :help=>
+        "Set to true to use persistent (non-blocking) comms in the redistribute routines. \n* Must also set opt_redist_nbk=.true. \n* Can help improve scaling efficiency at large core counts, but can cause slow down at low core counts.",
        :code_name=>:opt_redist_persist,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -2429,15 +2455,27 @@
        :autoscanned_defaults=>[".false."]},
      :opt_redist_persist_overlap=>
       {:should_include=>"true",
-       :description=>"Set to true to try to overlap the mpi and local parts of the gather/scatter routines.",
-       :help=>"Set to true to try to overlap the mpi and local parts of the gather/scatter routines. \n* Should only be used with opt_redist_persist=.true. \n* See Optimising your runs for more details.",
+       :description=>
+        "Set to true to try to overlap the mpi and local parts of the gather/scatter routines.",
+       :help=>
+        "Set to true to try to overlap the mpi and local parts of the gather/scatter routines. \n* Should only be used with opt_redist_persist=.true. \n* See Optimising your runs for more details.",
        :code_name=>:opt_redist_persist_overlap,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".false."]}}},
+       :autoscanned_defaults=>[".false."]},
+     :fft_measure_plan=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:fft_measure_plan,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool}}},
  :collisions_knobs=>
   {:description=>"COLLISIONS",
    :should_include=>"true",
@@ -2842,9 +2880,11 @@
        :code_name=>:nexp,
        :module=>:hyper},
      :d_hypervisc=>
-      {:help=>"Sets hyperviscosity parameter multiplying damping term. See Belli (2006) thesis for more information.",
+      {:help=>
+        "Sets hyperviscosity parameter multiplying damping term. See Belli (2006) thesis for more information.",
        :should_include=>"true",
-       :description=>"Sets hyperviscosity parameter multiplying damping term. See Belli (2006) thesis for more information.",
+       :description=>
+        "Sets hyperviscosity parameter multiplying damping term. See Belli (2006) thesis for more information.",
        :tests=>["Tst::FLOAT"],
        :autoscanned_defaults=>[],
        :must_pass=>

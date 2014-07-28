@@ -274,6 +274,50 @@ def check_parameters
   error("Must set z = -1 for electron species.") if (@type_2 and @z_2 and @type_2=='electron' and @z_2 != -1)
 
 
+  #################
+  # Optimisations #
+  #################
+
+  if CODE_OPTIONS[:gs2] and CODE_OPTIONS[:gs2][:show_opt]
+    eputs("Optimisation Summary:")
+    optimisation_flags.each do |flag|
+      eputs("-------------------------  #{flag}: #{send(flag)}\n* #{rcp.variables_with_help[flag].gsub(/\n/, "\n\t")}") 
+    end
+    #not_set = [:operator, :save_for_restart, :write_nl_flux, :write_final_fields, :write_final_moments].find_all do  |diagnostic|
+      #not (send(diagnostic) and send(diagnostic).fortran_true?)
+    #end
+
+    #if not_set.size > 0
+      #str = not_set.inject("") do |s, diagnostic|
+        #s + "\n\t#{diagnostic} --- " + rcp.namelists[diagnostics_namelist][:variables][diagnostic][:description] rescue s
+      #end
+      #warning("The following useful diagnostics were not set:" + str) if str.length > 0
+    #end
+  end
+  
+ 
+
+
+end
+
+def optimisation_flags
+  [
+    :opt_redist_persist,
+    :opt_redist_persist_overlap,
+    :opt_redist_nbk,
+    :opt_redist_init,
+    :intmom_sub,
+    :intspec_sub,
+    #:local_field_solve,
+    :do_smart_update,
+    :field_subgath,
+    :field_option,
+    :field_local_allreduce,
+    :field_local_allreduce_sub,
+    :minnrow,
+    :opt_init_bc,
+    :opt_source
+  ]
 end
 
 #  A hash which gives the actual numbers of gridpoints indexed by their corresponding letters in the layout string.
