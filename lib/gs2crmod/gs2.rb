@@ -1413,6 +1413,42 @@ end
 =end
 
   end
+ 
+  #This section defines a selection of graphs which are written to a latex file when the CR function write_report is called. To add your own, simply copy one a similar looking graph and modify it to your needs.
+  # The requirements to use the latex report writing is further specified in CodeRunner.
+  def latex_graphs
+    #will have a different set of graphs to look at depending on whether linear or nonlinear
+    if @nonlinear_mode == "off"
+      #make up a list of graphs that are to be included. The order of the arguments is [code to generate graphkit, LaTeX description and ]
+      graphs = [
+        #[(kit = phi2_by_mode_vs_time({kx_index:1, ky_index:1}); kit.xlabel=%[TEST]; kit.gp.term = "post eps color enhanced size 3.5in,2.33in"; kit.gp.output = "test.eps"; kit), "This is a test graph written into a \LaTeX file. \n\n \\myfigure{test.eps}"]
+        [(kit = phi2tot_vs_time_graphkit; kit.data[0].title=""; kit.gp.logscale="y"; kit.file_name = "phi2tot.eps"; kit), "Total $\\phi^2$ versus time."],
+        [(kit = growth_rate_vs_ky_graphkit; kit.data[0].title=""; kit.file_name = "growth_rate_vs_ky.eps"; kit), "Growth rate $\\gamma_E$ as a function of $k_y$ averaged over $k_x$ (if applicable)."],
+        if @grid_option=="range" then [(kit = graphkit('efnmag', {norm:true, kx_index:1, ky_index: :all}); kit.data.each{|dk| dk.title=""}; kit.gp.logscale="y"; kit.file_name = "efnmag.eps"; kit.data.shift; kit), "Normalized magnitude of the eigenfunction as a function of $\\theta$ for all $k_y$'s in the simulation."] end,
+        if @grid_option=="single" then [(kit = graphkit('efnmag', {norm:true, kx_index:1, ky_index:1}); kit.data.each{|dk| dk.title=""}; kit.gp.logscale="y"; kit.file_name = "efnmag.eps"; kit), "Normalized magnitude of the eigenfunction as a function of $\\theta$ for all $k_y$'s in the simulation."] end,
+      ].compact
+    else
+      graphs = [
+        [(kit = ky_spectrum_graphkit; kit.gp.logscale="y"; kit.file_name = "ky_spectrum.eps"; kit), "$k_y$ spectrum at the final time step averaged over $k_x$."],
+        [(kit = kx_spectrum_graphkit; kit.gp.logscale="y"; kit.file_name = "kx_spectrum.eps"; kit), "$k_x$ spectrum at the final time step averaged over $k_y$."],
+        [(kit = spectrum_graphkit(no_zonal:true); kit.gp.view="map"; kit.gp.logscale="z"; kit.file_name = "spectrum.eps"; kit), "2D spectrum versus $k_x$ and $k_y$ without zonal flows."],
+        [(kit = hflux_tot_vs_time_graphkit; kit.file_name = "hflux_tot_vs_time.eps"; kit), "Total heat flux $Q_{tot}$ as a function of time."],
+        [(kit = es_heat_flux_vs_time_graphkit(species_index:1); kit.file_name = "es_heat_1_vs_time.eps"; kit), "Heat flux of species 1 versus time."],
+        if @nspec > 1 then [(kit = es_heat_flux_vs_time_graphkit(species_index:2); kit.file_name = "es_heat_2_vs_time.eps"; kit), "Heat flux of species 2 versus time."] end,
+        [(kit = es_heat_vs_ky_graphkit(species_index:1); kit.gp.logscale="y" ; kit.file_name = "es_heat_1_vs_ky.eps"; kit), "Heat flux of species 1 as a function of $k_y$."],
+        if @nspec > 1 then [(kit = es_heat_vs_ky_graphkit(species_index:2); kit.gp.logscale="y" ; kit.file_name = "es_heat_2_vs_ky.eps"; kit), "Heat flux of species 2 as a function of $k_y$."] end,
+        [(kit = es_heat_vs_ky_vs_kx_graphkit; kit.gp.view="map" ; kit.file_name = "es_heat_vs_ky_vs_kx.eps"; kit), "2D total heat flux spectrum as a function of $k_x$ and $k_y$."],
+        [(kit = phi_real_space_graphkit(n0:1, thetamin:get_list_of(:theta).length/2, thetamax:get_list_of(:theta).length/2, gs2_coordinate_factor:1.0); kit.gp.view="map" ; kit.file_name = "phi_real_space.eps"; kit), "Potential fluctuations at the final time step vs GS2 $x$ and $y$ at the outboard midplane."],
+        [(kit = density_real_space_graphkit(n0:1, species_index:1, thetamin:get_list_of(:theta).length/2, thetamax:get_list_of(:theta).length/2, gs2_coordinate_factor:1.0); kit.gp.view="map" ; kit.file_name = "density_real_space.eps"; kit), "Density fluctuations for species 1 at the final time step vs GS2 $x$ and $y$ at the outboard midplane."],
+        if @nspec > 1 then [(kit = density_real_space_graphkit(n0:1, species_index:2, thetamin:get_list_of(:theta).length/2, thetamax:get_list_of(:theta).length/2, gs2_coordinate_factor:1.0); kit.gp.view="map" ; kit.file_name = "density_real_space.eps"; kit), "Density fluctuations for species 2 at the final time step vs GS2 $x$ and $y$ at the outboard midplane."] end,
+        [(kit = es_mom_flux_vs_time_graphkit(species_index:1); kit.file_name = "es_mom_flux_1_vs_time.eps"; kit), "Momentum flux for species 1 as a function of time."],
+        if @nspec > 1 then [(kit = es_mom_flux_vs_time_graphkit(species_index:2); kit.file_name = "es_mom_flux_2_vs_time.eps"; kit), "Momentum flux for species 2 as a function of time."] end,
+        [(kit = zonal_spectrum_graphkit; kit.gp.logscale="y"; kit.file_name = "zonal_spectrum.eps"; kit), "Zonal spectrum at the final time step."],
+      ].compact
+    end
+
+  end
+
 end # class GS2
   # For backwards compatibility
 
