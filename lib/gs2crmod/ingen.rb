@@ -231,7 +231,11 @@ def check_parameters
   # Boundary Condition Errors #
   #############################
 
-  error("Boundary options should be linked with finite magnetic shear.") if (!@boundary_option or @boundary_option != "linked") and ((@s_hat_input and @s_hat_input.abs > 1.0e-6) or (@shat and @shat.abs > 1.0e-6))
+  error("Boundary options should be linked with finite magnetic shear when running nonlinear_runs.") if (!@boundary_option or @boundary_option != "linked") and ((@s_hat_input and @s_hat_input.abs > 1.0e-6) or (@shat and @shat.abs > 1.0e-6)) and not @nonlinear_mode == "off"
+
+  warning("Boundary options should be probably be linked with finite magnetic shear") if (!@boundary_option or @boundary_option != "linked") and ((@s_hat_input and @s_hat_input.abs > 1.0e-6) or (@shat and @shat.abs > 1.0e-6)) 
+
+  warning("You are using boundary_option = linked with grid_option = range: this is probably an error.") if @boundary_option == "linked" and @grid_option == "range" 
 
   error("Set nonad_zero = true.") if @nonad_zero and not @nonad_zero.fortran_true?
 
