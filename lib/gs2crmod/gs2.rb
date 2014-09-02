@@ -154,6 +154,7 @@ eval(%[
   :es_heat_flux_stav,
   :es_mom_flux_stav,
   :hflux_tot_stav_error,
+  :hflux_tot_stav_std_dev,
   :es_heat_flux_stav_error,
   :es_mom_flux_stav_error,
   :saturated,

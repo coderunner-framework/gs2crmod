@@ -22,6 +22,7 @@ def calculate_time_averaged_fluxes
 	return unless FileTest.exist?(netcdf_filename)
 	@hflux_tot_stav = saturated_time_average('hflux_tot_over_time', {})
 	@hflux_tot_stav_error = saturated_time_average_error('hflux_tot_over_time', {})
+	@hflux_tot_stav_std_dev = saturated_time_average_std_dev('hflux_tot_over_time', {})
 	@phi2_tot_stav = saturated_time_average('phi2tot_over_time', {})
 	#@par_mom_flux_stav = saturated_time_average('par_mom_flux_over_time', {}) rescue nil
 	#@perp_mom_flux_stav = saturated_time_average('perp_mom_flux_over_time', {}) rescue nil
@@ -97,6 +98,18 @@ def saturated_time_average_error(name, options)
 # 	# GraphKit.autocreate({x: {data: gsl_vector(name, {})}})
 # 	(GraphKit.autocreate({x: {data: tavg}}) + GraphKit.autocreate({x: {data: vec}}) + GraphKit.autocreate({x: {data: fit_vec}})).gnuplot
 	return tavg.sd
+end
+
+def saturated_time_average_std_dev(name, options)
+# 	calculate_saturation_time_index unless @saturation_time_index
+	options[:t_index_window] = [@saturation_time_index, list(:t).keys.max]
+	begin
+		vec = gsl_vector(name, options)
+	rescue NoMethodError
+		eputs "Warning: could not calculate #{name} saturated_time_average_std_dev"
+		return nil
+	end
+	return vec.sd
 end
 
 
