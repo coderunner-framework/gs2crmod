@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = "gs2crmod"
-  s.version = "0.11.66"
+  s.version = "0.11.67"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Edmund Highcock", "Ferdinand van Wyk"]
@@ -77,7 +77,7 @@ Gem::Specification.new do |s|
   s.licenses = ["GSLv3"]
   s.require_paths = ["lib"]
   s.required_ruby_version = Gem::Requirement.new(">= 1.9.1")
-  s.rubygems_version = "1.8.23"
+  s.rubygems_version = "1.8.11"
   s.summary = "Module to allow CodeRunner to run and analyse the GS2 and AstroGK codes."
 
   if s.respond_to? :specification_version then
