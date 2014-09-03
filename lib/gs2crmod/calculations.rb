@@ -751,6 +751,8 @@ def max_es_heat_amp(species_index)
 end
 
 def calculate_spectral_checks
+	kx = gsl_vector('kx')
+	ky = gsl_vector('ky')
 	ky_spec = gsl_vector('spectrum_over_ky')
 	kx_spec = gsl_vector('spectrum_over_kx')
 	kpar_spec = gsl_vector('spectrum_over_kpar', ky_index: ky_spec.max_index + 1, kx_index: 1)
@@ -767,6 +769,17 @@ def calculate_spectral_checks
 		end
 		@spectrum_check.push check
 	end
+
+  #Calculate peak kx, ky spectrum values and associated phi2 values
+  peak_ky_idx = ky_spec.max_index 
+  @ky_spectrum_peak_ky = ky[peak_ky_idx] 
+
+  #Also want to know the phi2 at the energy containing scales and for ZFs
+  #Pick phi2 at the final time step.
+  phi_vec = gsl_vector('phi2_by_ky_over_time', ky_index:peak_ky_idx)
+  @ky_spectrum_peak_phi2 = phi_vec[-1] 
+  phi_vec = gsl_vector('phi2_by_ky_over_time', ky_index:1)
+  @phi2_zonal = phi_vec[-1] 
 end
 
 def calculate_vspace_checks
@@ -797,7 +810,6 @@ def sc(min)
 end
 alias :csc :calculate_spectral_checks
 
-	
 end
 end
 
