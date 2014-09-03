@@ -992,9 +992,8 @@ module GSLVectors
 		end
 		def zonal_spectrum_gsl_vector(options)
 			Dir.chdir(@directory) do
-
 		     gmzf = gsl_matrix('spectrum_over_ky_over_kx',options)
-                     veczf = GSL::Vector.alloc(gmzf.shape[1])
+         veczf = GSL::Vector.alloc(gmzf.shape[1])
                    # p gmzf.get_row(0).size
                    # p gmzf.get_row(0)
 		     gmzf.shape[1].times{|i| veczf[i] = gmzf[0,i]}

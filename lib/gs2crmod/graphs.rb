@@ -2365,7 +2365,7 @@ module GraphKits
 		when :options
 			return  [:t, :t_index]
 		else
-			options[:times_kx4] = true
+			options[:times_kx2] = true
 			kit = GraphKit.autocreate({x: axiskit('kx', options), y: axiskit("zonal_spectrum", options)})
 			kit.title  = "Zonal Spectrum"
 			kit.file_name = options[:graphkit_name] + options[:t_index].to_s
