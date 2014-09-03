@@ -10,53 +10,54 @@ DataKit = GraphKit::DataKit
 
 def auto_axiskits(name, options)
 	hash = cache[:auto_axiskits] ||= {'t' => ['Time', ''],
-                'phi2tot_over_time' => ['Phi^2 Total', ''],
-                'apar2_over_time' => ['Apar^2 Total', ''],
-                'growth_rate_by_ky_over_time' => ['Growth Rate by ky', ''],
-                 'growth_rate_by_kx_over_time' => ['Growth Rate by kx', ''],  
-		 'growth_rate_by_mode_over_time' => ["Growth Rate by mode", ''],
-# <MJL additions 2013-09-19>
-                 'frequency_by_ky_over_time' => ['Real frequency by ky', ''],
-                  'frequency_by_kx_over_time' => ['Real frequency by kx', ''],
-# </MJL>
-                'phi2_by_ky_over_time' => ['Phi^2 by ky', ''],
-                 'phi2_by_kx_over_time' => ['Phi^2 by ky', ''],  
-                'es_heat_by_ky_over_time' => ['Phi^2 by ky', ''],
-                 'es_heat_by_kx_over_time' => ['Phi^2 by kx', ''],  
-		 'phi2_by_mode_over_time' => ["Phi^2 by mode", ''],
-	 'tpar2_by_mode_over_time' => ["(delta T_parallel)^2 by mode", '%'],
- 		'tperp2_by_mode_over_time' => ["(delta T_perp)^2 by mode", '%'],
-                              'hflux_tot' => ['Total Heat Flux', ''],
-                                'es_heat_par' => ['Parallel electrostatic heat flux', ''],
-                                'es_heat_perp' => ['Perpendicular electrostatic heat flux', ''],
-                'ky' => ['ky', "1/rho_#{species_letter}"],
-                'kx' => ['kx', "1/rho_#{species_letter}"],
-	        'kpar' => ['kpar', "2 pi/qR"],
-	        'growth_rate_over_kx' => ['Growth Rate', "v_th#{species_letter}/a", 1],
-	        'growth_rate_over_ky' => ['Growth Rate', "v_th#{species_letter}/a", 1],
-	        'growth_rate_over_kx_slice' => ['Growth Rate', "v_th#{species_letter}/a", 1],
-	        'growth_rate_over_ky_slice' => ['Growth Rate', "v_th#{species_letter}/a", 1],
-	        'growth_rate_over_ky_over_kx' => ["Growth Rate", "v_th#{species_letter}/a", 2],
-          'frequency_over_ky' => ['Frequency', "v_th#{species_letter}/a", 1],
-	        'transient_es_heat_flux_amplification_over_kx' => ['Transient Electrostatic Heat Amplification', "", 1],
-	        'transient_es_heat_flux_amplification_over_ky' => ['Transient Electrostatic Heat Amplification', "", 1],
-	        'transient_amplification_over_kx' => ['Transient Amplification', "", 1],
-	        'transient_amplification_over_ky' => ['Transient Amplification', "", 1],
-	        'spectrum_over_kx' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
-	        'zonal_spectrum' => ["Zonal spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
-	        'spectrum_over_ky' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
-	        'es_heat_over_kx' => ["Heat Flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", 'Q_gB', 1],
-	        'es_heat_over_ky' => ["Heat Flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", 'Q_gB', 1],
-	       	'es_heat_flux_over_ky_over_kx' => ["Heat flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
-	       	'spectrum_over_kpar' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
-	       	'spectrum_over_ky_over_kx' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
-	       	'spectrum_over_ky_over_kpar' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
-	        #'phi0_over_x_over_y' => ["Phi at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
-	        'phi0_over_x_over_y' => ["Phi at theta = 0", '', 2],
-	        'es_mom_flux_over_time' => ["#{species_type((options[:species_index] or 1)).capitalize} Momentum Flux", '', 1]
-
-                  
-                   }
+    'phi2tot_over_time' => ['Phi^2 Total', ''],
+    'apar2_over_time' => ['Apar^2 Total', ''],
+    'growth_rate_by_ky_over_time' => ['Growth Rate by ky', ''],
+    'growth_rate_by_kx_over_time' => ['Growth Rate by kx', ''],  
+    'growth_rate_by_mode_over_time' => ["Growth Rate by mode", ''],
+    # <MJL additions 2013-09-19>
+    'frequency_by_ky_over_time' => ['Real frequency by ky', ''],
+    'frequency_by_kx_over_time' => ['Real frequency by kx', ''],
+    # </MJL>
+    'phi2_by_ky_over_time' => ['Phi^2 by ky', ''],
+    'phi2_by_kx_over_time' => ['Phi^2 by ky', ''],  
+    'es_heat_by_ky_over_time' => ['Phi^2 by ky', ''],
+    'es_heat_by_kx_over_time' => ['Phi^2 by kx', ''],  
+    'phi2_by_mode_over_time' => ["Phi^2 by mode", ''],
+    'tpar2_by_mode_over_time' => ["(delta T_parallel)^2 by mode", '%'],
+    'tperp2_by_mode_over_time' => ["(delta T_perp)^2 by mode", '%'],
+    'hflux_tot' => ['Total Heat Flux', ''],
+    'es_heat_par' => ['Parallel electrostatic heat flux', ''],
+    'es_heat_perp' => ['Perpendicular electrostatic heat flux', ''],
+    'ky' => ['ky', "1/rho_#{species_letter}"],
+    'kx' => ['kx', "1/rho_#{species_letter}"],
+    'x' => ['x', "rho_#{species_letter}", 1],
+    'kpar' => ['kpar', "2 pi/qR"],
+    'growth_rate_over_kx' => ['Growth Rate', "v_th#{species_letter}/a", 1],
+    'growth_rate_over_ky' => ['Growth Rate', "v_th#{species_letter}/a", 1],
+    'growth_rate_over_kx_slice' => ['Growth Rate', "v_th#{species_letter}/a", 1],
+    'growth_rate_over_ky_slice' => ['Growth Rate', "v_th#{species_letter}/a", 1],
+    'growth_rate_over_ky_over_kx' => ["Growth Rate", "v_th#{species_letter}/a", 2],
+    'frequency_over_ky' => ['Frequency', "v_th#{species_letter}/a", 1],
+    'transient_es_heat_flux_amplification_over_kx' => ['Transient Electrostatic Heat Amplification', "", 1],
+    'transient_es_heat_flux_amplification_over_ky' => ['Transient Electrostatic Heat Amplification', "", 1],
+    'transient_amplification_over_kx' => ['Transient Amplification', "", 1],
+    'transient_amplification_over_ky' => ['Transient Amplification', "", 1],
+    'spectrum_over_kx' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
+    'spectrum_over_ky' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
+    'es_heat_over_kx' => ["Heat Flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", 'Q_gB', 1],
+    'es_heat_over_ky' => ["Heat Flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", 'Q_gB', 1],
+    'es_heat_flux_over_ky_over_kx' => ["Heat flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
+    'spectrum_over_kpar' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
+    'spectrum_over_ky_over_kx' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
+    'spectrum_over_ky_over_kpar' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
+    #'phi0_over_x_over_y' => ["Phi at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
+    'phi0_over_x_over_y' => ["Phi at theta = 0", '', 2],
+    'es_mom_flux_over_time' => ["#{species_type((options[:species_index] or 1)).capitalize} Momentum Flux", '', 1],
+    'zonal_spectrum' => ["Zonal spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
+    'zonal_flow_velocity_over_x' => ['Zonal Flow Velocity', "", 1],
+    'mean_flow_velocity_over_x' => ['Mean Flow Velocity', "", 1]
+  }
 	return hash[name]
 end
 
@@ -165,34 +166,25 @@ GRAPHKIT_OPTIONS_HELP = {
 	no_kpar0: "Don't plot the kpar=0 part (boolean, e.g. no_kpar0: true)",
 	log: "Plot the log of a given quantity (exact meaning varies). boolean",
 	Rmaj: "The major radius in metres. This has no effect on the shape of the graph: it merely multiplies every length",
- n0: " The toroidal mode number of the longest y mode. In effect it is the number of periodic copies of the flux tube that will fit in the torus. Periodicity requires that n0 q  is also an integer. If you specify :n0 where this is not the case, q will automatically be adjusted until it is",
- rho_star: " The ratio of the reference Lamour radius to the GS2 normalising length a. Cannot be specified at the same time as n0. If specified, both n0 and q will be adjusted to ensure periodicity",
- t_index: "The (1-based) time index",
- nakx: "The number of radial wave numbers to include in the plot. In effect, it is a low pass filter which reduces the resolution in the radial direction without changing the shape of the final surface. Minimum value is 4",
- naky: "The number of kys to include in the plot. In effect, it is a low pass filter which reduces the resolution in the y direction without changing the shape of the final surface. Minimum value is 4",
- gs2_coordinate_factor: "When set to 1, plot the graph in GS2 coordinates. When set to  0 plot the graph in real space. Can be set at any value between 0 and 1: the graph will smoothly distort between the two limits",
- xmax: "The (0-based) index of the maximum value of x to include in the plot",
- xmin: "The (0-based) index of the minimum value of x to include in the plot",
- ymax: "The (0-based) index of the maximum value of y to include in the plot",
- ymin: "The (0-based) index of the minimum value of y to include in the plot",
- thetamax: "The (0-based) index of the maximum value of theta to include in the plot",
- thetamin: "The (0-based) index of the minimum value of theta to include in the plot",
- ncopies: " The number of periodic copies of the flux tube to include",
- torphi_values: "An array of two values of the toroidal angle. The graph will be plotted in between those two values with poloidal cross sections at either end",
- magnify: " The magnification factor of the small section. It can take any value greater than or equal to 1",
-
+  n0: " The toroidal mode number of the longest y mode. In effect it is the number of periodic copies of the flux tube that will fit in the torus. Periodicity requires that n0 q  is also an integer. If you specify :n0 where this is not the case, q will automatically be adjusted until it is",
+  rho_star: " The ratio of the reference Lamour radius to the GS2 normalising length a. Cannot be specified at the same time as n0. If specified, both n0 and q will be adjusted to ensure periodicity",
+  t_index: "The (1-based) time index",
+  nakx: "The number of radial wave numbers to include in the plot. In effect, it is a low pass filter which reduces the resolution in the radial direction without changing the shape of the final surface. Minimum value is 4",
+  naky: "The number of kys to include in the plot. In effect, it is a low pass filter which reduces the resolution in the y direction without changing the shape of the final surface. Minimum value is 4",
+  gs2_coordinate_factor: "When set to 1, plot the graph in GS2 coordinates. When set to  0 plot the graph in real space. Can be set at any value between 0 and 1: the graph will smoothly distort between the two limits",
+  xmax: "The (0-based) index of the maximum value of x to include in the plot",
+  xmin: "The (0-based) index of the minimum value of x to include in the plot",
+  ymax: "The (0-based) index of the maximum value of y to include in the plot",
+  ymin: "The (0-based) index of the minimum value of y to include in the plot",
+  thetamax: "The (0-based) index of the maximum value of theta to include in the plot",
+  thetamin: "The (0-based) index of the minimum value of theta to include in the plot",
+	theta_index: "integer, index of theta at which to plot (e.g. theta_index: 20)",
+	kxfac: "float, overrides calculation of kxfac in zonal flow velocity function",
+  ncopies: " The number of periodic copies of the flux tube to include",
+  torphi_values: "An array of two values of the toroidal angle. The graph will be plotted in between those two values with poloidal cross sections at either end",
+  magnify: " The magnification factor of the small section. It can take any value greater than or equal to 1",
 }
 	
-
-# def graphkit(name, options={})
-# 	unless [:Failed, :Complete].include? status
-# 		return get_graphkit(name, options)
-# 	else
-# 		return cache[[:graphkit, name, options]] ||= get_graphkit(name, options)
-# 	end
-# end
-
-
 def graphkit(name, options={})
 	logf :graphkit
 	# If an array of t, kx or ky values is provided, plot one graph for each value and then sum the graphs together
@@ -2375,6 +2367,39 @@ module GraphKits
 		end
 	end
 
+	def zonal_flow_velocity_vs_x_graphkit(options={})
+		case options[:command]
+		when :help
+			return  "zonal_flow_velocity_vs_x: Graph of the zonal flow velocity kxfac*IFT(i k_x phi). kxfac = (qinp/rhoc)*grho(rhoc)."
+		when :options
+			return  [:t, :t_index, :theta_index, :kxfac]
+		else
+      options[:ky_index]=0
+			kit = GraphKit.autocreate({x: axiskit('x', options), y: axiskit("zonal_flow_velocity_over_x", options)})
+			kit.title  = "Zonal Flow Velocity versus x"
+			kit.file_name = options[:graphkit_name] + options[:t_index].to_s
+			kit.data[0].with = 'lp'
+			kit.pointsize = 2.0
+			kit
+		end
+	end
+
+	def mean_flow_velocity_vs_x_graphkit(options={})
+		case options[:command]
+		when :help
+			return  "mean_flow_velocity_vs_x: Graph of the mean flow velocity (x - x(centre))*g_exb"
+		when :options
+			return  [:t, :t_index, :theta_index]
+		else
+      options[:ky_index]=0
+			kit = GraphKit.autocreate({x: axiskit('x', options), y: axiskit("mean_flow_velocity_over_x", options)})
+			kit.title  = "Mean Flow Velocity versus x"
+			kit.file_name = options[:graphkit_name] + options[:t_index].to_s
+			kit.data[0].with = 'lp'
+			kit.pointsize = 2.0
+			kit
+		end
+	end
 
 end
 

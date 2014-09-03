@@ -990,18 +990,65 @@ module GSLVectors
 			ysize = ny*2-2+ny%2
 			GSL::Vector.indgen(ysize, 0, ly/ysize)
 		end
+
+    #This function reads in the 'grho' variable from the netcdf file.
+    def grho_gsl_vector(options)
+      grho = GSL::Vector.alloc(netcdf_file.var('grho').get('start' => [0], 'end' => [-1]).to_a)
+      return grho
+    end
+
+    #This function returns the zonal flow velocity as a function of x (the radial coordinate). 
+    #This is v_ZF = kxfac*IFT(i k_x phi_imag), where kxfac = (qinp/rhoc)*grho(rhoc). 
+		def zonal_flow_velocity_over_x_gsl_vector(options)
+			Dir.chdir(@directory) do
+        raise CRFatal.new("Need to specify a theta_index.") unless options[:theta_index]
+        raise CRFatal.new("Need either qinp or pk and epsl specified in order to calculate kxfac.
+                          If using numerical equil use the option :kxfac to override calculation.") unless @qinp or (@pk and @epsl or options[:kxfac])
+				phi = gsl_vector_complex('phi_zonal', options)
+
+        kx = gsl_vector(:kx).to_box_order
+        x = gsl_vector(:x)
+        grho = gsl_vector('grho')[options[:theta_index]]
+        if @qinp
+          kxfac = (@qinp/@rhoc)*grho
+        elsif @pk and @epsl
+          kxfac = (@epsl/@pk)*grho
+        elsif options[:kxfac]
+          kxfac = options[:kxfac]
+        else
+          raise 'Error: Need qinp or pk and epsl to calculate kxfac' 
+        end
+
+        vec_zf_vel = GSL::Vector.alloc(kx.size)
+        #Take imaginary part since i k_x will lead to imaginary part being real
+        vec_zf_vel = kxfac*(phi*kx).backward.imag*kx.size
+        return vec_zf_vel
+			end
+		end
+
+    #This function returns the mean flow velocity as a function of x (the radial coordinate). 
+    #This is v_g_exb = (x - x(centre))*g_exb. The x-x(centre) ensures that the flow is zero 
+    #at the middle of the box.
+		def mean_flow_velocity_over_x_gsl_vector(options)
+			Dir.chdir(@directory) do
+				raise CRFatal.new("Need to have g_exb > 0 to have a mean flow.") unless @g_exb > 0
+        raise CRFatal.new("Need to specify a theta_index.") unless options[:theta_index]
+        x = gsl_vector(:x)
+
+        vec_exb_vel = GSL::Vector.alloc(x.size)
+        #Take imaginary part since i k_x will lead to imaginary part being real
+        vec_exb_vel = (x - x[x.size/2])*@g_exb
+        return vec_exb_vel
+			end
+		end
+
 		def zonal_spectrum_gsl_vector(options)
 			Dir.chdir(@directory) do
-		     gmzf = gsl_matrix('spectrum_over_ky_over_kx',options)
-         veczf = GSL::Vector.alloc(gmzf.shape[1])
-                   # p gmzf.get_row(0).size
-                   # p gmzf.get_row(0)
-		     gmzf.shape[1].times{|i| veczf[i] = gmzf[0,i]}
-		     return veczf
-		#else
-			#raise CRError.new("Unknown gsl_vector requested: #{name}")
+        gmzf = gsl_matrix('spectrum_over_ky_over_kx',options)
+        veczf = GSL::Vector.alloc(gmzf.shape[1])
+        gmzf.shape[1].times{|i| veczf[i] = gmzf[0,i]}
+        return veczf
 			end
-	#  			eputs data; gets
 		end
   
 end	# module GSLVectors	
@@ -1074,6 +1121,32 @@ module GSLVectorComplexes
 			end
 		end
 	#  			eputs data; gets
+	end
+
+  #This function returns a complex GSL vector of the zonal (ky=0) component of phi/phi_t at a given theta index 
+  #and time index if write_phi_over_time was enabled during the simulation
+	def phi_zonal_gsl_vector_complex(options)
+    Dir.chdir(@directory) do
+      if options[:t_index] or options[:t]
+        #extra option required is t_index
+        raise CRFatal.new("write_phi_over_time is not enabled so this function won't work") unless @write_phi_over_time
+        
+        options.convert_to_index(self, :t)
+        a = netcdf_file.var('phi_t').get({
+          'start' => [0,options[:theta_index],0,0, options[:t_index] - 1], 
+          'end' => [-1,options[:theta_index],-1,0, options[:t_index] - 1]
+        })
+        vector = GSL::Vector::Complex.alloc(GSL::Vector.alloc(a[0,0,0..-1,0,0]), GSL::Vector.alloc(a[1,0,0..-1,0,0]))
+        return vector
+      else
+        a = netcdf_file.var('phi').get({
+          'start' => [0, options[:theta_index], 0, 0], 
+          'end' => [-1, options[:theta_index], -1, 0]
+        })
+        vector = GSL::Vector::Complex.alloc(GSL::Vector.alloc(a[0,0,0..-1,0]), GSL::Vector.alloc(a[1,0,0..-1,0]))
+        return vector
+			end
+		end
 	end
 
 end		

@@ -109,26 +109,26 @@ class TestAnalysis < Test::Unit::TestCase
 	end
 	def test_graphs
 		kit = @runner.run_list[1].graphkit('phi2_by_ky_vs_time', {ky_index: 2})
-		#kit.gnuplot
 		assert_equal(51, kit.data[0].y.data.size)
 		assert_equal(@runner.run_list[1].netcdf_file.var('phi2_by_ky').get('start' => [1,4], 'end' => [1,4]).to_a[0][0], kit.data[0].y.data[4])
         
 		kit = @run.graphkit('tpar2_by_mode_vs_time', {ky_index:2, kx_index:1, species_index:1})
-        #kit.gnuplot
 		assert_equal(@runner.run_list[1].netcdf_file.var('tpar2_by_mode').get('start' => [0,1,0,4], 'end' => [0,1,0,4]).to_a[0][0][0][0], kit.data[0].y.data[4])
 
 		kit = @run.graphkit('tperp2_by_mode_vs_time', {ky_index:2, kx_index:1, species_index:1})
-        #kit.gnuplot
 		assert_equal(@runner.run_list[1].netcdf_file.var('tperp2_by_mode').get('start' => [0,1,0,4], 'end' => [0,1,0,4]).to_a[0][0][0][0], kit.data[0].y.data[4])
 		kit = @run.graphkit('frequency_vs_ky', {kx_index:1})
 		assert_equal(@run.frequency_at_ky_at_kx[0.5][0.0], kit.data[0].y.data[1])
-		#kit.gnuplot
 
     #Test heat flux as a function of kxy
 		kit = @run.graphkit('es_heat_vs_kx', {species_index:1})
 		assert_equal(5, kit.data[0].y.data.size)
 		kit = @run.graphkit('es_heat_vs_ky', {species_index:1})
 		assert_equal(3, kit.data[0].y.data.size)
+
+    #Test zonal flow velocity calculation
+		kit = @run.graphkit('zonal_flow_velocity_vs_x', {theta_index:4})
+		assert_equal(5, kit.data[0].y.data.size)
 	end
 	def test_3d_graphs
 		kit = @runner.run_list[1].graphkit('phi_real_space', {n0: 3, Rgeo: 3})
