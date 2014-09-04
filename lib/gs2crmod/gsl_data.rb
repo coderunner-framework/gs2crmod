@@ -1032,7 +1032,6 @@ module GSLVectors
 		def mean_flow_velocity_over_x_gsl_vector(options)
 			Dir.chdir(@directory) do
 				raise CRFatal.new("Need to have g_exb > 0 to have a mean flow.") unless @g_exb > 0
-        raise CRFatal.new("Need to specify a theta_index.") unless options[:theta_index]
         x = gsl_vector(:x)
 
         vec_exb_vel = GSL::Vector.alloc(x.size)
