@@ -160,6 +160,7 @@ eval(%[
   :saturated,
   :shot_time,
   :spectrum_check,
+  :ky_spectrum_peak_idx,
   :ky_spectrum_peak_ky,
   :ky_spectrum_peak_phi2,
   :kx_spectrum_peak_kx,
@@ -1437,7 +1438,7 @@ end
       graphs = [
         [(kit = ky_spectrum_graphkit; kit.gp.logscale="y"; kit.file_name = "ky_spectrum.eps"; kit), "$k_y$ spectrum at the final time step averaged over $k_x$."],
         [(kit = kx_spectrum_graphkit; kit.gp.logscale="y"; kit.file_name = "kx_spectrum.eps"; kit), "$k_x$ spectrum at the final time step averaged over $k_y$."],
-        [(kit = kpar_spectrum_graphkit(kx_index:0, ky_index:@ky_spectrum_peak); kit.gp.logscale="y"; kit.file_name = "kpar_spectrum.eps"; kit), "$k_{par}$ spectrum at the final time step for $kx = 0$, and $ky = k_{y,peak}$."],
+        [(kit = kpar_spectrum_graphkit(kx_index:0, ky_index:@ky_spectrum_peak_idx); kit.gp.logscale="y"; kit.file_name = "kpar_spectrum.eps"; kit), "$k_{par}$ spectrum at the final time step for $kx = 0$, and $ky = k_{y,peak}$."],
         [(kit = spectrum_graphkit(no_zonal:true); kit.gp.view="map"; kit.gp.logscale="z"; kit.file_name = "spectrum.eps"; kit), "2D spectrum versus $k_x$ and $k_y$ without zonal flows."],
         [(kit = hflux_tot_vs_time_graphkit; kit.file_name = "hflux_tot_vs_time.eps"; kit), "Total heat flux $Q_{tot}$ as a function of time."],
         [(kit = es_heat_flux_vs_time_graphkit(species_index:1); kit.file_name = "es_heat_1_vs_time.eps"; kit), "Heat flux of species 1 versus time."],
