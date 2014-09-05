@@ -180,6 +180,7 @@ GRAPHKIT_OPTIONS_HELP = {
   thetamin: "The (0-based) index of the minimum value of theta to include in the plot",
 	theta_index: "integer, index of theta at which to plot (e.g. theta_index: 20)",
 	kxfac: "float, overrides calculation of kxfac in zonal flow velocity function",
+	add_mean_flow: "bool, Adds mean flow to zonal flow velocity",
   ncopies: " The number of periodic copies of the flux tube to include",
   torphi_values: "An array of two values of the toroidal angle. The graph will be plotted in between those two values with poloidal cross sections at either end",
   magnify: " The magnification factor of the small section. It can take any value greater than or equal to 1",
@@ -2372,10 +2373,13 @@ module GraphKits
 		when :help
 			return  "zonal_flow_velocity_vs_x: Graph of the zonal flow velocity kxfac*IFT(i k_x phi). kxfac = (qinp/rhoc)*grho(rhoc)."
 		when :options
-			return  [:t, :t_index, :theta_index, :kxfac]
+			return  [:t, :t_index, :theta_index, :kxfac, :add_mean_flow]
 		else
       options[:ky_index]=0
 			kit = GraphKit.autocreate({x: axiskit('x', options), y: axiskit("zonal_flow_velocity_over_x", options)})
+      if options[:add_mean_flow]
+        kit.data[0].y.data += mean_flow_velocity_over_x_gsl_vector(options)
+      end
 			kit.title  = "Zonal Flow Velocity versus x"
 			kit.file_name = options[:graphkit_name] + options[:t_index].to_s
 			kit.data[0].with = 'lp'

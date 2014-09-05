@@ -1021,7 +1021,7 @@ module GSLVectors
 
         vec_zf_vel = GSL::Vector.alloc(kx.size)
         #Take imaginary part since i k_x will lead to imaginary part being real
-        vec_zf_vel = kxfac*(phi*kx).backward.imag*kx.size
+        vec_zf_vel = kxfac*(phi*kx).backward.imag
         return vec_zf_vel
 			end
 		end
@@ -1031,7 +1031,7 @@ module GSLVectors
     #at the middle of the box.
 		def mean_flow_velocity_over_x_gsl_vector(options)
 			Dir.chdir(@directory) do
-				raise CRFatal.new("Need to have g_exb > 0 to have a mean flow.") unless @g_exb > 0
+				raise CRFatal.new("Need to have g_exb > 0 to have a mean flow.") unless @g_exb 
         x = gsl_vector(:x)
 
         vec_exb_vel = GSL::Vector.alloc(x.size)
