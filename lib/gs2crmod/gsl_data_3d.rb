@@ -382,7 +382,7 @@ class CodeRunner::Gs2
 			else
 				theta_vec = gsl_vector(:theta, options)
 				factors = GSL::Tensor.alloc(6,theta_vec.size)
-				values = File.read("#@directory/#@run_name.g").split(/\s*\n\s*/)
+				values = File.read(options[:geometry_file]||"#@directory/#@run_name.g").split(/\s*\n\s*/)
 				3.times{values.shift}
 				values = values.map{|str| str.split(/\s+/).map{|s| s.to_f}}.transpose
 				#ep values
@@ -396,8 +396,7 @@ class CodeRunner::Gs2
 							opts = options.dup
 							opts[:interpolate_theta] = nil
 							theta_vec_short = gsl_vector(:theta, {})
-							#p 'sizes', [theta_vec_short.size, values[i+1].to_gslv.size]
-							interp = GSL::ScatterInterp.alloc(:linear, [theta_vec_short, values[i+1].to_gslv], true)
+							interp = GSL::ScatterInterp.alloc(:linear, [values[0], values[i+1].to_gslv], true)
 							for j in 0...theta_vec.size
 								factors[i,j] = interp.eval(theta_vec[j])
 							end
