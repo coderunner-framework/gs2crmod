@@ -951,9 +951,18 @@ module GSLVectors
 			options[:direction] = :kx
 			spectrum_over_kxy_gsl_vector(options)
 		end
+
+		def spectrum_over_kx_avg_gsl_vector(options)
+			options[:direction] = :kx
+			spectrum_over_kxy_avg_gsl_vector(options)
+		end
 		def spectrum_over_ky_gsl_vector(options)
 			options[:direction] = :ky
 			spectrum_over_kxy_gsl_vector(options)
+		end
+		def spectrum_over_ky_avg_gsl_vector(options)
+			options[:direction] = :ky
+			spectrum_over_kxy_avg_gsl_vector(options)
 		end
 		def spectrum_over_kxy_gsl_vector(options)
 			Dir.chdir(@directory) do
@@ -974,6 +983,30 @@ module GSLVectors
 				return v
 			end
 		end
+
+    #spectrum averaged in time
+		def spectrum_over_kxy_avg_gsl_vector(options)
+			Dir.chdir(@directory) do
+				# i.e. spectrum_over_ky or spectrum_over_kx
+				kxy = options[:direction]
+				raise "Spectrum makes no sense for single modes" if @grid_option == "single"
+
+				phi_array = netcdf_file.var("phi2_by_#{kxy}").get('start' => [0, 0], 'end' => [-1, -1]) #index = [kx or ky, t]
+
+        shape = phi_array.shape
+        phi_av = [];
+        #average over time for each kx or ky individually 
+        for i in 0...shape[0]
+          phi_av[i] = phi_array[i,0..-1].sum / shape[1]
+        end
+
+				v = GSL::Vector.alloc(phi_av)
+				v = v.from_box_order if kxy == :kx
+				v = v.mul(gsl_vector(kxy).square) unless options[:phi2_only]
+				return v
+			end
+		end
+
 		def x_gsl_vector(options)
 			raise "options nakx and interpolate_x are incompatible" if options[:nakx] and options[:interpolate_x]
 			kx = gsl_vector(:kx, options)

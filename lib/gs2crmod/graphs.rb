@@ -44,7 +44,9 @@ def auto_axiskits(name, options)
     'transient_amplification_over_kx' => ['Transient Amplification', "", 1],
     'transient_amplification_over_ky' => ['Transient Amplification', "", 1],
     'spectrum_over_kx' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
+    'spectrum_over_kx_avg' => ["Spectrum Averaged Over Time", '', 1],
     'spectrum_over_ky' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
+    'spectrum_over_ky_avg' => ["Spectrum Averaged Over Time", '', 1],
     'es_heat_over_kx' => ["Heat Flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", 'Q_gB', 1],
     'es_heat_over_ky' => ["Heat Flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", 'Q_gB', 1],
     'es_heat_flux_over_ky_over_kx' => ["Heat flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
@@ -677,9 +679,21 @@ module GraphKits
 		kxy_spectrum_graphkit(options)
 	end
 
+  #time averaged kx spectrum
+	def kx_spectrum_avg_graphkit(options={})
+		options[:kxy] = :kx
+		kxy_spectrum_avg_graphkit(options)
+	end
+
 	def ky_spectrum_graphkit(options={})
 		options[:kxy] = :ky
 		kxy_spectrum_graphkit(options)
+	end
+
+  #time averaged ky spectrum
+	def ky_spectrum_avg_graphkit(options={})
+		options[:kxy] = :ky
+		kxy_spectrum_avg_graphkit(options)
 	end
 
 	def kxy_spectrum_graphkit(options={})
@@ -700,6 +714,27 @@ module GraphKits
 			kit
 		end
 	end
+
+  #time averaged kx or ky spectrum
+	def kxy_spectrum_avg_graphkit(options={})
+		case options[:command]
+		when :help
+			return "ky_spectrum or kx_spectrum: Graph of phi^2 vs kx or ky averaged over time"
+		when :options
+			return  [:t, :t_index]
+		else
+			# ie ky_spectrum or kx_spectrum
+			kxy = options[:kxy] 
+			kit = GraphKit.autocreate({x: axiskit(kxy.to_s, options), y: axiskit("spectrum_over_#{kxy}_avg", options)})
+			kit.title  = "#{kxy} Spectrum"
+			kit.file_name = options[:graphkit_name] + options[:t_index].to_s + "_avg"
+			kit.data[0].with = 'lp'
+			kit.ylabel = "Phi^2 #{kxy}^2"
+			kit.pointsize = 2.0
+			kit
+		end
+	end
+
 	def lagrangian_kx_graphkit(options={})
 		case options[:command]
 		when :help
