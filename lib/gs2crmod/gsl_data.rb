@@ -486,7 +486,7 @@ module GSLVectors
           end
           es_heat_av[ix] = temp.sum
         end
-				return es_heat_av.to_gslv
+				return es_heat_av.to_gslv.from_box_order
 			end
 		end
 	end
