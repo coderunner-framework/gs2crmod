@@ -666,41 +666,45 @@ end
 alias :ctehfa :calculate_transient_es_heat_flux_amplifications
 alias :ctehfa :calculate_transient_es_heat_flux_amplifications
 
+
 def calculate_transient_amplification(vector, options={})
-	turning_points = {}
-	old = vector[0]
-	i = 0
-	#for i in i...vector.size
-		#new = vector[i]
-		#if new > old
-			#turning_points[:first_min] = i-1
-			#ep "First turning point[#{i}]\n"
-			#break
-		#end
-		#old = new
-	#end
+  t = gsl_vector(:t)
 
-	#for i in i...vector.size
-		#new = vector[i]
-		#if new < old
-			#turning_points[:first_max] = i-1
-			#ep "Second turning point[#{i}]\n"
-			#break
-		#end
-	#end
+  #Implement data smoothing through a moving average procedure of 5 surrounding points.
+  #This is needed since we need to know the turning points and need calculate gradients
+  #to find the points where they change sign. In order to get the actual transient amplification
+  #use the original data at the points where the gradient of smoothed data changes sign.
 
-	#unless turning_points[:first_max] # and turning_points[:first_min]
-		#return NaN
-	#end
-	##t = gsl_vector('t')
-	##for j in 0...vector.size
-		##break if t[j] > 0.2
-	##end	
-	#ep "vector[0..5]: #{vector.subvector(0,5)}\n"
-	#return Math.sqrt(vector[turning_points[:first_max]]/@phiinit)
-	#return vector.max/@phiinit
-  vector[0] = 0 # This ensures vector.max does not return 1st point for no transient growth
-	return vector.max/vector[1]
+  vec_smooth = GSL::Vector.alloc(vector.size-2);
+  vec_smooth[0] = vector[0]
+  vec_smooth[1] = (vector[0] + vector[1] + vector[2])/3
+  for i in 2...vector.size-2
+    vec_smooth[i] = (vector[i-2] + vector[i-1] + vector[i] + vector[i+1] + vector[i+2])/5
+  end
+
+  #Calculate the gradient of the smoothed function
+  grad = GSL::Vector.alloc(vec_smooth.size-1);
+  for i in 0...vec_smooth.size-1
+    grad[i] = (vec_smooth[i+1] - vec_smooth[i])/(t[i+1]-t[i]) 
+  end
+
+  #Now find the first two points where the gradient changes sign
+  #If your data still oscillates too much this method will not work.
+  #You will have to change the order of the data smoothing scheme.
+  turning_points = Array.new
+  for i in 1...grad.size
+    if GSL::sign(grad[i]) != GSL::sign(grad[i-1])
+      turning_points.push(i+1)
+    end
+  end
+
+  #Now calculate amplification factor using original vector (assuming turning point is roughly the same)
+  #by dividing value at max by the value at the min
+  if turning_points.empty? or turning_points.size < 2
+    return 0
+  else
+    return vector[turning_points[1]]/vector[turning_points[0]]
+  end
 end
 
 def ctan
