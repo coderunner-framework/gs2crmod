@@ -317,7 +317,7 @@ module GraphKits
 		when :options
 			return	[:mag, :norm, :z, :flip, :range, :kx_index, :ky_index, :kx, :ky, :strongest_non_zonal_mode]
 		when :plot, nil
-				eputs "Starting efn, this can take a while..."
+				#eputs "Starting efn, this can take a while..."
 				options[:imrc] ||= :real
 				ep options
 				options.convert_to_index(self, :ky)
