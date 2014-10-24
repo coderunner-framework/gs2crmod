@@ -3644,6 +3644,7 @@
          "recon",
          "recon3",
          "zonal_only",
+         "no_zonal",
          "single_parallel_mode",
          "all_modes_equal"]},
      :zf_init=>
