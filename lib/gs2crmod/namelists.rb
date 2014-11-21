@@ -6395,8 +6395,10 @@
        :type=>:Fortran_Bool},
      :print_line=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>
+        "Estimated frequencies and growth rates to the screen/stdout",
+       :help=>
+        "Estimated frequencies and output to the screen/stdout every nwrite timesteps",
        :code_name=>:print_line,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6405,8 +6407,8 @@
        :type=>:Fortran_Bool},
      :print_flux_line=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>"Instantaneous fluxes output to screen",
+       :help=>"Instantaneous fluxes output to screen every nwrite timesteps",
        :code_name=>:print_flux_line,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6415,8 +6417,10 @@
        :type=>:Fortran_Bool},
      :write_line=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>
+        "If (write_ascii = T) write estimated frequencies and growth rates to the output file",
+       :help=>
+        "If (write_ascii = T) write estimated frequencies and growth rates to the output file (usually runname.out) every nwrite steps.",
        :code_name=>:write_line,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6426,7 +6430,8 @@
      :write_flux_line=>
       {:should_include=>"true",
        :description=>nil,
-       :help=>nil,
+       :help=>
+        " If (write_ascii = T) instantaneous fluxes output to runname.out every nwrite timesteps\n",
        :code_name=>:write_flux_line,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6446,7 +6451,8 @@
      :dump_fields_periodically=>
       {:should_include=>"true",
        :description=>nil,
-       :help=>nil,
+       :help=>
+        " Phi, Apar, Bpar written to dump.fields.t=(time).  This is expensive!\n",
        :code_name=>:dump_fields_periodically,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6455,8 +6461,9 @@
        :type=>:Fortran_Bool},
      :write_moments=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>"",
+       :help=>
+        "If true then we write the various velocity moments of the distribution function to the netcdf file every nwrite steps.  ",
        :code_name=>:write_moments,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6515,8 +6522,9 @@
        :type=>:Fortran_Bool},
      :write_symmetry=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>"Test the symmetry properties of the GK eqn.",
+       :help=>
+        "Switch on a diagnostic to test the symmetry properties of the GK eqn.  It calculates the momentum flux as a function of vpar, theta, and time.",
        :code_name=>:write_symmetry,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6525,8 +6533,8 @@
        :type=>:Fortran_Bool},
      :write_parity=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>"Writes parities in dist fn and particle fluxes",
+       :help=>"Writes parities in dist fn and particle fluxes",
        :code_name=>:write_parity,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6535,8 +6543,9 @@
        :type=>:Fortran_Bool},
      :write_verr=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>
+        "Write velocity space diagnostics to '.lpc' and '.verr' files",
+       :help=>"Write velocity space diagnostics to '.lpc' and '.verr' files",
        :code_name=>:write_verr,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6574,8 +6583,9 @@
        :type=>:Fortran_Bool},
      :write_ascii=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>"",
+       :help=>
+        "If true, some data is written to runname.out\n** Also controls the creation of a large number of ascii data files (such as <run_name>.fields). Many of the write_* settings in this namelist will only have an effect when write_ascii= .TRUE.",
        :code_name=>:write_ascii,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6584,8 +6594,9 @@
        :type=>:Fortran_Bool},
      :write_gyx=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>
+        "Write dist fn at a given physical spacial point to a file",
+       :help=>"Write dist fn at a given physical spacial point to a file",
        :code_name=>:write_gyx,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6594,8 +6605,9 @@
        :type=>:Fortran_Bool},
      :write_g=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>
+        "Write the distribution function to the '.dist' (NetCDF?)",
+       :help=>"Write the distribution function to the '.dist' (NetCDF?)",
        :code_name=>:write_g,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6624,8 +6636,8 @@
        :type=>:Fortran_Bool},
      :conv_nstep_av=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>"",
+       :help=>"",
        :code_name=>:conv_nstep_av,
        :must_pass=>
         [{:test=>"kind_of? Integer",
@@ -6633,8 +6645,8 @@
        :type=>:Integer},
      :conv_test_multiplier=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>"",
+       :help=>"",
        :code_name=>:conv_test_multiplier,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
@@ -6643,8 +6655,8 @@
        :type=>:Float},
      :conv_min_step=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>"",
+       :help=>"",
        :code_name=>:conv_min_step,
        :must_pass=>
         [{:test=>"kind_of? Integer",
@@ -6652,8 +6664,8 @@
        :type=>:Integer},
      :conv_max_step=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>"",
+       :help=>"",
        :code_name=>:conv_max_step,
        :must_pass=>
         [{:test=>"kind_of? Integer",
@@ -6661,8 +6673,8 @@
        :type=>:Integer},
      :conv_nsteps_converged=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>"",
+       :help=>"",
        :code_name=>:conv_nsteps_converged,
        :must_pass=>
         [{:test=>"kind_of? Integer",
@@ -6670,8 +6682,8 @@
        :type=>:Integer},
      :use_nonlin_convergence=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>"",
+       :help=>"",
        :code_name=>:use_nonlin_convergence,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6690,8 +6702,9 @@
        :type=>:Fortran_Bool},
      :write_correlation=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>"Write parallel correlation.",
+       :help=>
+        "Write correlation function diagnostic... shows parallel correlation as a function of ky. See arXiv 1104.4514.",
        :code_name=>:write_correlation,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6700,8 +6713,9 @@
        :type=>:Fortran_Bool},
      :write_correlation_extend=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>"Extend domain of correlation function calculation.",
+       :help=>
+        "If used in conjunction with write_correlation, extends the length of <math>\\Delta \\theta</math> for which the correlation function is calculated.",
        :code_name=>:write_correlation_extend,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6720,8 +6734,8 @@
        :type=>:Fortran_Bool},
      :write_lorentzian=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>"Frequency Sweep Data",
+       :help=>"Frequency Sweep Data",
        :code_name=>:write_lorentzian,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6730,8 +6744,10 @@
        :type=>:Fortran_Bool},
      :write_eigenfunc=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>
+        "If (write_ascii = T) Normalized phi written to runname.eigenfunc",
+       :help=>
+        "If (write_ascii = T) Normalized Phi(theta) written to runname.eigenfunc\n** Write to runname.out.nc even if (write_ascii = F)",
        :code_name=>:write_eigenfunc,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6740,8 +6756,9 @@
        :type=>:Fortran_Bool},
      :write_final_fields=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>"If (write_ascii = T) Phi(theta) written to '.fields'",
+       :help=>
+        "If (write_ascii = T) Phi(theta) written to runname.fields\n** Write to runname.out.nc even if (write_ascii = F)",
        :code_name=>:write_final_fields,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6751,7 +6768,7 @@
      :write_kpar=>
       {:should_include=>"true",
        :description=>nil,
-       :help=>nil,
+       :help=>" Spectrum in k_parallel calculated and written.\n",
        :code_name=>:write_kpar,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6760,8 +6777,10 @@
        :type=>:Fortran_Bool},
      :write_final_epar=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>
+        "If (write_ascii = T) E_parallel(theta) written to runname.eigenfunc",
+       :help=>
+        "If (write_ascii = T) E_parallel(theta) written to runname.eigenfunc\n** Write to runname.out.nc even if (write_ascii = F)",
        :code_name=>:write_final_epar,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6770,8 +6789,8 @@
        :type=>:Fortran_Bool},
      :write_final_db=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>"Write final delta B.",
+       :help=>"Write final delta B.",
        :code_name=>:write_final_db,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6780,8 +6799,9 @@
        :type=>:Fortran_Bool},
      :write_final_moments=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>"write final n, T",
+       :help=>
+        "If (write_ascii = T) low-order moments of g written to runname.moments and int dl/B averages of low-order moments of g written to  runname.amoments\n** Write to runname.out.nc even if (write_ascii = F)",
        :code_name=>:write_final_moments,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6791,7 +6811,8 @@
      :write_final_antot=>
       {:should_include=>"true",
        :description=>nil,
-       :help=>nil,
+       :help=>
+        " If (write_ascii = T) Sources for Maxwell eqns. written to runname.antot\n** Write to runname.out.nc even if (write_ascii = F)\n",
        :code_name=>:write_final_antot,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6810,8 +6831,9 @@
        :type=>:Fortran_Bool},
      :save_for_restart=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>"Write restart files.",
+       :help=>
+        "If true then restart files written to the local folder and the simulation can be restarted from the point it ended.\n** Restart files written to restart_file.PE#.  \n** Recommended for nonlinear runs.",
        :code_name=>:save_for_restart,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6820,8 +6842,9 @@
        :type=>:Fortran_Bool},
      :save_distfn=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>"Save dist_fn with lots of detail.",
+       :help=>
+        "If true, saves the restart files with name 'rootname.nc.dfn.<proc>' with lots of extra detail about the dist function --- velocity space grids and so on, when GS2 exits.",
        :code_name=>:save_distfn,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
