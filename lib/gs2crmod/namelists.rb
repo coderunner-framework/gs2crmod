@@ -437,7 +437,7 @@
        :module=>:hyper},
      :rhoc=>
       {:help=>
-        "rhoc is flux surface label (0< rhoc< 1). Its exact meaning depends on irho. Usually rho = diameter/diameter of LCFS\n** When irho = 1, rhoc = sqrt(toroidal flux)/sqrt(toroidal flux of LCFS)\n** When irho = 2, rhoc =  diameter/(diameter of LCFS).  recommended\n** When irho = 3, rhoc =  poloidal flux/(poloidal flux of LCFS)",
+        "rhoc is flux surface label (0< rhoc< 1). Its exact meaning depends on irho. Usually rho = midplane diameter/midplane diameter of LCFS\n** When irho = 1, rhoc = sqrt(toroidal flux)/sqrt(toroidal flux of LCFS)\n** When irho = 2, rhoc =  midplane diameter/(midplane diameter of LCFS).  recommended\n** When irho = 3, rhoc =  poloidal flux/(poloidal flux of LCFS)",
        :should_include=>"true",
        :description=>
         "Flux surface label. Usually rho = diameter/diameter of LCFS",
@@ -518,9 +518,9 @@
        :module=>:theta_grid_params},
      :shift=>
       {:help=>
-        "shift is related to the derivative of the Shafranov shift, but it has different definitions in the s-alpha and Miller equilbrium models:  \n** In s-alpha: <math>shift = -\\frac{2epsl}{pk^2}\\frac{d\\beta}{d\\rho}=-\\frac{q^2R}{L_{ref}}\\frac{d\\beta}{d\\rho} > 0  </math> \n** In Miller: <math>shift = \\frac{1}{L_{ref}} \\frac{dR}{d\\rho} < 0 </math>",
+        "shift is related to derivatives of the Shafranov shift, but this input variable has '''different physical definitions''' in s-alpha and Miller equilbrium models:  \n** In s-alpha shift<math>\\propto</math> p' is a parameter for local <math>J_{\\phi}</math> (and NOT <math> B_{\\theta}</math> which is constant): <math>shift = -\\frac{2epsl}{pk^2}\\frac{d\\beta}{d\\rho}=-\\frac{q^2R}{L_{ref}}\\frac{d\\beta}{d\\rho} > 0 </math> \n** In Miller shift is a parameter for local <math> B_{\\theta}</math> (and NOT for <math>J_{\\phi}</math>): <math>shift = \\frac{1}{L_{ref}} \\frac{dR}{d\\rho} < 0 </math> \n*NB in Miller shift contains the ''1st'' radial derivative of the Shafranov shift, BUT in s-alpha shift is related to a ''2nd'' radial derivative of the Shafranov shift.\n** in Miller an additional parameter (beta_prime) is required to specify the piece of <math>J_{\\phi} \\propto</math> p' \n** in s-alpha no additional parameter is required as the piece of <math>J_{\\phi} \\propto</math> p' is specified by shift.",
        :should_include=>"true",
-       :description=>"shift = -R q**2 dbeta/drho (>0)",
+       :description=>"Sets Shafranov shift. See online help for definition.",
        :tests=>["Tst::FLOAT"],
        :autoscanned_defaults=>[0.0, 0],
        :must_pass=>
@@ -646,7 +646,7 @@
      :cvdriftknob=>
       {:should_include=>"true",
        :description=>"",
-       :help=>"",
+       :help=>"Scales the curvature drift.\n",
        :code_name=>:cvdriftknob,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
@@ -657,7 +657,7 @@
      :gbdriftknob=>
       {:should_include=>"true",
        :description=>"",
-       :help=>"",
+       :help=>"Scales the grad-B drift.\n",
        :code_name=>:gbdriftknob,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
@@ -1473,9 +1473,9 @@
        :module=>:dist_fn},
      :include_lowflow=>
       {:help=>
-        "Include calculation of terms present in the low flow limit of gyrokinetics. Many new terms... will slow calculation... don't set true unless you know what you are doing. ",
+        "<s>Include calculation of terms present in the low flow limit of gyrokinetics. Many new terms... will slow calculation... don't set true unless you know what you are doing.</s> ''not currently implemented : lowflow terms automatically active if gs2 compiled with LOWFLOW=on''",
        :should_include=>"true",
-       :description=>nil,
+       :description=>"",
        :tests=>["Tst::STRING"],
        :autoscanned_defaults=>[],
        :must_pass=>
@@ -3633,7 +3633,7 @@
        :module=>:init_g},
      :ginit_option=>
       {:help=>
-        "Sets the way that the distribution function is initialized. There are many possible choices.\n**  'default' This gives a gaussian in theta (see [[width0]])\n**  'noise'  This is the  recommended selection ('''but not the default''').  Pretty random.\n**  'test1'\n**  'xi'\n**  'xi2'\n**  'zero'\n**  'test3'\n**  'convect'\n**  'rh'\n**  'many' This is the option to read the (many) restart files written by a previous run. Use for restarts\n**  'small'\n**  'file'\n**  'cont'\n**  'kz0'  initialise only with k_parallel=0\n**  'nl'\n**  'nl2'\n**  'nl3'\n**  'nl4'\n**  'nl5'\n**  'nl6'\n**  'gs'\n**  'kpar'\n**  'zonal_only'  Restart but set all non-zonal components of the potential and the distribution function to 0. Noise can be added to these other components by setting iphiinit > 0.\n**  'single_parallel_mode'  Initialise only with a single parallel mode specified by either ikpar_init for periodic boundary conditions or kpar_init for linked boundary conditions. Intended for linear calculations.\n**  'all_modes_equal'  Initialise with every single parallel and perpendicular mode given the same amplitude. Intended for linear calculations.",
+        "Sets the way that the distribution function is initialized. There are many possible choices.\n**  'default' This gives a gaussian in theta (see [[width0]])\n**  'noise'  This is the  recommended selection ('''but not the default''').  Pretty random.\n**  'test1'\n**  'xi'\n**  'xi2'\n**  'zero'\n**  'test3'\n**  'convect'\n**  'rh'\n**  'many' This is the option to read the (many) restart files written by a previous run. Use for restarts\n**  'small'\n**  'file'\n**  'cont'\n**  'kz0'  initialise only with k_parallel=0\n**  'nl'\n**  'nl2'\n**  'nl3'\n**  'nl4'\n**  'nl5'\n**  'nl6'\n**  'gs'\n**  'kpar'\n**  'zonal_only'  Restart but set all non-zonal components of the potential and the distribution function to 0. Noise can be added to these other components by setting iphiinit > 0.\n**  'single_parallel_mode'  Initialise only with a single parallel mode specified by either ikpar_init for periodic boundary conditions or kpar_init for linked boundary conditions. Intended for linear calculations.\n**  'all_modes_equal'  Initialise with every single parallel and perpendicular mode given the same amplitude. Intended for linear calculations. \n**  'eig_restart' Uses the restart files written by the eigensolver. Also see restart_eig_id.",
        :should_include=>"true",
        :description=>
         "Sets the way that the distribution function is initialized.",
@@ -4193,7 +4193,8 @@
      :restart_eig_id=>
       {:should_include=>"true",
        :description=>nil,
-       :help=>nil,
+       :help=>
+        "Used to select with eigensolver generated restart file to load. Sets <id> in restart_file//eig_<id>//.<proc> string used to set filename.\n",
        :code_name=>:restart_eig_id,
        :must_pass=>
         [{:test=>"kind_of? Integer",
@@ -4590,7 +4591,8 @@
      :write_fields=>
       {:should_include=>"true",
        :description=>nil,
-       :help=>nil,
+       :help=>
+        "Updates the phi, apar and bpar arrays in the netcdf output every nwrite steps. This is useful to allow the impatient to get an idea of the eigenfunction quality before the simulation ends without having to store the fields as a function of time.\n* ''note'' : previously this flag triggered attempts to write phi, apar and bpar as a function of time. This behaviour is now available through the write_phi_over_time flags (and related for other fields). ",
        :tests=>["Tst::FORTRAN_BOOL"],
        :gs2_name=>:write_fields,
        :must_pass=>
@@ -4887,7 +4889,8 @@
      :write_moments=>
       {:should_include=>"true",
        :description=>"",
-       :help=>"",
+       :help=>
+        "If true then we write the various velocity moments of the distribution function to the netcdf file every nwrite steps.  ",
        :code_name=>:write_moments,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -5017,7 +5020,8 @@
      :ob_midplane=>
       {:should_include=>"true",
        :description=>nil,
-       :help=>nil,
+       :help=>
+        " If write_moments is true, then: \n* if ob_midplane is true, then write the various velocity moments of the distribution function as functions of t ONLY at THETA=0 (and set write_full_moments_notgc = false),\n* if ob_midplane is false, then write moments as functions of t at ALL THETA.  ",
        :code_name=>:ob_midplane,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -5739,7 +5743,7 @@
        :description=>
         "Max kx for periodic finite kx ballooning space runs with shat=0.",
        :help=>
-        "Max kx for periodic finite kx ballooning space runs with shat=0.",
+        "Max kx for periodic finite kx ballooning space runs with <math>\\hat{s}</math>=0.",
        :tests=>["Tst::FLOAT"],
        :code_name=>:akx_max,
        :must_pass=>
@@ -5798,7 +5802,8 @@
      :kyspacing_option=>
       {:should_include=>"true",
        :description=>nil,
-       :help=>nil,
+       :help=>
+        "Sets the type of spacing between ky grid points, available options are :\n** 'default'  : Same as 'linear'\n** 'exponential' : Evenly spaced in log(ky).\n** 'linear' : Evenly spaced in ky.\n",
        :code_name=>:kyspacing_option,
        :must_pass=>
         [{:test=>"kind_of? String",
@@ -6943,7 +6948,8 @@
      :nadv=>
       {:should_include=>"true",
        :description=>nil,
-       :help=>nil,
+       :help=>
+        "How many GS2 timesteps to take each time SLEPc wants to advance the distribution function. Useful to separate closely spaced eigenvalues without changing delt.\n",
        :code_name=>:nadv,
        :must_pass=>
         [{:test=>"kind_of? Integer",
@@ -6952,7 +6958,8 @@
      :save_restarts=>
       {:should_include=>"true",
        :description=>nil,
-       :help=>nil,
+       :help=>
+        "If true then we save a set of restart files for each eigenmode found. These are named as standard restart file (i.e. influenced by the restart_file input), but have eig_<id> appended near end, where <id> is an integer representing the eigenmode id.\n* If [[save_distfn]] of [[gs2_diagnostics_knobs]] is true then will also save the distribution function files.\n",
        :code_name=>:save_restarts,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
