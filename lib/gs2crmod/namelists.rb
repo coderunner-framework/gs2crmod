@@ -6269,7 +6269,8 @@
        :autoscanned_defaults=>[".false."]},
      :write_fluxes=>
       {:should_include=>"true",
-       :description=>"If .true. write fluxes of heat, momentum & particles to netcdf file, as well as integrated fluxes.",
+       :description=>
+        "If .true. write fluxes of heat, momentum & particles to netcdf file, as well as integrated fluxes.",
        :help=>
         "If .true. write fluxes of heat, momentum & particles to the new netcdf file.",
        :code_name=>:write_fluxes,
@@ -6317,7 +6318,8 @@
        :autoscanned_defaults=>[10, 100]},
      :igomega=>
       {:should_include=>"true",
-       :description=>" Theta index at which frequencies are calculated, and at which single-theta fields and moments written out (e.g. phi_igomega_by_mode).\n",
+       :description=>
+        " Theta index at which frequencies are calculated, and at which single-theta fields and moments written out (e.g. phi_igomega_by_mode).\n",
        :help=>" Theta index at which frequencies are calculated.\n",
        :code_name=>:igomega,
        :must_pass=>
@@ -6376,7 +6378,8 @@
      :enable_parallel=>
       {:should_include=>"true",
        :description=>"If built with parallel IO capability, enable it.",
-       :help=>"If built with parallel IO capability, enable it. There are currently issues with parallel IO on some systems which cause GS2 to hang. If you enable this parameter, test it on a smaller problem (but with at least two nodes) before using it on a prouction run. Bug reports welcome.",
+       :help=>
+        "If built with parallel IO capability, enable it. There are currently issues with parallel IO on some systems which cause GS2 to hang. If you enable this parameter, test it on a smaller problem (but with at least two nodes) before using it on a prouction run. Bug reports welcome.",
        :code_name=>:enable_parallel,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6441,7 +6444,8 @@
      :write_movie=>
       {:should_include=>"true",
        :description=>"Write fields in real space as a function of time.",
-       :help=>"Write fields in real space as a function of time. Note this uses transform2 and so includes the aliased gridpoints in the real space dimensions. This means that there is 30% reduncancy in the output. Consider writing the fields in k space as a function of time and doing the Fourier transforms in post processing",
+       :help=>
+        "Write fields in real space as a function of time. Note this uses transform2 and so includes the aliased gridpoints in the real space dimensions. This means that there is 30% reduncancy in the output. Consider writing the fields in k space as a function of time and doing the Fourier transforms in post processing",
        :code_name=>:write_movie,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6483,7 +6487,8 @@
      :write_ntot_over_time=>
       {:should_include=>"true",
        :description=>nil,
-       :help=>"Write total density as a function theta, ky, kx, species and time... very expensive!",
+       :help=>
+        "Write total density as a function theta, ky, kx, species and time... very expensive!",
        :code_name=>:write_ntot_over_time,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6493,7 +6498,8 @@
      :write_density_over_time=>
       {:should_include=>"true",
        :description=>nil,
-       :help=>"Write non-adiabitic density as a function theta, ky, kx, species and time... very expensive!",
+       :help=>
+        "Write non-adiabitic density as a function theta, ky, kx, species and time... very expensive!",
        :code_name=>:write_density_over_time,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6503,7 +6509,8 @@
      :write_upar_over_time=>
       {:should_include=>"true",
        :description=>nil,
-       :help=>"Write parallel flow perturbation as a function theta, ky, kx, species and time... very expensive!",
+       :help=>
+        "Write parallel flow perturbation as a function theta, ky, kx, species and time... very expensive!",
        :code_name=>:write_upar_over_time,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6513,8 +6520,8 @@
      :write_tperp_over_time=>
       {:should_include=>"true",
        :description=>nil,
-       :help=>"Write perpendicular temperature perturbation as a function theta, ky, kx, species and time... very expensive!",
-       :code_name=>:write_upar_over_time,
+       :help=>
+        "Write perpendicular temperature perturbation as a function theta, ky, kx, species and time... very expensive!",
        :code_name=>:write_tperp_over_time,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6544,9 +6551,9 @@
        :type=>:Fortran_Bool},
      :write_verr=>
       {:should_include=>"true",
-       :description=>
-        "Write velocity space diagnostics",
-       :help=>"Write velocity space diagnostics to netcdf file and (if write_ascii) '.new.lpc' and '.new.vres' files. Clear documentation of the outputs is given in the netcdf file.",
+       :description=>"Write velocity space diagnostics",
+       :help=>
+        "Write velocity space diagnostics to netcdf file and (if write_ascii) '.new.lpc' and '.new.vres' files. Clear documentation of the outputs is given in the netcdf file.",
        :code_name=>:write_verr,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6556,7 +6563,8 @@
      :write_max_verr=>
       {:should_include=>"true",
        :description=>nil,
-       :help=>"Write the spatial index corresponding to the maximum error in the velocity space integrals",
+       :help=>
+        "Write the spatial index corresponding to the maximum error in the velocity space integrals",
        :code_name=>:write_max_verr,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6565,8 +6573,10 @@
        :type=>:Fortran_Bool},
      :ncheck=>
       {:should_include=>"true",
-       :description=>"If vary_vnew, check whether to vary the collisionality every ncheck timesteps.",
-       :help=>"If vary_vnew, check to see whether to vary the collisionality every ncheck timesteps.",
+       :description=>
+        "If vary_vnew, check whether to vary the collisionality every ncheck timesteps.",
+       :help=>
+        "If vary_vnew, check to see whether to vary the collisionality every ncheck timesteps.",
        :code_name=>:ncheck,
        :must_pass=>
         [{:test=>"kind_of? Integer",
@@ -6574,8 +6584,10 @@
        :type=>:Integer},
      :write_heating=>
       {:should_include=>"true",
-       :description=>"Write multiple diagnostics of turbulent heating and free energy",
-       :help=>"Write multiple diagnostics of turbulent heating and free energy generation and dissipation.",
+       :description=>
+        "Write multiple diagnostics of turbulent heating and free energy",
+       :help=>
+        "Write multiple diagnostics of turbulent heating and free energy generation and dissipation.",
        :code_name=>:write_heating,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6597,7 +6609,8 @@
       {:should_include=>"true",
        :description=>
         "Write dist fn at a given physical spacial point to a file",
-       :help=>"Write dist fn (in real space) at a given physical spacial point to a file",
+       :help=>
+        "Write dist fn (in real space) at a given physical spacial point to a file",
        :code_name=>:write_gyx,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6608,7 +6621,8 @@
       {:should_include=>"true",
        :description=>
         "Write the distribution function to the '.dist' (NetCDF?)",
-       :help=>"Write the distribution function (in fourier space) at a fixed wavenumber to the '.dist' file",
+       :help=>
+        "Write the distribution function (in fourier space) at a fixed wavenumber to the '.dist' file",
        :code_name=>:write_g,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6618,7 +6632,8 @@
      :write_lpoly=>
       {:should_include=>"true",
        :description=>nil,
-       :help=>"computes and returns lagrange interpolating polynomial for g. Needs checking." ,
+       :help=>
+        "computes and returns lagrange interpolating polynomial for g. Needs checking.",
        :code_name=>:write_lpoly,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6693,7 +6708,8 @@
        :type=>:Fortran_Bool},
      :write_cross_phase=>
       {:should_include=>"true",
-       :description=>"Write cross phase between electron temperature and density.",
+       :description=>
+        "Write cross phase between electron temperature and density.",
        :help=>"Write cross phase between electron temperature and density.",
        :code_name=>:write_cross_phase,
        :must_pass=>
@@ -6769,7 +6785,8 @@
      :write_kpar=>
       {:should_include=>"true",
        :description=>nil,
-       :help=>" Spectrum in k_parallel calculated and written. Only works for periodic boundary??\n",
+       :help=>
+        " Spectrum in k_parallel calculated and written. Only works for periodic boundary??\n",
        :code_name=>:write_kpar,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
