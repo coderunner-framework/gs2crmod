@@ -437,7 +437,7 @@
        :module=>:hyper},
      :rhoc=>
       {:help=>
-        "rhoc is flux surface label (0< rhoc< 1). Its exact meaning depends on irho. Usually rho = diameter/diameter of LCFS\n** When irho = 1, rhoc = sqrt(toroidal flux)/sqrt(toroidal flux of LCFS)\n** When irho = 2, rhoc =  diameter/(diameter of LCFS).  recommended\n** When irho = 3, rhoc =  poloidal flux/(poloidal flux of LCFS)",
+        "rhoc is flux surface label (0< rhoc< 1). Its exact meaning depends on irho. Usually rho = midplane diameter/midplane diameter of LCFS\n** When irho = 1, rhoc = sqrt(toroidal flux)/sqrt(toroidal flux of LCFS)\n** When irho = 2, rhoc =  midplane diameter/(midplane diameter of LCFS).  recommended\n** When irho = 3, rhoc =  poloidal flux/(poloidal flux of LCFS)",
        :should_include=>"true",
        :description=>
         "Flux surface label. Usually rho = diameter/diameter of LCFS",
@@ -518,9 +518,9 @@
        :module=>:theta_grid_params},
      :shift=>
       {:help=>
-        "shift is related to the derivative of the Shafranov shift, but it has different definitions in the s-alpha and Miller equilbrium models:  \n** In s-alpha: <math>shift = -\\frac{2epsl}{pk^2}\\frac{d\\beta}{d\\rho}=-\\frac{q^2R}{L_{ref}}\\frac{d\\beta}{d\\rho} > 0  </math> \n** In Miller: <math>shift = \\frac{1}{L_{ref}} \\frac{dR}{d\\rho} < 0 </math>",
+        "shift is related to derivatives of the Shafranov shift, but this input variable has '''different physical definitions''' in s-alpha and Miller equilbrium models:  \n** In s-alpha shift<math>\\propto</math> p' is a parameter for local <math>J_{\\phi}</math> (and NOT <math> B_{\\theta}</math> which is constant): <math>shift = -\\frac{2epsl}{pk^2}\\frac{d\\beta}{d\\rho}=-\\frac{q^2R}{L_{ref}}\\frac{d\\beta}{d\\rho} > 0 </math> \n** In Miller shift is a parameter for local <math> B_{\\theta}</math> (and NOT for <math>J_{\\phi}</math>): <math>shift = \\frac{1}{L_{ref}} \\frac{dR}{d\\rho} < 0 </math> \n*NB in Miller shift contains the ''1st'' radial derivative of the Shafranov shift, BUT in s-alpha shift is related to a ''2nd'' radial derivative of the Shafranov shift.\n** in Miller an additional parameter (beta_prime) is required to specify the piece of <math>J_{\\phi} \\propto</math> p' \n** in s-alpha no additional parameter is required as the piece of <math>J_{\\phi} \\propto</math> p' is specified by shift.",
        :should_include=>"true",
-       :description=>"shift = -R q**2 dbeta/drho (>0)",
+       :description=>"Sets Shafranov shift. See online help for definition.",
        :tests=>["Tst::FLOAT"],
        :autoscanned_defaults=>[0.0, 0],
        :must_pass=>
@@ -646,7 +646,7 @@
      :cvdriftknob=>
       {:should_include=>"true",
        :description=>"",
-       :help=>"",
+       :help=>"Scales the curvature drift.\n",
        :code_name=>:cvdriftknob,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
@@ -657,7 +657,7 @@
      :gbdriftknob=>
       {:should_include=>"true",
        :description=>"",
-       :help=>"",
+       :help=>"Scales the grad-B drift.\n",
        :code_name=>:gbdriftknob,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
@@ -1128,7 +1128,7 @@
         [{:test=>"kind_of? Float or kind_of? Integer",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :autoscanned_defaults=>["alpmhd_in"],
+       :autoscanned_defaults=>["alpmhd_in", "bp_in"],
        :type=>:Float,
        :code_name=>:alpha_input,
        :module=>:theta_grid_eik},
@@ -1473,9 +1473,9 @@
        :module=>:dist_fn},
      :include_lowflow=>
       {:help=>
-        "Include calculation of terms present in the low flow limit of gyrokinetics. Many new terms... will slow calculation... don't set true unless you know what you are doing. ",
+        "<s>Include calculation of terms present in the low flow limit of gyrokinetics. Many new terms... will slow calculation... don't set true unless you know what you are doing.</s> ''not currently implemented : lowflow terms automatically active if gs2 compiled with LOWFLOW=on''",
        :should_include=>"true",
-       :description=>nil,
+       :description=>"",
        :tests=>["Tst::STRING"],
        :autoscanned_defaults=>[],
        :must_pass=>
@@ -1715,7 +1715,7 @@
         [{:test=>"kind_of? Integer",
           :explanation=>"This variable must be an integer."}],
        :type=>:Integer,
-       :autoscanned_defaults=>[]},
+       :autoscanned_defaults=>[-1]},
      :g_exb_start_timestep=>
       {:should_include=>"true",
        :description=>"Flow shear is switched on at this time step.",
@@ -1725,7 +1725,7 @@
         [{:test=>"kind_of? Integer",
           :explanation=>"This variable must be an integer."}],
        :type=>:Integer,
-       :autoscanned_defaults=>[]},
+       :autoscanned_defaults=>[-1]},
      :g_exb_error_limit=>
       {:should_include=>"true",
        :description=>
@@ -1738,7 +1738,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[]},
+       :autoscanned_defaults=>[0.0]},
      :lf_default=>
       {:should_include=>"true",
        :description=>"",
@@ -2205,7 +2205,7 @@
         [{:test=>"kind_of? Integer",
           :explanation=>"This variable must be an integer."}],
        :type=>:Integer,
-       :autoscanned_defaults=>[-1]},
+       :autoscanned_defaults=>[]},
      :margin_cpu_time=>
       {:should_include=>"true",
        :description=>
@@ -2321,7 +2321,8 @@
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool}}},
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false."]}}},
  :layouts_knobs=>
   {:description=>"",
    :should_include=>"true",
@@ -2518,7 +2519,26 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".true."]}}},
+       :autoscanned_defaults=>[".true."]},
+     :fft_use_wisdom=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:fft_use_wisdom,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :fft_wisdom_file=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:fft_wisdom_file,
+       :must_pass=>
+        [{:test=>"kind_of? String",
+          :explanation=>"This variable must be a string."}],
+       :type=>:String}}},
  :collisions_knobs=>
   {:description=>"COLLISIONS",
    :should_include=>"true",
@@ -2748,7 +2768,7 @@
           :explanation=>"This variable must be an integer."}],
        :type=>:Integer,
        :module=>:collisions,
-       :autoscanned_defaults=>[100]},
+       :autoscanned_defaults=>[10, 100]},
      :vnslow=>
       {:should_include=>"true",
        :description=>nil,
@@ -3101,7 +3121,17 @@
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :autoscanned_defaults=>[],
        :type=>:Float,
-       :code_name=>:C_perp}}},
+       :code_name=>:C_perp},
+     :nl_forbid_force_zero=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:nl_forbid_force_zero,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool}}},
  :additional_linear_terms_knobs=>
   {:description=>"ADDITIONAL LINEAR TERMS",
    :should_include=>"true",
@@ -3627,7 +3657,7 @@
        :module=>:init_g},
      :ginit_option=>
       {:help=>
-        "Sets the way that the distribution function is initialized. There are many possible choices.\n**  'default' This gives a gaussian in theta (see [[width0]])\n**  'noise'  This is the  recommended selection ('''but not the default''').  Pretty random.\n**  'test1'\n**  'xi'\n**  'xi2'\n**  'zero'\n**  'test3'\n**  'convect'\n**  'rh'\n**  'many' This is the option to read the (many) restart files written by a previous run. Use for restarts\n**  'small'\n**  'file'\n**  'cont'\n**  'kz0'  initialise only with k_parallel=0\n**  'nl'\n**  'nl2'\n**  'nl3'\n**  'nl4'\n**  'nl5'\n**  'nl6'\n**  'gs'\n**  'kpar'\n**  'zonal_only'  Restart but set all non-zonal components of the potential and the distribution function to 0. Noise can be added to these other components by setting iphiinit > 0.\n**  'single_parallel_mode'  Initialise only with a single parallel mode specified by either ikpar_init for periodic boundary conditions or kpar_init for linked boundary conditions. Intended for linear calculations.\n**  'all_modes_equal'  Initialise with every single parallel and perpendicular mode given the same amplitude. Intended for linear calculations.",
+        "Sets the way that the distribution function is initialized. There are many possible choices.\n**  'default' This gives a gaussian in theta (see [[width0]])\n**  'noise'  This is the  recommended selection ('''but not the default''').  Pretty random.\n**  'test1'\n**  'xi'\n**  'xi2'\n**  'zero'\n**  'test3'\n**  'convect'\n**  'rh'\n**  'many' This is the option to read the (many) restart files written by a previous run. Use for restarts\n**  'small'\n**  'file'\n**  'cont'\n**  'kz0'  initialise only with k_parallel=0\n**  'nl'\n**  'nl2'\n**  'nl3'\n**  'nl4'\n**  'nl5'\n**  'nl6'\n**  'gs'\n**  'kpar'\n**  'zonal_only'  Restart but set all non-zonal components of the potential and the distribution function to 0. Noise can be added to these other components by setting iphiinit > 0.\n**  'single_parallel_mode'  Initialise only with a single parallel mode specified by either ikpar_init for periodic boundary conditions or kpar_init for linked boundary conditions. Intended for linear calculations.\n**  'all_modes_equal'  Initialise with every single parallel and perpendicular mode given the same amplitude. Intended for linear calculations. \n**  'eig_restart' Uses the restart files written by the eigensolver. Also see restart_eig_id.",
        :should_include=>"true",
        :description=>
         "Sets the way that the distribution function is initialized.",
@@ -4183,7 +4213,17 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".false."]}}},
+       :autoscanned_defaults=>[".false."]},
+     :restart_eig_id=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>
+        "Used to select with eigensolver generated restart file to load. Sets <id> in restart_file//eig_<id>//.<proc> string used to set filename.\n",
+       :code_name=>:restart_eig_id,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer}}},
  :gs2_diagnostics_knobs=>
   {:description=>"DIAGNOSTICS",
    :should_include=>"true",
@@ -4232,7 +4272,7 @@
        :description=>
         "Write velocity space diagnostics to '.lpc' and '.verr' files",
        :tests=>["Tst::FORTRAN_BOOL"],
-       :autoscanned_defaults=>[".false."],
+       :autoscanned_defaults=>[".false.", ".true."],
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
@@ -4479,7 +4519,7 @@
        :should_include=>"true",
        :description=>"Write restart files.",
        :tests=>["Tst::FORTRAN_BOOL"],
-       :autoscanned_defaults=>[".false."],
+       :autoscanned_defaults=>[".false.", ".true."],
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
@@ -4575,7 +4615,8 @@
      :write_fields=>
       {:should_include=>"true",
        :description=>nil,
-       :help=>nil,
+       :help=>
+        "Updates the phi, apar and bpar arrays in the netcdf output every nwrite steps. This is useful to allow the impatient to get an idea of the eigenfunction quality before the simulation ends without having to store the fields as a function of time.\n* ''note'' : previously this flag triggered attempts to write phi, apar and bpar as a function of time. This behaviour is now available through the write_phi_over_time flags (and related for other fields). ",
        :tests=>["Tst::FORTRAN_BOOL"],
        :gs2_name=>:write_fields,
        :must_pass=>
@@ -4694,7 +4735,7 @@
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :autoscanned_defaults=>[],
+       :autoscanned_defaults=>[".false."],
        :type=>:Fortran_Bool,
        :code_name=>:write_cross_phase,
        :module=>:gs2_diagnostics},
@@ -4868,18 +4909,19 @@
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
        :module=>:gs2_diagnostics,
-       :autoscanned_defaults=>[".false."]},
+       :autoscanned_defaults=>[".false.", ".true."]},
      :write_moments=>
       {:should_include=>"true",
        :description=>"",
-       :help=>"",
+       :help=>
+        "If true then we write the various velocity moments of the distribution function to the netcdf file every nwrite steps.  ",
        :code_name=>:write_moments,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".false."]},
+       :autoscanned_defaults=>[".false.", ".true."]},
      :write_final_db=>
       {:should_include=>"true",
        :description=>"Write final delta B.",
@@ -4998,7 +5040,18 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".false."]}},
+       :autoscanned_defaults=>[".false."]},
+     :ob_midplane=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>
+        " If write_moments is true, then: \n* if ob_midplane is true, then write the various velocity moments of the distribution function as functions of t ONLY at THETA=0 (and set write_full_moments_notgc = false),\n* if ob_midplane is false, then write moments as functions of t at ALL THETA.  ",
+       :code_name=>:ob_midplane,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool}},
    :help=>
     "Controls what information is output by GS2 during and at the end of a simulation."},
  :testgridgen=>
@@ -5714,7 +5767,7 @@
        :description=>
         "Max kx for periodic finite kx ballooning space runs with shat=0.",
        :help=>
-        "Max kx for periodic finite kx ballooning space runs with shat=0.",
+        "Max kx for periodic finite kx ballooning space runs with <math>\\hat{s}</math>=0.",
        :tests=>["Tst::FLOAT"],
        :code_name=>:akx_max,
        :must_pass=>
@@ -5769,7 +5822,17 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[0.0001]}}},
+       :autoscanned_defaults=>[0.0001]},
+     :kyspacing_option=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>
+        "Sets the type of spacing between ky grid points, available options are :\n** 'default'  : Same as 'linear'\n** 'exponential' : Evenly spaced in log(ky).\n** 'linear' : Evenly spaced in ky.\n",
+       :code_name=>:kyspacing_option,
+       :must_pass=>
+        [{:test=>"kind_of? String",
+          :explanation=>"This variable must be a string."}],
+       :type=>:String}}},
  :kt_grids_specified_parameters=>
   {:description=>"",
    :should_include=>"@grid_option=='specified'",
@@ -6206,7 +6269,7 @@
        :autoscanned_defaults=>[".false."]},
      :write_apar_over_time=>
       {:should_include=>"true",
-       :description=>"",
+       :description=>"Write entire apar field to NetCDF file every nwrite.",
        :help=>
         "If this variable is set to true then the entire field apar will be written to the NetCDF file every nwrite. Useful for making films. This can cause the NetCDF file to be huge, if resolution is large or nwrite is small.",
        :code_name=>:write_apar_over_time,
@@ -6230,7 +6293,8 @@
        :autoscanned_defaults=>[".false."]},
      :write_fluxes=>
       {:should_include=>"true",
-       :description=>"If .true. write fluxes of heat, momentum & particles.",
+       :description=>
+        "If .true. write fluxes of heat, momentum & particles to netcdf file, as well as integrated fluxes.",
        :help=>
         "If .true. write fluxes of heat, momentum & particles to the new netcdf file.",
        :code_name=>:write_fluxes,
@@ -6245,7 +6309,7 @@
        :description=>
         "If .true., write fluxes as a function of ky, kx, species and time.",
        :help=>
-        "If .true., write fluxes as a function of ky, kx, species and time (otherwise they will only be written out as functions of species, time and kx or ky).",
+        "If .true., write fluxes as a function of ky, kx, species and time (otherwise they will only be written out as functions of species, time and kx or ky). Creates large output files.",
        :code_name=>:write_fluxes_by_mode,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6257,7 +6321,7 @@
       {:should_include=>"true",
        :description=>"Write growth rates and frequencies to the netcdf file",
        :help=>
-        "If true writes omega (both growth rate and frequency) to netcdf file every nwrite timesteps.\n**Also writes out omegaavg (omega averaged over navg steps) to netcdf file is.",
+        "If true writes omega (both growth rate and frequency) to netcdf file every nwrite timesteps.\n**Also writes out omegaavg (omega averaged over navg steps) to netcdf file.",
        :code_name=>:write_omega,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
@@ -6269,7 +6333,7 @@
       {:should_include=>"true",
        :description=>"Any time averages performed over navg",
        :help=>
-        "Any time averages (for example of growth rates and frequencies) performed over navg",
+        "Any time averages (for example growth rates and frequencies) performed over navg timesteps",
        :code_name=>:navg,
        :must_pass=>
         [{:test=>"kind_of? Integer",
@@ -6278,7 +6342,8 @@
        :autoscanned_defaults=>[10, 100]},
      :igomega=>
       {:should_include=>"true",
-       :description=>" Theta index at which frequencies are calculated.\n",
+       :description=>
+        " Theta index at which frequencies are calculated, and at which single-theta fields and moments written out (e.g. phi_igomega_by_mode).\n",
        :help=>" Theta index at which frequencies are calculated.\n",
        :code_name=>:igomega,
        :must_pass=>
@@ -6324,7 +6389,510 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".true."]}}},
+       :autoscanned_defaults=>[".true."]},
+     :nwrite_large=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>"Not in use currently",
+       :code_name=>:nwrite_large,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer},
+     :enable_parallel=>
+      {:should_include=>"true",
+       :description=>"If built with parallel IO capability, enable it.",
+       :help=>
+        "If built with parallel IO capability, enable it. There are currently issues with parallel IO on some systems which cause GS2 to hang. If you enable this parameter, test it on a smaller problem (but with at least two nodes) before using it on a prouction run. Bug reports welcome.",
+       :code_name=>:enable_parallel,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :serial_netcdf4=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:serial_netcdf4,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :print_line=>
+      {:should_include=>"true",
+       :description=>
+        "Estimated frequencies and growth rates to the screen/stdout",
+       :help=>
+        "Estimated frequencies and growth rates output to the screen/stdout every nwrite timesteps",
+       :code_name=>:print_line,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :print_flux_line=>
+      {:should_include=>"true",
+       :description=>"Instantaneous fluxes output to screen",
+       :help=>"Instantaneous fluxes output to screen every nwrite timesteps",
+       :code_name=>:print_flux_line,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_line=>
+      {:should_include=>"true",
+       :description=>
+        "Write estimated frequencies and growth rates to the output file",
+       :help=>
+        "Write estimated frequencies and growth rates to the output file (usually runname.new.out) every nwrite steps (regardless of the value of write_ascii).",
+       :code_name=>:write_line,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_flux_line=>
+      {:should_include=>"true",
+       :description=>"Instantaneous fluxes output to runname.new.out",
+       :help=>
+        " Instantaneous fluxes output to runname.new.out every nwrite timesteps (regardless of the value of write_ascii)\n",
+       :code_name=>:write_flux_line,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_movie=>
+      {:should_include=>"true",
+       :description=>"Write fields in real space as a function of time.",
+       :help=>
+        "Write fields in real space as a function of time. Note this uses transform2 and so includes the aliased gridpoints in the real space dimensions. This means that there is 30% reduncancy in the output. Consider writing the fields in k space as a function of time and doing the Fourier transforms in post processing",
+       :code_name=>:write_movie,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :dump_fields_periodically=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>
+        " Phi, Apar, Bpar written to dump.fields.t=(time).  This is expensive!\n",
+       :code_name=>:dump_fields_periodically,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_moments=>
+      {:should_include=>"true",
+       :description=>"Write density, temperature etc every nwrite steps.",
+       :help=>
+        "If true then we write the various velocity moments (density, parallel flow, temperature) of the distribution function to the netcdf file every nwrite steps.  ",
+       :code_name=>:write_moments,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_full_moments_notgc=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:write_full_moments_notgc,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_ntot_over_time=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>
+        "Write total density as a function theta, ky, kx, species and time... very expensive!",
+       :code_name=>:write_ntot_over_time,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_density_over_time=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>
+        "Write non-adiabitic density as a function theta, ky, kx, species and time... very expensive!",
+       :code_name=>:write_density_over_time,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_upar_over_time=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>
+        "Write parallel flow perturbation as a function theta, ky, kx, species and time... very expensive!",
+       :code_name=>:write_upar_over_time,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_tperp_over_time=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>
+        "Write perpendicular temperature perturbation as a function theta, ky, kx, species and time... very expensive!",
+       :code_name=>:write_tperp_over_time,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_symmetry=>
+      {:should_include=>"true",
+       :description=>"Test the symmetry properties of the GK eqn.",
+       :help=>
+        "Switch on a diagnostic to test the symmetry properties of the GK eqn.  It calculates the momentum flux as a function of vpar, theta, and time.",
+       :code_name=>:write_symmetry,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_parity=>
+      {:should_include=>"true",
+       :description=>"Writes parities in dist fn and particle fluxes",
+       :help=>"Writes parities in dist fn and particle fluxes",
+       :code_name=>:write_parity,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_verr=>
+      {:should_include=>"true",
+       :description=>"Write velocity space diagnostics",
+       :help=>
+        "Write velocity space diagnostics to netcdf file and (if write_ascii) '.new.lpc' and '.new.vres' files. Clear documentation of the outputs is given in the netcdf file.",
+       :code_name=>:write_verr,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_max_verr=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>
+        "Write the spatial index corresponding to the maximum error in the velocity space integrals",
+       :code_name=>:write_max_verr,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :ncheck=>
+      {:should_include=>"true",
+       :description=>
+        "If vary_vnew, check whether to vary the collisionality every ncheck timesteps.",
+       :help=>
+        "If vary_vnew, check to see whether to vary the collisionality every ncheck timesteps.",
+       :code_name=>:ncheck,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer},
+     :write_heating=>
+      {:should_include=>"true",
+       :description=>
+        "Write multiple diagnostics of turbulent heating and free energy",
+       :help=>
+        "Write multiple diagnostics of turbulent heating and free energy generation and dissipation.",
+       :code_name=>:write_heating,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_ascii=>
+      {:should_include=>"true",
+       :description=>"Write to ascii files as well as netcdf",
+       :help=>
+        "Controls the creation of a large number of ascii data files (such as <run_name>.new.fields). Many of diagnostics will write to ascii files as well as the netdf file if this flag is true. ",
+       :code_name=>:write_ascii,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_gyx=>
+      {:should_include=>"true",
+       :description=>
+        "Write dist fn at a given physical spacial point to a file",
+       :help=>
+        "Write dist fn (in real space) at a given physical spacial point to a file",
+       :code_name=>:write_gyx,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_g=>
+      {:should_include=>"true",
+       :description=>
+        "Write the distribution function to the '.dist' (NetCDF?)",
+       :help=>
+        "Write the distribution function (in fourier space) at a fixed wavenumber to the '.dist' file",
+       :code_name=>:write_g,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_lpoly=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>
+        "computes and returns lagrange interpolating polynomial for g. Needs checking.",
+       :code_name=>:write_lpoly,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_cerr=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:write_cerr,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :conv_nstep_av=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:conv_nstep_av,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer},
+     :conv_test_multiplier=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:conv_test_multiplier,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float},
+     :conv_min_step=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:conv_min_step,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer},
+     :conv_max_step=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:conv_max_step,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer},
+     :conv_nsteps_converged=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:conv_nsteps_converged,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer},
+     :use_nonlin_convergence=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:use_nonlin_convergence,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_cross_phase=>
+      {:should_include=>"true",
+       :description=>
+        "Write cross phase between electron temperature and density.",
+       :help=>"Write cross phase between electron temperature and density.",
+       :code_name=>:write_cross_phase,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_correlation=>
+      {:should_include=>"true",
+       :description=>"Write parallel correlation.",
+       :help=>
+        "Write correlation function diagnostic... shows parallel correlation as a function of ky. See arXiv 1104.4514.",
+       :code_name=>:write_correlation,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_correlation_extend=>
+      {:should_include=>"true",
+       :description=>"Extend domain of correlation function calculation.",
+       :help=>
+        "If used in conjunction with write_correlation, extends the length of <math>\\Delta \\theta</math> for which the correlation function is calculated.",
+       :code_name=>:write_correlation_extend,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_jext=>
+      {:should_include=>"true",
+       :description=>"Write the external current in the antenna if enabled.",
+       :help=>"Write the external current in the antenna if enabled.",
+       :code_name=>:write_jext,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_lorentzian=>
+      {:should_include=>"true",
+       :description=>"Frequency Sweep Data",
+       :help=>"Frequency Sweep Data",
+       :code_name=>:write_lorentzian,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_eigenfunc=>
+      {:should_include=>"true",
+       :description=>
+        "If (write_ascii = T) Normalized phi written to runname.eigenfunc",
+       :help=>
+        "If (write_ascii = T) Normalized Phi(theta) written to runname.eigenfunc\n** Write to runname.out.nc even if (write_ascii = F)",
+       :code_name=>:write_eigenfunc,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_final_fields=>
+      {:should_include=>"true",
+       :description=>"If (write_ascii = T) Phi(theta) written to '.fields'",
+       :help=>
+        "If (write_ascii = T) Phi(theta) written to runname.fields\n** Write to runname.out.nc even if (write_ascii = F)",
+       :code_name=>:write_final_fields,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_kpar=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>
+        " Spectrum in k_parallel calculated and written. Only works for periodic boundary??\n",
+       :code_name=>:write_kpar,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_final_epar=>
+      {:should_include=>"true",
+       :description=>
+        "If (write_ascii = T) E_parallel(theta) written to runname.eigenfunc",
+       :help=>
+        "If (write_ascii = T) E_parallel(theta) written to runname.eigenfunc\n** Write to runname.out.nc even if (write_ascii = F)",
+       :code_name=>:write_final_epar,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_final_db=>
+      {:should_include=>"true",
+       :description=>"Write final delta B.",
+       :help=>"Write final delta B.",
+       :code_name=>:write_final_db,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_final_moments=>
+      {:should_include=>"true",
+       :description=>"write final n, T",
+       :help=>
+        "If (write_ascii = T) low-order moments of g written to runname.moments and int dl/B averages of low-order moments of g written to  runname.amoments\n** Write to runname.out.nc even if (write_ascii = F)",
+       :code_name=>:write_final_moments,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_final_antot=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>
+        " If (write_ascii = T) Sources for Maxwell eqns. written to runname.antot\n** Write to runname.out.nc even if (write_ascii = F)\n",
+       :code_name=>:write_final_antot,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_gs=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:write_gs,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :save_for_restart=>
+      {:should_include=>"true",
+       :description=>"Write restart files.",
+       :help=>
+        "If true then restart files written to the local folder and the simulation can be restarted from the point it ended.\n** Restart files written to restart_file.PE#.  \n** Recommended for nonlinear runs.",
+       :code_name=>:save_for_restart,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :save_distfn=>
+      {:should_include=>"true",
+       :description=>"Save dist_fn with lots of detail.",
+       :help=>
+        "If true, saves the restart files with name 'rootname.nc.dfn.<proc>' with lots of extra detail about the dist function --- velocity space grids and so on, when GS2 exits.",
+       :code_name=>:save_distfn,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool}}},
  :eigval_knobs=>
   {:description=>"",
    :should_include=>"true",
@@ -6441,4 +7009,107 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".false."]}}}}
+       :autoscanned_defaults=>[".false."]},
+     :nadv=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>
+        "How many GS2 timesteps to take each time SLEPc wants to advance the distribution function. Useful to separate closely spaced eigenvalues without changing delt.\n",
+       :code_name=>:nadv,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer},
+     :save_restarts=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>
+        "If true then we save a set of restart files for each eigenmode found. These are named as standard restart file (i.e. influenced by the restart_file input), but have eig_<id> appended near end, where <id> is an integer representing the eigenmode id.\n* If [[save_distfn]] of [[gs2_diagnostics_knobs]] is true then will also save the distribution function files.\n",
+       :code_name=>:save_restarts,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool}}},
+ :ballstab_knobs=>
+  {:description=>"",
+   :should_include=>"true",
+   :variables=>
+    {:make_salpha=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:make_salpha,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :n_shat=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:n_shat,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer},
+     :shat_min=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:shat_min,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float},
+     :shat_max=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:shat_max,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float},
+     :n_beta=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:n_beta,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer},
+     :beta_mul=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:beta_mul,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float},
+     :beta_div=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:beta_div,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float},
+     :diff=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:diff,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float}}}}
