@@ -1910,6 +1910,18 @@
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
        :autoscanned_defaults=>[".false."]},
+     :response_dir=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>
+        "Directory in which to write/read response files. If not specified they will be written to the run directory",
+       :tests=>["Tst::STRING"],
+       :code_name=>:response_dir,
+       :must_pass=>
+        [{:test=>"kind_of? String",
+          :explanation=>"This variable must be a string."}],
+       :type=>:String,
+       :autoscanned_defaults=>["./", "trim(response_dir)//\"/\""]},
      :minnrow=>
       {:should_include=>"true",
        :description=>"",
@@ -2477,6 +2489,18 @@
        :help=>
         "Set to true to try to overlap the mpi and local parts of the gather/scatter routines.\n* Should only be used with opt_redist_persist=.true.\n* See [[Optimising your runs]] for more details.",
        :code_name=>:opt_redist_persist_overlap,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false."]},
+     :fft_use_wisdom=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>
+        "Use FFT wisdom to optimize the fftw calculations.\n ",
+       :code_name=>:fft_use_wisdom,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>

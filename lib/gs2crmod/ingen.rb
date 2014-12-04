@@ -105,7 +105,9 @@ def check_parameters
   # Diagnostics
   # Misc
 
-  # Namelist Tests
+  ##################
+  # Namelist Tests #
+  ##################
 
   rcp.namelists.each do |namelist, hash|
     next if hash[:should_include].kind_of? String and not eval(hash[:should_include])
@@ -179,6 +181,11 @@ def check_parameters
   error("Setting @restart_file as an empty string will result in hidden restart files.") if @restart_file == ""
 
   error("ginit_option is 'many' but is_a_restart is false") if @ginit_option == "many" and not @is_a_restart
+
+  error("read_response is 'true' but run is not a restart. Make sure the "\
+        "@response_id is set to a run with response files.") if 
+        @read_response and @read_response.fortran_true? and 
+        not @is_a_restart and not @response_id
 
   error("chop_side should not be used (remove test if default changes from T to F)") if !@chop_side or @chop_side.fortran_true?
 

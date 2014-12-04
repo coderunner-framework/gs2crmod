@@ -86,38 +86,6 @@ require folder + '/read_netcdf.rb'
 NaN = GSL::NAN
 # GSL::Neg
 
-
-def code_run_environment
-  case CodeRunner::SYS
-  when /iridis/
-    <<EOF
-module load openmpi
-EOF
-  when /helios/
-    <<EOF
-module purge
-module load intel
-module load bullxmpi
-module load netcdf_p
-module load hdf5_p
-module load fftw/3.3.3
-module load bullxde papi
-module load scalasca
-EOF
-  #when /archer/
-    #<<EOF
-#module swap PrgEnv-cray PrgEnv-intel
-#module load intel/14.0.0.080
-#module load fftw
-#module load netcdf-hdf5parallel
-#module load cray-hdf5-parallel
-#EOF
-  else
-
-    @code_run_environment
-  end
-end
-
 eval(%[
 ], GLOBAL_BINDING)
 
@@ -182,7 +150,7 @@ eval(%[
 # Other useful information about the run
 ###############################################
 
-@gs2_run_info = [:time, :percent_of_total_time, :checked_converged, :is_a_restart, :restart_id, :restart_run_name, :completed_timesteps]
+@gs2_run_info = [:time, :percent_of_total_time, :checked_converged, :is_a_restart, :restart_id, :restart_run_name, :completed_timesteps, :response_id]
 
 @run_info = @gs2_run_info.dup
 
@@ -533,54 +501,112 @@ end
 
 
 def restart(new_run)
-  #new_run = self.dup
   (rcp.variables).each{|v| new_run.set(v, send(v)) if send(v)}
   @naming_pars.delete(:preamble)
   SUBMIT_OPTIONS.each{|v| new_run.set(v, self.send(v)) unless new_run.send(v)}
-  #(rcp.results + rcp.gs2_run_info).each{|result| new_run.set(result, nil)}
   new_run.is_a_restart = true
   new_run.ginit_option = "many"
   new_run.delt_option = "check_restart"
-  #if Dir.entries(@directory).include? "nc"
-    #old_restart_run_name =  (@restart_run_name or Dir.entries(@directory + '/nc').grep(/\.nc/)[0].sub(/\.nc\.\d+$/, ''))
-    #new_run.restart_file = File.expand_path("#@directory/nc/#{old_restart_run_name}.nc")
-  #else
-    #new_run.restart_file = File.expand_path("#@directory/#@run_name.nc")
-  #end
   new_run.restart_id = @id
   new_run.restart_run_name = @run_name
-  @runner.nprocs = @nprocs if @runner.nprocs == "1" # 1 is the default so this means the user probably didn't specify nprocs
-  raise "Restart must be on the same number of processors as the previous run: new is #{new_run.nprocs.inspect} and old is #{@nprocs.inspect}" if !new_run.nprocs or new_run.nprocs != @nprocs
-#   @runner.parameters.each{|var, value| new_run.set(var,value)} if @runner.parameters
-#   ep @runner.parameters
+  @runner.nprocs = @nprocs if @runner.nprocs == "1" # 1 is the default
+
+  if !new_run.nprocs or new_run.nprocs != @nprocs
+    raise "Restart must be on the same number of processors as the previous "\
+          "run: new is #{new_run.nprocs.inspect} and old is #{@nprocs.inspect}"
+  end
   new_run.run_name = nil
   new_run.naming_pars = @naming_pars
-  new_run.update_submission_parameters(new_run.parameter_hash_string, false) if new_run.parameter_hash
+  new_run.update_submission_parameters(new_run.parameter_hash_string, false) if 
+    new_run.parameter_hash
   new_run.naming_pars.delete(:restart_id)
   new_run.generate_run_name
-  eputs 'Copying Restart files', ''
+  copy_restart_files(new_run)
+
+  if new_run.read_response and new_run.read_response.fortran_true?
+    new_run.response_id = new_run.restart_id
+    copy_response_files(new_run)
+  end
+
+  new_run
+end
+
+def copy_restart_files(new_run)
+  eputs 'Copying restart files...', ''
   FileUtils.makedirs(new_run.directory + '/nc')
   #old_dir = File.dirname(@restart_file)
-  new_run.restart_file = "#@run_name.nc" #+ File.basename(@restart_file) #.sub(/\.nc/, '')
+  new_run.restart_file = "#@run_name.nc"
   new_run.restart_dir = "nc"
-  #files = Dir.entries(old_dir).grep(/\.nc(?:\.\d|_ene)/)
-  #files = Dir.entries(old_dir).grep(/^\.\d+$/) if files.size == 0
   files = list_of_restart_files.map do |file|
     @directory + "/" + file
   end
   files.each_with_index do |file , index|
-    eputs "\033[2A" # Terminal jargon - go back one line
     eputs "#{index+1} out of #{files.size}"
+    eputs "\033[2A" # Terminal jargon - go back one line
     num = file.scan(/(?:\.\d+|_ene)$/)[0]
     #FileUtils.cp("#{old_dir}/#{file}", "nc/#@restart_file#{num}")
     FileUtils.cp(file, new_run.directory + "/nc/#{new_run.restart_file}#{num}")
   end
-  #@runner.submit(new_run)
-  new_run
 end
 
-# Return a list of restart file paths (relative to the run directory).
+def copy_response_files(run)
+  eputs 'Copying response files...', ''
+  eputs 'The following run parameters have changed. Are you sure you can use '\
+  'these response files?'
+  diff_run_parameters(self, run)
+  FileUtils.makedirs(run.directory + '/response')
+  run.response_dir = "response" 
 
+  files = list_of_response_files.map do |file|
+    @directory + "/" + file
+  end
+
+  files.each_with_index do |file , index|
+    eputs "#{index+1} out of #{files.size}"
+    eputs "\033[2A" # Terminal jargon - go back one line
+    response_ext = file.scan(/_ik_\d+_is_\d+.response/)
+    FileUtils.cp(file, run.directory + "/response/#{run.run_name}#{response_ext[0]}")
+  end
+end
+
+# The following function is essentially the same as the CR differences_between
+# function without the runner loading set up code. This could possibly be moved
+# to a more general function in CR.
+def diff_run_parameters(run_1, run_2)
+  runs = [run_1, run_2] 
+  rcp_fetcher = (runs[0] || @runner.run_class).rcp                             
+  vars = rcp.variables.dup + rcp.run_info.dup
+
+  # Clean up output by deleting some variables
+  vars.delete_if{|var| runs.map{|r| r.send(var)}.uniq.size == 1}              
+  vars.delete :id                                                             
+  vars.delete :run_name                                                       
+  vars.delete :output_file
+  vars.delete :error_file                                 
+  vars.delete :executable                                                     
+  vars.delete :comment
+  vars.delete :naming_pars
+  vars.delete :parameter_hash
+  vars.delete :parameter_hash_string
+  vars.delete :sys
+  vars.delete :status
+  vars.delete :job_no
+  vars.delete :running
+  vars.unshift :id
+
+  # Fancy table printing
+  table = vars.map{|var| [var] + runs.map{|r| str = r.instance_eval(var.to_s).to_s; 
+                                          str.size>10?str[0..9]:str} }
+  col_widths = table.map{|row| row.map{|v| v.to_s.size}}.
+                         inject{|o,n| o.zip(n).map{|a| a.max}}
+  eputs                                                                       
+  table.each{|row| i=0; eputs row.map{|v| str = sprintf(" %#{col_widths[i]}s ",
+      v.to_s); i+=1; str}.join('|'); eputs '-' * 
+      (col_widths.sum + col_widths.size*3 - 1) }
+end
+
+
+# Return a list of restart file paths (relative to the run directory).
 def list_of_restart_files
   Dir.chdir(@directory) do
     files = Dir.entries.grep(/^\.\d+$/)
@@ -591,7 +617,7 @@ def list_of_restart_files
         break if files.size == 0
       end
     end #if files.size == 0
-    # This just finds a .nc file (w/o a number) in the nc folder if using single restart file
+    # Finds a .nc file (w/o a number) in 'nc' folder if using single restart file
     if files.size == 0
         files = Dir.entries('nc').grep(/\.nc/).map{|file| 'nc' + "/" + file}
     end #if files.size == 0
@@ -600,6 +626,21 @@ def list_of_restart_files
 end
 
 alias :lorf :list_of_restart_files
+
+# Return list of response files similar to method for restart files
+def list_of_response_files
+  Dir.chdir(@directory) do
+    files = Dir.entries('response').grep(/\.response/).map{|file| 'response' + 
+                                                           "/" + file}
+    files = Dir.entries.grep(/\.response/) if files.size == 0
+    if files.size == 0
+      (Dir.entries.find_all{|dir| FileTest.directory? dir} - ['.', '..']).each do |dir|
+        files = Dir.entries(dir).grep(/\.response/).map{|file| dir + "/" + file}
+      end
+    end
+    return files
+  end
+end
 
 # Put restart files in the conventional location, i.e. nc/run_name.proc
 
@@ -809,16 +850,34 @@ end
 
 
 def generate_input_file(&block)
-  raise CRFatal("No Input Module File Given or Module Corrupted") unless methods.include? (:input_file_text)
+  raise CRFatal("No Input Module File Given or Module Corrupted") unless 
+        methods.include? (:input_file_text)
   run_namelist_backwards_compatibility
-  if @restart_id and (not @is_a_restart or @resubmit_id)   # The second test checks that the restart function has not been called manually earlier (e.g. in Trinity), but we must check that it is not in fact a resubmitted run
+
+  # If it is a restart default behaviour will be to copy the response files 
+  # from the run being restarted. Specifying a response_id will override this.
+  if not @is_a_restart and @response_id
+     @read_response = ".true."
+
+    @runner.run_list[@response_id].copy_response_files(self)
+  elsif @dump_response and @dump_response.fortran_true? and 
+        (not @read_response or not @read_response.fortran_true?)
+    @response_dir = "response"
+    FileUtils.makedirs @response_dir
+  end
+
+  # The second test checks that the restart function has not been called 
+  # manually earlier (e.g. in Trinity), but we must check that it is not in 
+  # fact a resubmitted run.
+  if @restart_id and (not @is_a_restart or @resubmit_id)   
     @runner.run_list[@restart_id].restart(self)
-  elsif @save_for_restart and @save_for_restart.fortran_true? and (not @is_a_restart or @resubmit_id)
+  elsif @save_for_restart and @save_for_restart.fortran_true? and 
+        (not @is_a_restart or @resubmit_id)
     @restart_dir = "nc"
     #if CODE_OPTIONS[:gs2] and CODE_OPTIONS[:gs2][:list]
       #FileUtils.makedirs "#{@runner.root_folder}/#@restart_dir"
     #else
-      FileUtils.makedirs @restart_dir
+    FileUtils.makedirs @restart_dir
     #end
     @restart_file = "#@run_name.nc"
 
@@ -831,7 +890,6 @@ def generate_input_file(&block)
 
   set_nprocs
 
-
   if block
     ##### Allow the user to define their own pre-flight checks and changes
     instance_eval(&block)
@@ -841,13 +899,13 @@ def generate_input_file(&block)
     #########
   end
 
-
   write_input_file
   
   ######### Generate a report using the ingen tool if possible
   ingen unless block
   ########
 end
+
 
 def write_input_file
   File.open(@run_name + ".in", 'w'){|file| file.puts input_file_text}
