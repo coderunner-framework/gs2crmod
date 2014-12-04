@@ -39,11 +39,15 @@ if ENV['GS2_EXEC']
 			CodeRunner.submit(C: 'gs2', X: ENV['GS2_EXEC'], D: 'test_gs2crmod', n: '2', Y: tfolder, p: '{write_moments: ".true.", write_line: ".true.", save_for_restart: ".true.", nsave: 40}')
 			CodeRunner.submit(C: 'gs2', X: ENV['GS2_EXEC'], D: 'test_gs2crmod', n: '2', Y: tfolder, p: '{restart_id: 1, tprim_1: 4.0}')
 			CodeRunner.submit(C: 'gs2', X: ENV['GS2_EXEC'], D: 'test_gs2crmod', n: '2', Y: tfolder, p: '{restart_id: 2, nstep: 10}', gs2_options: {show_opt: true})
+			CodeRunner.submit(C: 'gs2', X: ENV['GS2_EXEC'], D: 'test_gs2crmod', n: '2', Y: tfolder, p: '{dump_response: ".true.", save_for_restart:".true.", nsave:40}')
+			CodeRunner.submit(C: 'gs2', X: ENV['GS2_EXEC'], D: 'test_gs2crmod', n: '2', Y: tfolder, p: '{restart_id: 4, read_response:".true.", nstep:10}')
+			CodeRunner.resubmit(C: 'gs2', X: ENV['GS2_EXEC'], D: 'test_gs2crmod', n: '2', Y: tfolder, p: '{response_id: 4}', j:4)
 			runs = CodeRunner.fetch_runner(Y: tfolder).run_list
 			assert_equal(50, runs[1].completed_timesteps)
 			assert_equal(4.0, runs[3].tprim_1)
 			assert_equal(runs[1].gsl_vector('phi2tot_over_time')[-1].round(4), runs[2].gsl_vector('phi2tot_over_time')[0].round(4))
 			CodeRunner.status(Y: tfolder)
+            assert_equal(true, Dir.exists?("#{tfolder}/v/id_4/response"))
 		end
 	end
 else
