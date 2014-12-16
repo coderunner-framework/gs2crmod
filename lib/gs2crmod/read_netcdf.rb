@@ -105,15 +105,15 @@ class NetcdfSmartReader
   end
   def dimension_variable_name(n)
     case n
-    when 'X'
+    when 'X', 'kx'
       'kx'
-    when 'Y'
+    when 'Y', 'ky'
       'ky'
-    when 'z'
+    when 'z', 'theta'
       'kz'
-    when 'e'
+    when 'e', 'energy'
       'energy'
-    when 'l'
+    when 'l', 'lambda'
       'lambda'
     when 't'
       n
