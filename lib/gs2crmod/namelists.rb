@@ -6871,7 +6871,7 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool},
-     :save_for_restart=>
+     :save_for_restart_new=>
       {:should_include=>"true",
        :description=>"Write restart files.",
        :help=>
