@@ -871,7 +871,8 @@ def generate_input_file(&block)
   # fact a resubmitted run.
   if @restart_id and (not @is_a_restart or @resubmit_id)   
     @runner.run_list[@restart_id].restart(self)
-  elsif @save_for_restart and @save_for_restart.fortran_true? and 
+  elsif ((@save_for_restart and @save_for_restart.fortran_true?) or
+        (@save_for_restart_new and @save_for_restart_new.fortran_true?)) and 
         (not @is_a_restart or @resubmit_id)
     @restart_dir = "nc"
     #if CODE_OPTIONS[:gs2] and CODE_OPTIONS[:gs2][:list]
