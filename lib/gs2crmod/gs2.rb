@@ -1122,64 +1122,67 @@ attr_accessor :iphi00, :saturation_time #Necessary for back. comp. due to an old
 
 folder = File.dirname(File.expand_path(__FILE__)) # i.e. the directory this file is in
 
-SPECIES_DEPENDENT_NAMELISTS = eval(File.read(folder + '/species_dependent_namelists.rb'), binding, folder + '/species_dependent_namelists.rb')
-#
-SPECIES_DEPENDENT_VARIABLES_WITH_HELP = SPECIES_DEPENDENT_NAMELISTS.values.inject({}) do |hash, namelist_hash|
-  namelist_hash[:variables].each do |var, var_hash|
-      hash[var] = var_hash[:help]
+  SPECIES_DEPENDENT_NAMELISTS = eval(File.read(folder + '/species_dependent_namelists.rb'), binding, folder + '/species_dependent_namelists.rb')
+
+  SPECIES_DEPENDENT_VARIABLES_WITH_HELP = SPECIES_DEPENDENT_NAMELISTS.values.inject({}) do |hash, namelist_hash|
+    namelist_hash[:variables].each do |var, var_hash|
+        hash[var] = var_hash[:help]
+    end
+    hash
   end
-  hash
-end
 
-SPECIES_DEPENDENT_VARIABLES = SPECIES_DEPENDENT_VARIABLES_WITH_HELP.keys
-SPECIES_DEPENDENT_VARIABLES.each{|var| attr_accessor var} # for backwards compatibility
+  SPECIES_DEPENDENT_VARIABLES = SPECIES_DEPENDENT_VARIABLES_WITH_HELP.keys
+  SPECIES_DEPENDENT_VARIABLES.each{|var| attr_accessor var} # for backwards compatibility
 
-['i', 'e'].each do |n|
-  SPECIES_DEPENDENT_VARIABLES_WITH_HELP.each do |name, help|
-    attr_accessor name + "_#{n}".to_sym #for backwards compatibility
+  ['i', 'e'].each do |n|
+    SPECIES_DEPENDENT_VARIABLES_WITH_HELP.each do |name, help|
+      attr_accessor name + "_#{n}".to_sym #for backwards compatibility
+    end
   end
-end
 
-old_vars = %w[
-  :TiTe
-  :Rmaj
-  :R_geo
-  :invLp_input
-  :D_hypervisc
-  :D_hyperres
-  :D_hyper
-  :C_par
-  :C_perp
-].map{|n| n.to_s.sub(/^:/, '').to_sym}
+  old_vars = %w[
+    :TiTe
+    :Rmaj
+    :R_geo
+    :invLp_input
+    :D_hypervisc
+    :D_hyperres
+    :D_hyper
+    :C_par
+    :C_perp
+  ].map{|n| n.to_s.sub(/^:/, '').to_sym}
 
-old_vars.each do |var|
-  alias_method(var, var.to_s.downcase.to_sym)
-  alias_method("#{var}=".to_sym, "#{var.downcase}=".to_sym)
-end
-
-
-
-
-def run_namelist_backwards_compatibility
-  SPECIES_DEPENDENT_VARIABLES.each do |var|
-    set(var + "_1".to_sym, (send(var + "_1".to_sym) or send(var + "_i".to_sym) or send(var)))
-    set(var + "_2".to_sym, (send(var + "_2".to_sym) or send(var + "_e".to_sym)))
+  old_vars.each do |var|
+    alias_method(var, var.to_s.downcase.to_sym)
+    alias_method("#{var}=".to_sym, "#{var.downcase}=".to_sym)
   end
-end
 
+  def run_namelist_backwards_compatibility
+    SPECIES_DEPENDENT_VARIABLES.each do |var|
+      set(var + "_1".to_sym, (send(var + "_1".to_sym) or send(var + "_i".to_sym) or send(var)))
+      set(var + "_2".to_sym, (send(var + "_2".to_sym) or send(var + "_e".to_sym)))
+    end
+  end
 
-def stop
-  `touch #@directory/#@run_name.stop`
-end
+  def stop
+    `touch #@directory/#@run_name.stop`
+  end
 
   def vim_output
     system "vim -Ro #{output_file} #{error_file} #@directory/#@run_name.error #@directory/#@run_name.out "
   end
   alias :vo :vim_output
+
+  def vim_input
+    system "vim -Ro #@directory/#@run_name.in "
+  end
+  alias :vi :vim_input
+
   def vim_stdout
     system "vim -Ro #{output_file} "
   end
   alias :vo1 :vim_stdout
+
   def plot_efit_file
     Dir.chdir(@directory) do
       text = File.read(@eqfile)
