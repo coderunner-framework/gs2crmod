@@ -56,6 +56,7 @@ def auto_axiskits(name, options)
     #'phi0_over_x_over_y' => ["Phi at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
     'phi0_over_x_over_y' => ["Phi at theta = 0", '', 2],
     'es_mom_flux_over_time' => ["#{species_type((options[:species_index] or 1)).capitalize} Momentum Flux", '', 1],
+    'es_part_flux_over_time' => ["#{species_type((options[:species_index] or 1)).capitalize} Particle Flux", '', 1],
     'zonal_spectrum' => ["Zonal spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
     'zonal_flow_velocity_over_x' => ['Zonal Flow Velocity', "", 1],
     'mean_flow_velocity_over_x' => ['Mean Flow Velocity', "", 1]
@@ -462,6 +463,21 @@ module GraphKits
 			kit.data[0].with = "l" #"lines"
 			kit.file_name = options[:graphkit_name]
 # 			kit.log_axis = 'y'
+			return kit
+		end
+	end
+
+	def es_part_flux_vs_time_graphkit(options={})
+		case options[:command]
+		when :help
+			return  "Particle flux vs time for each species."
+		when :options
+			return [:t_index_window, :species_index]
+		else
+			kit = GraphKit.autocreate({x: axiskit('t', options), y: axiskit('es_part_flux_over_time', options)})
+			kit.data[0].title = "#{species_type(options[:species_index])} partflux: #@run_name"
+			kit.data[0].with = "l" #"lines"
+			kit.file_name = options[:graphkit_name]
 			return kit
 		end
 	end

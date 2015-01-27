@@ -879,9 +879,14 @@ module GSLVectors
     end
     def es_mom_flux_over_time_gsl_vector(options)
       Dir.chdir(@directory) do
-
         options.setup_time_window
         return GSL::Vector.alloc(netcdf_file.var('es_mom_flux').get('start' => [options[:species_index].to_i - 1, options[:begin_element]], 'end' => [options[:species_index].to_i - 1, options[:end_element]]).to_a.flatten)
+      end
+    end
+    def es_part_flux_over_time_gsl_vector(options)
+      Dir.chdir(@directory) do
+        options.setup_time_window
+        return GSL::Vector.alloc(netcdf_file.var('es_part_flux').get('start' => [options[:species_index].to_i - 1, options[:begin_element]], 'end' => [options[:species_index].to_i - 1, options[:end_element]]).to_a.flatten)
       end
     end
     # Velocity space diagnostics: fraction of dist func in higher
