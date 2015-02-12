@@ -1252,7 +1252,7 @@ folder = File.dirname(File.expand_path(__FILE__)) # i.e. the directory this file
   def latex_graphs
     #will have a different set of graphs to look at depending on whether linear or nonlinear
     if @nonlinear_mode == "off"
-      #make up a list of graphs that are to be included. The order of the arguments is [code to generate graphkit, LaTeX description and ]
+      #make up a list of graphs that are to be included. The order of the arguments is [code to generate graphkit, LaTeX description]
       graphs = [
         #[(kit = phi2_by_mode_vs_time({kx_index:1, ky_index:1}); kit.xlabel=%[TEST]; kit.gp.term = "post eps color enhanced size 3.5in,2.33in"; kit.gp.output = "test.eps"; kit), "This is a test graph written into a \LaTeX file. \n\n \\myfigure{test.eps}"]
         [(kit = phi2tot_vs_time_graphkit; kit.data[0].title=""; kit.gp.logscale="y"; kit.file_name = "phi2tot.eps"; kit), "Total $\\phi^2$ versus time."],
@@ -1277,6 +1277,8 @@ folder = File.dirname(File.expand_path(__FILE__)) # i.e. the directory this file
         [(kit = es_mom_flux_vs_time_graphkit(species_index:1); kit.file_name = "es_mom_flux_1_vs_time.eps"; kit), "Momentum flux for species 1 as a function of time."],
         if @nspec > 1 then [(kit = es_mom_flux_vs_time_graphkit(species_index:2); kit.file_name = "es_mom_flux_2_vs_time.eps"; kit), "Momentum flux for species 2 as a function of time."] end,
         [(kit = zonal_spectrum_graphkit; kit.gp.logscale="y"; kit.file_name = "zonal_spectrum.eps"; kit), "Zonal spectrum at the final time step."],
+        if @write_eigenfunc == ".true." then [(kit = zf_velocity_vs_x_graphkit(theta_index:get_list_of(:theta).length/2); kit.file_name = "zonal_flow_velocity_vs_x.eps"; kit), "Zonal flow velocity avg over time versus x."] end,
+        if @write_eigenfunc == ".true." and @g_exb then [(kit = zf_velocity_vs_x_graphkit(theta_index:get_list_of(:theta).length/2, add_mean_flow:true); kit.file_name = "zonal_flow_velocity_vs_x_with_mean_flow.eps"; kit), "Zonal flow velocity with mean flow added avg over time versus x."] end,
       ].compact
     end
 

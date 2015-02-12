@@ -122,7 +122,7 @@ class TestAnalysis < Test::Unit::TestCase
 		assert_equal(3, kit.data[0].y.data.size)
 
     #Test zonal flow velocity calculation
-		kit = @run.graphkit('zonal_flow_velocity_vs_x', {theta_index:4})
+		kit = @run.graphkit('zf_velocity_vs_x', {theta_index:4})
 		assert_equal(5, kit.data[0].y.data.size)
 
     #Time averaged kx and ky spectra

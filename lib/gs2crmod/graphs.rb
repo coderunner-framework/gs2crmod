@@ -58,7 +58,7 @@ def auto_axiskits(name, options)
     'es_mom_flux_over_time' => ["#{species_type((options[:species_index] or 1)).capitalize} Momentum Flux", '', 1],
     'es_part_flux_over_time' => ["#{species_type((options[:species_index] or 1)).capitalize} Particle Flux", '', 1],
     'zonal_spectrum' => ["Zonal spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
-    'zonal_flow_velocity_over_x' => ['Zonal Flow Velocity', "", 1],
+    'zf_velocity_over_x' => ['Zonal Flow Velocity', "", 1],
     'mean_flow_velocity_over_x' => ['Mean Flow Velocity', "", 1]
   }
 	return hash[name]
@@ -2419,7 +2419,7 @@ module GraphKits
 		end
 	end
 
-	def zonal_flow_velocity_vs_x_graphkit(options={})
+	def zf_velocity_vs_x_graphkit(options={})
 		case options[:command]
 		when :help
 			return  "zonal_flow_velocity_vs_x: Graph of the zonal flow velocity kxfac*IFT(i k_x phi). kxfac = (qinp/rhoc)*grho(rhoc)."
@@ -2427,7 +2427,7 @@ module GraphKits
 			return  [:t, :t_index, :theta_index, :kxfac, :add_mean_flow]
 		else
       options[:ky_index]=0
-			kit = GraphKit.autocreate({x: axiskit('x', options), y: axiskit("zonal_flow_velocity_over_x", options)})
+			kit = GraphKit.autocreate({x: axiskit('x', options), y: axiskit("zf_velocity_over_x", options)})
       if options[:add_mean_flow]
         kit.data[0].y.data += mean_flow_velocity_over_x_gsl_vector(options)
       end

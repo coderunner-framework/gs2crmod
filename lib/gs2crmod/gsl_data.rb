@@ -1037,16 +1037,23 @@ module GSLVectors
 
     #This function returns the zonal flow velocity as a function of x (the radial coordinate).
     #This is v_ZF = kxfac*IFT(i k_x phi_imag), where kxfac = (qinp/rhoc)*grho(rhoc).
-    def zonal_flow_velocity_over_x_gsl_vector(options)
+    def zf_velocity_over_x_gsl_vector(options)
       Dir.chdir(@directory) do
         raise CRFatal.new("Need to specify a theta_index.") unless options[:theta_index]
         raise CRFatal.new("Need either qinp or pk and epsl specified in order to calculate kxfac.
                           If using numerical equil use the option :kxfac to override calculation.") unless @qinp or (@pk and @epsl or options[:kxfac])
-        phi = gsl_vector_complex('phi_zonal', options)
 
         kx = gsl_vector(:kx).to_box_order
         _x = gsl_vector(:x)
         grho = gsl_vector('grho')[options[:theta_index]]
+
+        phi = GSL::Vector.alloc(kx.size)
+        for it in 0...gsl_vector(:t).size
+          options[:t_index] = it
+          phi += gsl_vector_complex('phi_zonal', options)
+        end
+        phi /= gsl_vector(:t).size
+
         if @qinp
           kxfac = (@qinp/@rhoc)*grho
         elsif @pk and @epsl
@@ -1164,25 +1171,14 @@ module GSLVectorComplexes
   #and time index if write_phi_over_time was enabled during the simulation
   def phi_zonal_gsl_vector_complex(options)
     Dir.chdir(@directory) do
-      if options[:t_index] or options[:t]
-        #extra option required is t_index
-        raise CRFatal.new("write_phi_over_time is not enabled so this function won't work") unless @write_phi_over_time
-
+        raise CRFatal.new("write_eigenfunc is not enabled so this function won't work") unless @write_eigenfunc
         options.convert_to_index(self, :t)
-        a = netcdf_file.var('phi_t').get({
-          'start' => [0,options[:theta_index],0,0, options[:t_index] - 1],
-          'end' => [-1,options[:theta_index],-1,0, options[:t_index] - 1]
+        a = netcdf_file.var('phi0').get({
+          'start' => [0,0,0, options[:t_index] - 1],
+          'end' => [-1,-1,0, options[:t_index] - 1]
         })
-        vector = GSL::Vector::Complex.alloc(GSL::Vector.alloc(a[0,0,0..-1,0,0]), GSL::Vector.alloc(a[1,0,0..-1,0,0]))
+        vector = GSL::Vector::Complex.alloc(GSL::Vector.alloc(a[0,0..-1,0,0]), GSL::Vector.alloc(a[1,0..-1,0,0]))
         return vector
-      else
-        a = netcdf_file.var('phi').get({
-          'start' => [0, options[:theta_index], 0, 0],
-          'end' => [-1, options[:theta_index], -1, 0]
-        })
-        vector = GSL::Vector::Complex.alloc(GSL::Vector.alloc(a[0,0,0..-1,0]), GSL::Vector.alloc(a[1,0,0..-1,0]))
-        return vector
-      end
     end
   end
 
