@@ -240,7 +240,7 @@ def check_parameters
 
   warning("Boundary option should be periodic for shat = 1e-6.") if (!@boundary_option or @boundary_option != "periodic") and ((@s_hat_input and @s_hat_input.abs == 1.0e-6) or (@shat and @shat.abs == 1.0e-6))
 
-  warning("Boundary option should be default (unconnected) for single and range mode with shat > 0.") if (@boundary_option != "default") and ((@s_hat_input and @s_hat_input.abs > 1.0e-6) or (@shat and @shat.abs > 1.0e-6)) and (@grid_option == "single" or @grid_option == "range")
+  warning("Boundary option should be default (unconnected) for single and range mode with shat > 0.") if (@boundary_option != "default" or @boundary_option != "unconnected") and ((@s_hat_input and @s_hat_input.abs > 1.0e-6) or (@shat and @shat.abs > 1.0e-6)) and (@grid_option == "single" or @grid_option == "range")
 
   warning("Boundary option should be linked for box mode with shat > 0.") if (!@boundary_option or @boundary_option != "linked") and ((@s_hat_input and @s_hat_input.abs > 1.0e-6) or (@shat and @shat.abs > 1.0e-6)) and @grid_option == "box" 
 

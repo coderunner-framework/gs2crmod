@@ -1044,7 +1044,6 @@ module GSLVectors
                           If using numerical equil use the option :kxfac to override calculation.") unless @qinp or (@pk and @epsl or options[:kxfac])
 
         kx = gsl_vector(:kx).to_box_order
-        _x = gsl_vector(:x)
         grho = gsl_vector('grho')[options[:theta_index]]
 
         phi = GSL::Vector.alloc(kx.size)
