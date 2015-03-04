@@ -92,7 +92,8 @@
        :must_pass=>
         [{:test=>"kind_of? String",
           :explanation=>"This variable must be a string."}],
-       :type=>:String}}},
+       :type=>:String,
+       :autoscanned_defaults=>[""]}}},
  :kt_grids_knobs=>
   {:description=>nil,
    :help=>
@@ -2278,7 +2279,8 @@
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool}}},
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false."]}}},
  :reinit_knobs=>
   {:description=>"",
    :should_include=>"true",
@@ -4250,7 +4252,8 @@
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool}}},
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false."]}}},
  :gs2_diagnostics_knobs=>
   {:description=>"DIAGNOSTICS",
    :should_include=>"true",
@@ -5079,7 +5082,29 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".false.", ".true."]}},
+       :autoscanned_defaults=>[".false.", ".true."]},
+     :write_any=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:write_any,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :append_old=>
+      {:should_include=>"true",
+       :description=>
+        "If true, run_name.out.nc already exists, open it and append to it.",
+       :help=>
+        "If true, and netcdf output file (.out.nc) already exists (e.g. if you are restarting), open it and append to it.",
+       :code_name=>:append_old,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool}},
    :help=>
     "Controls what information is output by GS2 during and at the end of a simulation."},
  :testgridgen=>
@@ -7214,7 +7239,8 @@
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool}}},
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false."]}}},
  :normalisations=>
   {:description=>"",
    :should_include=>"true",
@@ -7228,7 +7254,8 @@
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float},
+       :type=>:Float,
+       :autoscanned_defaults=>["self%def_val"]},
      :zref=>
       {:should_include=>"true",
        :description=>"",
@@ -7238,7 +7265,8 @@
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float},
+       :type=>:Float,
+       :autoscanned_defaults=>["self%def_val"]},
      :nref=>
       {:should_include=>"true",
        :description=>"",
@@ -7248,7 +7276,8 @@
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float},
+       :type=>:Float,
+       :autoscanned_defaults=>["self%def_val"]},
      :tref=>
       {:should_include=>"true",
        :description=>"",
@@ -7258,7 +7287,8 @@
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float},
+       :type=>:Float,
+       :autoscanned_defaults=>["self%def_val"]},
      :aref=>
       {:should_include=>"true",
        :description=>"",
@@ -7268,7 +7298,8 @@
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float},
+       :type=>:Float,
+       :autoscanned_defaults=>["self%def_val"]},
      :vref=>
       {:should_include=>"true",
        :description=>"",
@@ -7278,7 +7309,8 @@
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float},
+       :type=>:Float,
+       :autoscanned_defaults=>["self%def_val"]},
      :bref=>
       {:should_include=>"true",
        :description=>"",
@@ -7288,7 +7320,8 @@
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float},
+       :type=>:Float,
+       :autoscanned_defaults=>["self%def_val"]},
      :rhoref=>
       {:should_include=>"true",
        :description=>"",
@@ -7298,4 +7331,5 @@
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float}}}}
+       :type=>:Float,
+       :autoscanned_defaults=>["self%def_val"]}}}}

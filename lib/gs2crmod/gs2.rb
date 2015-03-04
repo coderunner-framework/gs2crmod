@@ -1055,6 +1055,7 @@ end
 #end
 
 @namelists_to_print_not_specified = [:gs2_diagnostics_knobs, :diagnostics]
+@fortran_namelist_source_file_match = /(?<!ingen|gs2_diagnostics)((\.f9[05])|(\.fpp))$/
 
 # def self.add_code_var
 #   rcp.namelists.each do |namelist, hash|
