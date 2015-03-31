@@ -144,7 +144,7 @@
        :description=>
         "The number of ky modes: the number of ky modes actually simulated (naky) is equal to (ny - 1)/3 + 1, due to the need to prevent aliasing.",
        :tests=>["Tst::INT"],
-       :autoscanned_defaults=>["ny_private", "yxf_lo%ny"],
+       :autoscanned_defaults=>[1],
        :must_pass=>
         [{:test=>"kind_of? Integer",
           :explanation=>"This variable must be an integer."}],
@@ -169,7 +169,7 @@
        :description=>
         "The length of the box in the y direction (measured in the Larmour radius of species 1)",
        :tests=>["Tst::FLOAT"],
-       :autoscanned_defaults=>[],
+       :autoscanned_defaults=>["y0/sqrt(2.)"],
        :must_pass=>
         [{:test=>"kind_of? Float or kind_of? Integer",
           :explanation=>
@@ -183,7 +183,7 @@
        :description=>
         "The length of the box in the x direction (measured in the Larmour radius of species 1) if shat is 0 (ie 1e-6)",
        :tests=>["Tst::FLOAT"],
-       :autoscanned_defaults=>["sqrt(epts(negrid))"],
+       :autoscanned_defaults=>["sqrt(epts(negrid))", "x0/sqrt(2.)"],
        :must_pass=>
         [{:test=>"kind_of? Float or kind_of? Integer",
           :explanation=>
@@ -2073,7 +2073,7 @@
        :should_include=>"true",
        :description=>"Time step",
        :tests=>["Tst::FLOAT"],
-       :autoscanned_defaults=>[],
+       :autoscanned_defaults=>["sqrt(2.0)*delt/2.0"],
        :must_pass=>
         [{:test=>"kind_of? Float or kind_of? Integer",
           :explanation=>
@@ -2086,7 +2086,7 @@
        :should_include=>"true",
        :description=>"Maximum number of timesteps",
        :tests=>["Tst::INT"],
-       :autoscanned_defaults=>[],
+       :autoscanned_defaults=>["nstep*2"],
        :must_pass=>
         [{:test=>"kind_of? Integer",
           :explanation=>"This variable must be an integer."}],
@@ -5092,7 +5092,8 @@
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool},
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".true."]},
      :append_old=>
       {:should_include=>"true",
        :description=>
@@ -5100,6 +5101,116 @@
        :help=>
         "If true, and netcdf output file (.out.nc) already exists (e.g. if you are restarting), open it and append to it.",
        :code_name=>:append_old,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false."]},
+     :enable_parallel=>
+      {:should_include=>"true",
+       :description=>"Switch on netcdf parallel.",
+       :help=>"Switch on netcdf parallel.",
+       :code_name=>:enable_parallel,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :serial_netcdf4=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:serial_netcdf4,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_ntot_over_time=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:write_ntot_over_time,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_density_over_time=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:write_density_over_time,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_upar_over_time=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:write_upar_over_time,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_tperp_over_time=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:write_tperp_over_time,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_fluxes=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:write_fluxes,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_fluxes_by_mode=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:write_fluxes_by_mode,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :ncheck=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:ncheck,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer},
+     :write_heating=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:write_heating,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :write_jext=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:write_jext,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
@@ -5941,7 +6052,7 @@
        :must_pass=>
         [{:test=>"kind_of? Integer",
           :explanation=>"This variable must be an integer."}],
-       :autoscanned_defaults=>["ny_private", "yxf_lo%ny"],
+       :autoscanned_defaults=>[1],
        :type=>:Integer,
        :code_name=>:ny,
        :module=>:kt_grids_specified}}},
@@ -7332,4 +7443,109 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>["self%def_val"]}}}}
+       :autoscanned_defaults=>["self%def_val"]}}},
+ :optimisation_config=>
+  {:description=>"",
+   :should_include=>"true",
+   :variables=>
+    {:on=>
+      {:should_include=>"true",
+       :description=>
+        "Switch the optimisation module on. See auto for controlling its behaviour.",
+       :help=>
+        "Switch the optimisation module on. See auto for controlling its behaviour.",
+       :code_name=>:on,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :auto=>
+      {:should_include=>"true",
+       :description=>
+        "If true, optimise gs2 and run simulation. Else print timing results and exit.",
+       :help=>
+        "If true, optimise gs2 and run simulation. Else print timing results to the '.optim' file for all configurations and exit... you can then set the flags manually.",
+       :code_name=>:auto,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :measure_all=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:measure_all,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :warm_up=>
+      {:should_include=>"true",
+       :description=>"Experimental, set to false.",
+       :help=>"Experimental, set to false.",
+       :code_name=>:warm_up,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :estimate_timing_error=>
+      {:should_include=>"true",
+       :description=>
+        "Calculate an estimate of the timing error and save to to run_name.optim. Recommended.",
+       :help=>
+        "Calculate an estimate of the timing error and save to to run_name.optim. Recommended.",
+       :code_name=>:estimate_timing_error,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :nstep_measure=>
+      {:should_include=>"true",
+       :description=>
+        "Number of steps used to measure run time. Recommended value 5-20.",
+       :help=>
+        "Number of steps used to measure run time. Higher gives more accuracy, but more time is spent in the optimisation routines. Recommended value 5-20.",
+       :code_name=>:nstep_measure,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer},
+     :max_imbalance=>
+      {:should_include=>"true",
+       :description=>
+        "Maximum percentage of procs that can lie idle. Should only used when auto is on.",
+       :help=>
+        "Maximum percentage of procs that can lie idle. Should only used when auto is on.",
+       :code_name=>:max_imbalance,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer},
+     :max_unused_procs=>
+      {:should_include=>"true",
+       :description=>
+        "Max numer of procs that can lie idle. Should only be used when auto is on.",
+       :help=>
+        "Max numer of procs that can lie idle. Should only be used when auto is on.",
+       :code_name=>:max_unused_procs,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer},
+     :min_efficiency=>
+      {:should_include=>"true",
+       :description=>
+        "Reject configurations that do not have at least min_efficiency.",
+       :help=>
+        "Reject configurations that do not have at least min_efficiency, compared to the most efficient solution found.",
+       :code_name=>:min_efficiency,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float}}}}
