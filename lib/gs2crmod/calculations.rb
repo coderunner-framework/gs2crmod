@@ -369,7 +369,7 @@ def calculate_growth_rates_and_frequencies
 		@growth_rates = @growth_rate_at_ky
 		@max_growth_rate = @growth_rates.values.max
 		@fastest_growing_mode = @growth_rates.key(@max_growth_rate)
-		@freq_of_max_growth_rate = @real_frequencies[@fastest_growing_mode]
+    @freq_of_max_growth_rate = @real_frequencies[@fastest_growing_mode] rescue nil
 		ep @max_growth_rate, @growth_rates
 		@decaying = (@max_growth_rate < 0) if @max_growth_rate
 		@ky = @aky if @aky
