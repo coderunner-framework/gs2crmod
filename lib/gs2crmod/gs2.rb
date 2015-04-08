@@ -854,6 +854,8 @@ def generate_input_file(&block)
         methods.include? (:input_file_text)
   run_namelist_backwards_compatibility
 
+  @user_comments = "Defaults description: #@defaults_file_description. Run description: #@comment"
+
   # If it is a restart default behaviour will be to copy the response files 
   # from the run being restarted. Specifying a response_id will override this.
   if not @is_a_restart and @response_id
