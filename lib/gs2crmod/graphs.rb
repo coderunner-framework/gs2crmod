@@ -192,7 +192,7 @@ GRAPHKIT_OPTIONS_HELP = {
 def graphkit(name, options={})
 	logf :graphkit
 	# If an array of t, kx or ky values is provided, plot one graph for each value and then sum the graphs together
-	[:t, :kx, :ky, :X, :Y, :e, :l, :theta].each do |var|
+	[:t, :kx, :ky, :X, :Y, :e, :l, :theta, :ri, :r].each do |var|
 		#ep 'index', var
 		if options[var].class == Symbol and options[var] == :all
 			options[var] = list(var).values
