@@ -101,7 +101,7 @@ class NetcdfSmartReader
   end
 
   def axiskit(variable, options)
-    GraphKit::AxisKit.autocreate(data: read_variable(variable, options), units: @file.var(variable).att('Units').get, title: @file.var(variable).att('Description').get.sub(/(,|summed|average).*$/, '').sub(/[vV]alues of (the )?/, '').sub(/ coordinate/, ''))
+    GraphKit::AxisKit.autocreate(data: read_variable(variable, options), units: @file.var(variable).att('units').get, title: @file.var(variable).att('description').get.sub(/(,|summed|average).*$/, '').sub(/[vV]alues of (the )?/, '').sub(/ coordinate/, ''))
   end
   def dimension_variable_name(n)
     case n
