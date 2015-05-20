@@ -43,6 +43,7 @@ class NetcdfSmartReader
   end
   def dimensions(varname)
     #p 'varname', varname
+    raise "Unknown variable #{varname}" unless @file.var(varname)
     @file.var(varname).dims
   end
   def read_variable(varname, options)
@@ -110,7 +111,7 @@ class NetcdfSmartReader
     when 'Y', 'ky'
       'ky'
     when 'z', 'theta'
-      'kz'
+      'theta'
     when 'e', 'energy'
       'energy'
     when 'l', 'lambda'
