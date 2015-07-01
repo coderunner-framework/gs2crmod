@@ -669,7 +669,7 @@ alias :ctehfa :calculate_transient_es_heat_flux_amplifications
 
 def calculate_transient_amplification(vector, options={})
   if @g_exb_start_timestep 
-    return GSL::Sf::log(vector[@g_exb_start_timestep...-1].max / vector[@g_exb_start_timestep])/2
+    return GSL::Sf::log(vector[@g_exb_start_timestep/@nwrite...-1].max / vector[@g_exb_start_timestep])/2
   else
     eputs "Warning: set g_exb_start_timestep to calculate transient amplifications."
     return 0
