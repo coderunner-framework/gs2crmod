@@ -640,53 +640,16 @@ class CodeRunner::Gs2
 				raise "ly corrected incorrectly #{ly},#{y[-1]},#{y[0]},#{y[-1]-y[0]}" unless (ly-(y[-1] - y[0])).abs / ly.abs < 1.0e-6
 			end
 
-
-			#if options[:xmax] 
-			 #if	options[:xmin]
-				 #x = x.subvector(options[:xmin], options[:xmax] - options[:xmin])
-			 #else
-				 #x = x[options[:xmax]].to_gslv
-			 #end
-			#elsif options[:xmin]
-			 #x = x[options[:xmin]].to_gslv
-			#end
-			#if options[:ymax] 
-			 #if	options[:ymin]
-				 #y = y.subvector(options[:ymin], options[:ymax] - options[:ymin])
-			 #else
-				 #y = y[options[:ymax]].to_gslv
-			 #end
-			#elsif options[:ymin]
-			 #y = y[options[:ymin]].to_gslv
-			#end
-
-
-
-			#ep [options, options[:xmin]||0, (options[:xmax]||x.size-1) - (options[:xmin]||0) + 1]
 			x = x.subvector(options[:xmin]||0, (options[:xmax]||x.size-1) - (options[:xmin]||0) + 1).dup # if options[:xout] and options[:xin]
 			y = y.subvector(options[:ymin]||0, (options[:ymax]||y.size-1) - (options[:ymin]||0) + 1).dup # if options[:yout] and options[:yin]
-			###y = y.subvector(options[:ymin], options[:ymax] - options[:ymin] + 1)# if yi = options[:yout] and options[:yin]
-			#	
-			###ep 'ncopy', options[:ncopy]
-			#y = y + options[:ncopy] * (y[-1]-y[0]) if options[:ncopy]
 			y = y + options[:ncopy] * ly if options[:ncopy]
-			#ep 'y', y
-				#ep y; gets
-			#ep options; gets
 			theta = gsl_vector('theta', options)
-			#ep theta; gets;
-			#ep 'thsize', @ntheta, theta.size
 			correct_3d_options(options)
 			rhoc = options[:rhoc_actual]
 			q_actual = options[:q_actual]
 			xfac = 1.0 / options[:rho_star_actual]
 			yfac = rhoc / q_actual / options[:rho_star_actual]
 			factors = geometric_factors_gsl_tensor(options)
-			
-			#ep ['factors.shape', factors.shape]
-
-
-
 
 			coordinates = GSL::Tensor.alloc(3, y.size, x.size, theta.size)
 			for i in 0...y.size
@@ -695,10 +658,8 @@ class CodeRunner::Gs2
 						coordinates[0,i,j,k] = factors[0,k] + x[j]/xfac*factors[3,k] # R
 						coordinates[1,i,j,k] = factors[1,k] + x[j]/xfac*factors[4,k] # Z
 						coordinates[2,i,j,k] = y[i] / yfac - factors[2,k] - x[j]/xfac*factors[5,k] # phi
-						#ep [i,j,k], coordinates[0, false, j,k].to_a
 						if gs2f = options[:gs2_coordinate_factor]
 							rgs2 = (x[j]**2 + y[i]**2 )**0.5*(1.0 + 2.0 * Float::EPSILON)
-							#p ['x', x[j], 'y', y[i], 'r', rgs2] if agk?
 							if rgs2 < 1.0e-8
 								phigs2 = 0
 							else
@@ -708,13 +669,9 @@ class CodeRunner::Gs2
 							coordinates[1,i,j,k] = theta[k] * gs2f + coordinates[1,i,j,k] * (1.0-gs2f)
 							coordinates[2,i,j,k] = phigs2 * gs2f + coordinates[2,i,j,k] * (1.0-gs2f)
 						end
-
-
-							
 					end
 				end
 			end
-			#exit
 			case tp = options[:toroidal_projection]
 			when Numeric
 				coordinates[2, false] = tp

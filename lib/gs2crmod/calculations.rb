@@ -29,14 +29,18 @@ def calculate_time_averaged_fluxes
 	@es_mom_flux_stav = {}
 	@es_heat_flux_stav = {}
 	@es_mom_flux_stav_error = {}
+	@es_mom_flux_stav_std_dev = {}
 	@es_heat_flux_stav_error = {}
+	@es_heat_flux_stav_std_dev = {}
 
 	@nspec.times do |i|
 		species_index = i + 1
 		@es_mom_flux_stav[species_index]  = saturated_time_average('es_mom_flux_over_time', {species_index: species_index})
 		@es_heat_flux_stav[species_index]  = saturated_time_average('es_heat_flux_over_time', {species_index: species_index})
 		@es_mom_flux_stav_error[species_index]  = saturated_time_average_error('es_mom_flux_over_time', {species_index: species_index})
+		@es_mom_flux_stav_std_dev[species_index]  = saturated_time_average_std_dev('es_heat_flux_over_time', {species_index: species_index})
 		@es_heat_flux_stav_error[species_index]  = saturated_time_average_error('es_heat_flux_over_time', {species_index: species_index})
+		@es_heat_flux_stav_std_dev[species_index]  = saturated_time_average_std_dev('es_heat_flux_over_time', {species_index: species_index})
 	end
 # 	ep @es_mom_flux_stav, @es_heat_flux_stav
 end
