@@ -62,13 +62,13 @@ class TestAnalysis < Test::Unit::TestCase
     end
     def test_analysis
         assert_equal(1, @runner.run_list.size)
-        assert_equal(0.13066732664774272, @runner.run_list[1].max_growth_rate)
-        assert_equal(0.13066732664774272, @runner.run_list[1].growth_rate_at_ky[0.5])
+        assert_equal(0.13066728454177437, @runner.run_list[1].max_growth_rate)
+        assert_equal(0.13066728454177437, @runner.run_list[1].growth_rate_at_ky[0.5])
         assert_equal(:Complete, @runner.run_list[1].status)
         p @run.frequency_at_ky_at_kx, @run.gsl_vector('kx')[1]
-        assert_equal(6.6036e-01, @run.frequency_at_ky_at_kx[0.5][2.5133])
+        assert_equal(6.6e-01, @run.frequency_at_ky_at_kx[0.5][2.5133])
         #p @run.gsl_vector('kx'); STDIN.gets
-        assert_equal(6.6036e-01, @run.frequency_at_ky_at_kx[0.5][@run.gsl_vector('kx')[3]])
+        assert_equal(6.6e-01, @run.frequency_at_ky_at_kx[0.5][@run.gsl_vector('kx')[3]])
     end
     def test_interpolation
         assert_equal(5, @run.gsl_vector('kx').size)
@@ -116,9 +116,9 @@ class TestAnalysis < Test::Unit::TestCase
         assert_equal(@run.frequency_at_ky_at_kx[0.5][0.0], kit.data[0].y.data[1])
 
     #Test heat flux as a function of kxy
-        kit = @run.graphkit('es_heat_vs_kx', {species_index:1})
+        kit = @run.graphkit('es_heat_flux_vs_kx', {species_index:1})
         assert_equal(5, kit.data[0].y.data.size)
-        kit = @run.graphkit('es_heat_vs_ky', {species_index:1})
+        kit = @run.graphkit('es_heat_flux_vs_ky', {species_index:1})
         assert_equal(3, kit.data[0].y.data.size)
 
     #Test zonal flow velocity calculation

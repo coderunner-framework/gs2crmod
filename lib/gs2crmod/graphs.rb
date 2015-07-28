@@ -21,8 +21,8 @@ def auto_axiskits(name, options)
     # </MJL>
     'phi2_by_ky_over_time' => ['Phi^2 by ky', ''],
     'phi2_by_kx_over_time' => ['Phi^2 by ky', ''],  
-    'es_heat_by_ky_over_time' => ['Phi^2 by ky', ''],
-    'es_heat_by_kx_over_time' => ['Phi^2 by kx', ''],  
+    'es_heat_flux_by_ky_over_time' => ['Heat flux by ky', ''],
+    'es_heat_flux_by_kx_over_time' => ['Heat flux by kx', ''],  
     'phi2_by_mode_over_time' => ["Phi^2 by mode", ''],
     'tpar2_by_mode_over_time' => ["(delta T_parallel)^2 by mode", '%'],
     'tperp2_by_mode_over_time' => ["(delta T_perp)^2 by mode", '%'],
@@ -47,8 +47,8 @@ def auto_axiskits(name, options)
     'spectrum_over_kx_avg' => ["Spectrum Averaged Over Time", '', 1],
     'spectrum_over_ky' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
     'spectrum_over_ky_avg' => ["Spectrum Averaged Over Time", '', 1],
-    'es_heat_over_kx' => ["Heat Flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", 'Q_gB', 1],
-    'es_heat_over_ky' => ["Heat Flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", 'Q_gB', 1],
+    'es_heat_flux_over_kx' => ["Heat Flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", 'Q_gB', 1],
+    'es_heat_flux_over_ky' => ["Heat Flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", 'Q_gB', 1],
     'es_heat_flux_over_ky_over_kx' => ["Heat flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
     'spectrum_over_kpar' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
     'spectrum_over_ky_over_kx' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
@@ -267,7 +267,6 @@ module GraphKits
 			kit = GraphKit.autocreate({x: axiskit('t', options), y: phiax})
 			kit.data[0].title = "Phi^2 total: #{kxy} = #{options[kxy]}"	
 			if options[:t_index]
-# 				p 'hello'
 				array_element = options[:t_index_window] ? options[:t_index] - options[:t_index_window][0] : options[:t_index] - 1
 # 				p phiax.data.size, array_element
 # 				p options[:t_index], options[:t_index_window]
@@ -345,7 +344,7 @@ module GraphKits
 
 	alias :eigenfunction_graphkit :efn_graphkit
 		
-	def es_heat_vs_ky_vs_kx_graphkit(options={})
+	def es_heat_flux_vs_ky_vs_kx_graphkit(options={})
 		case options[:command]
 		when :help
 			return  "Graph of electrostatic contribution to heat flux at a given time vs kx and ky"
@@ -362,7 +361,7 @@ module GraphKits
 		end
 	end
 
-	def es_heat_vs_kx_graphkit(options={})
+	def es_heat_flux_vs_kx_graphkit(options={})
 		case options[:command]
 		when :help
 			return "Heat flux vs kx"
@@ -372,7 +371,7 @@ module GraphKits
 			return es_heat_flux_vs_kxy_graphkit(options.absorb({direction: :kx}))
 		end
 	end
-	def es_heat_vs_ky_graphkit(options={})
+	def es_heat_flux_vs_ky_graphkit(options={})
 		case options[:command]
 		when :help
 			return "Heat flux vs ky"
@@ -391,7 +390,7 @@ module GraphKits
 			return [:ky_index, :species_index]
 		else
 			kxy = options[:direction]||options[:kxy] 
-			kit = GraphKit.autocreate({x: axiskit(kxy.to_s, options), y: axiskit("es_heat_over_#{kxy}", options)})
+			kit = GraphKit.autocreate({x: axiskit(kxy.to_s, options), y: axiskit("es_heat_flux_over_#{kxy}", options)})
 			kit.title  = "Heat flux vs #{kxy} for species #{options[:species_index]}"
 			kit.file_name = options[:graphkit_name] + options[:t_index].to_s
 			kit.data[0].with = 'lp'
@@ -2012,25 +2011,25 @@ module GraphKits
       end
 # </MJL>
 
-	def es_heat_by_mode_vs_time_graphkit(options={})
+	def es_heat_flux_by_mode_vs_time_graphkit(options={})
 		options[:direction] = :mode
-		es_heat_by_kxy_or_mode_vs_time_graphkit(options)
+		es_heat_flux_by_kxy_or_mode_vs_time_graphkit(options)
 	end
 
-	def es_heat_by_kx_vs_time_graphkit(options={})
+	def es_heat_flux_by_kx_vs_time_graphkit(options={})
 		options[:direction] = :kx
-		es_heat_by_kxy_or_mode_vs_time_graphkit(options)
+		es_heat_flux_by_kxy_or_mode_vs_time_graphkit(options)
 	end
 
-	def es_heat_by_ky_vs_time_graphkit(options={})
+	def es_heat_flux_by_ky_vs_time_graphkit(options={})
 		options[:direction] = :ky
-		es_heat_by_kxy_or_mode_vs_time_graphkit(options)
+		es_heat_flux_by_kxy_or_mode_vs_time_graphkit(options)
 	end
 
-	def es_heat_by_kxy_or_mode_vs_time_graphkit(options={})
+	def es_heat_flux_by_kxy_or_mode_vs_time_graphkit(options={})
 		case options[:command]
 		when :help
-			return  "'es_heat_by_ky_vs_time' or 'es_heat_by_kx_vs_time': Electrostatic Heat Flux vs Time for a given kx or ky, integrated over the other direction"
+			return  "'es_heat_flux_by_ky_vs_time' or 'es_heat_flux_by_kx_vs_time': Electrostatic Heat Flux vs Time for a given kx or ky, integrated over the other direction"
 		when :options
 			return  [:ky, :ky_index, :kx, :kx_index, :species_index]
 		else
@@ -2038,7 +2037,7 @@ module GraphKits
 			nt_options = options.dup # 'no time' options
 			#nt_options.delete(:t_index) if nt_options[:t_index]
 			#nt_options.delete(:frame_index) if nt_options[:frame_index]
-			phiax = axiskit("es_heat_by_#{kxy}_over_time", nt_options)	
+			phiax = axiskit("es_heat_flux_by_#{kxy}_over_time", nt_options)	
 			kit = GraphKit.autocreate({x: axiskit('t', options), y: phiax})
 			kit.data[0].title = "ES Heat Flux: #@run_name #{kxy} = #{options[kxy]}"	
 			kit.log_axis = 'y'
@@ -2081,7 +2080,6 @@ module GraphKits
 			kit = GraphKit.autocreate({x: axiskit('t', options), y: phiax})
 			kit.data[0].title = "Phi^2 total: #{kxy} = #{options[kxy]}"	
 			if options[:t_index]
-# 				p 'hello'
 				array_element = options[:t_index_window] ? options[:t_index] - options[:t_index_window][0] : options[:t_index] - 1
 # 				p phiax.data.size, array_element
 # 				p options[:t_index], options[:t_index_window]
@@ -2133,7 +2131,6 @@ module GraphKits
 			kit = GraphKit.autocreate({x: axiskit('t', options), y: tparax})
 			kit.data[0].title = "Tpar^2 total: #{kxy} = #{options[kxy]}"	
 			if options[:t_index]
-# 				p 'hello'
 				array_element = options[:t_index_window] ? options[:t_index] - options[:t_index_window][0] : options[:t_index] - 1
 # 				p tparax.data.size, array_element
 # 				p options[:t_index], options[:t_index_window]
@@ -2175,7 +2172,6 @@ module GraphKits
 			kit = GraphKit.autocreate({x: axiskit('t', options), y: tperpax})
 			kit.data[0].title = "Tperp^2 total: #{kxy} = #{options[kxy]}"	
 			if options[:t_index]
-# 				p 'hello'
 				array_element = options[:t_index_window] ? options[:t_index] - options[:t_index_window][0] : options[:t_index] - 1
 # 				p tparax.data.size, array_element
 # 				p options[:t_index], options[:t_index_window]

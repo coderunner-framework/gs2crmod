@@ -279,7 +279,7 @@ def calculate_frequencies
 		logi(f)
 		@frequency_at_ky_at_kx||= FloatHash.new
 		ky_values = []
-		regex = Regexp.new( "^.*aky=\\s*(?<aky>#{f})\s*akx=\\s*(?<akx>#{f}).*omav=\\s*(?<re>#{f})\\s*(?<gr>#{f})")
+		regex = Regexp.new( "^.*ky=\\s*(?<aky>#{f})\s*kx=\\s*(?<akx>#{f}).*omav=\\s*(?<re>#{f})\\s*(?<gr>#{f})")
 		final_timestep_list.scan(regex) do
 			aky = eval($~[:aky])
 			akx = eval($~[:akx])

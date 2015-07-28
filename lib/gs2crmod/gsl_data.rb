@@ -304,7 +304,7 @@ module GSLVectors
       return fix_norm(dphi/gsl_vector('dt'), 0, options)
     end
 
-# <MJL edits on 2013-09-19>
+  # <MJL edits on 2013-09-19>
                   # The real frequency of the fluctuations, read from the .out file, indexed by time and normalised to vth_1/a.
                   # :ky_index or :kx_index must be specified in options.
 
@@ -354,7 +354,7 @@ module GSLVectors
                      raise "No real frequencies found in the .out file for the desired k" if (omega_reals.size==0)
                      GSL::Vector.alloc(omega_reals)
                 end
-# </MJL>
+  # </MJL>
 
 
     # The size of each time step,  indexed by time, normalised to a/v_th1.
@@ -412,16 +412,16 @@ module GSLVectors
       return GSL::Vector.alloc(gsl_vector('ky').to_a.map{|ky| frequency_at_ky_at_kx[ky].values[options[:kx_index]-1]})
   end
 
-  def es_heat_by_kx_over_time_gsl_vector(options)
+  def es_heat_flux_by_kx_over_time_gsl_vector(options)
     options[:direction] = :kx
-    es_heat_by_kxy_over_time_gsl_vector(options)
+    es_heat_flux_by_kxy_over_time_gsl_vector(options)
   end
-  def es_heat_by_ky_over_time_gsl_vector(options)
+  def es_heat_flux_by_ky_over_time_gsl_vector(options)
     options[:direction] = :ky
-    es_heat_by_kxy_over_time_gsl_vector(options)
+    es_heat_flux_by_kxy_over_time_gsl_vector(options)
   end
 
-  def es_heat_by_kxy_over_time_gsl_vector(options)
+  def es_heat_flux_by_kxy_over_time_gsl_vector(options)
     Dir.chdir(@directory) do
       kxy = options[:direction]
       #kxy_index = kxy + :_index
@@ -430,7 +430,7 @@ module GSLVectors
       if kxy==:ky
         lkx = list(:kx)
         es_heat_av = (lkx.keys.map do |kx_index|
-          es_heat =  netcdf_file.var('es_heat_by_k').get({'start' => [kx_index-1,options[:ky_index]-1,options[:species_index]-1, 0], 'end' => [kx_index-1,options[:ky_index]-1,options[:species_index]-1, -1]})
+          es_heat =  netcdf_file.var('es_heat_flux_by_mode').get({'start' => [kx_index-1,options[:ky_index]-1,options[:species_index]-1, 0], 'end' => [kx_index-1,options[:ky_index]-1,options[:species_index]-1, -1]})
           #ep phi.shape
           es_heat.reshape(*es_heat.shape.values_at(3))
         end).sum / lkx.size
@@ -438,7 +438,7 @@ module GSLVectors
       else
         lky = list(:ky)
         es_heat_av = (lky.keys.map do |ky_index|
-          es_heat =  netcdf_file.var('es_heat_by_k').get({'start' => [options[:kx_index]-1,ky_index-1,options[:species_index]-1, 0], 'end' => [options[:kx_index]-1,ky_index-1,options[:species_index]-1, -1]})
+          es_heat =  netcdf_file.var('es_heat_flux_by_mode').get({'start' => [options[:kx_index]-1,ky_index-1,options[:species_index]-1, 0], 'end' => [options[:kx_index]-1,ky_index-1,options[:species_index]-1, -1]})
           #ep phi.shape
           es_heat.reshape(*es_heat.shape.values_at(3))
         end).sum / lky.size
@@ -447,25 +447,25 @@ module GSLVectors
 
     end
   end
-  private :es_heat_by_kxy_over_time_gsl_vector
+  private :es_heat_flux_by_kxy_over_time_gsl_vector
 
-  def es_heat_over_kx_gsl_vector(options)
+  def es_heat_flux_over_kx_gsl_vector(options)
     options[:direction] = :kx
-    es_heat_over_kxy_gsl_vector(options)
+    es_heat_flux_over_kxy_gsl_vector(options)
   end
-  def es_heat_over_ky_gsl_vector(options)
+  def es_heat_flux_over_ky_gsl_vector(options)
     options[:direction] = :ky
-    es_heat_over_kxy_gsl_vector(options)
+    es_heat_flux_over_kxy_gsl_vector(options)
   end
 
   #This function will output the heat flux as a function of kx or ky.
   #Default behaviour will be to average the heat flux over the time domain.
-  def es_heat_over_kxy_gsl_vector(options)
+  def es_heat_flux_over_kxy_gsl_vector(options)
     Dir.chdir(@directory) do
       kxy = options[:direction]
       raise "Please provide species_index " unless options[:species_index]
       if kxy==:ky
-        es_heat = (netcdf_file.var('es_heat_by_k').get({'start' => [0,0,options[:species_index]-1, 0], 'end' => [-1,-1,options[:species_index]-1, -1]})) #index = [kx,ky,spec,t]
+        es_heat = (netcdf_file.var('es_heat_flux_by_mode').get({'start' => [0,0,options[:species_index]-1, 0], 'end' => [-1,-1,options[:species_index]-1, -1]})) #index = [kx,ky,spec,t]
         #Need to average over time and sum over kx
         shape = es_heat.shape
         es_heat_av = []; temp = [];
@@ -477,7 +477,7 @@ module GSLVectors
         end
         return es_heat_av.to_gslv
       else
-        es_heat = (netcdf_file.var('es_heat_by_k').get({'start' => [0,0,options[:species_index]-1, 0], 'end' => [-1,-1,options[:species_index]-1, -1]})) #index = [kx,ky,spec,t]
+        es_heat = (netcdf_file.var('es_heat_flux_by_mode').get({'start' => [0,0,options[:species_index]-1, 0], 'end' => [-1,-1,options[:species_index]-1, -1]})) #index = [kx,ky,spec,t]
         shape = es_heat.shape
         es_heat_av = []; temp = [];
         for ix in 0...shape[0]
@@ -1039,12 +1039,11 @@ module GSLVectors
     #This is v_ZF = kxfac*IFT(i k_x phi_imag), where kxfac = (qinp/rhoc)*grho(rhoc).
     def zf_velocity_over_x_gsl_vector(options)
       Dir.chdir(@directory) do
-        raise CRFatal.new("Need to specify a theta_index.") unless options[:theta_index]
         raise CRFatal.new("Need either qinp or pk and epsl specified in order to calculate kxfac.
                           If using numerical equil use the option :kxfac to override calculation.") unless @qinp or (@pk and @epsl or options[:kxfac])
 
         kx = gsl_vector(:kx).to_box_order
-        grho = gsl_vector('grho')[options[:theta_index]]
+        grho = gsl_vector('grho')[get_list_of(:theta).length/2]
 
         phi = GSL::Vector.alloc(kx.size)
         for it in 0...gsl_vector(:t).size
@@ -1172,7 +1171,7 @@ module GSLVectorComplexes
     Dir.chdir(@directory) do
         raise CRFatal.new("write_eigenfunc is not enabled so this function won't work") unless @write_eigenfunc
         options.convert_to_index(self, :t)
-        a = netcdf_file.var('phi0').get({
+        a = netcdf_file.var('phi_igomega_by_mode').get({
           'start' => [0,0,0, options[:t_index] - 1],
           'end' => [-1,-1,0, options[:t_index] - 1]
         })
@@ -1217,7 +1216,7 @@ module GSLMatrices
       options.convert_to_index(:t) if options[:t] or options[:t_element]
       options[:t_index] ||= list(:t).keys.max
       #es_heat_by_k index order (in Fortran) is kx, ky, t
-      es_heat_narray = netcdf_file.var("es_heat_by_k").get('start' => [0, 0, 0, options[:t_index] - 1], 'end' => [-1, -1, 0, options[:t_index] - 1])
+      es_heat_narray = netcdf_file.var("es_heat_flux_by_mode").get('start' => [0, 0, 0, options[:t_index] - 1], 'end' => [-1, -1, 0, options[:t_index] - 1])
       es_heat_narray.reshape!(*es_heat_narray.shape.slice(0..1))
 
       gm =  es_heat_narray.to_gm.move_cols_from_box_order
