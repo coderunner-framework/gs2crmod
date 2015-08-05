@@ -1029,10 +1029,10 @@ module GSLVectors
       GSL::Vector.indgen(ysize, 0, ly/ysize)
     end
 
-    #This function reads in the 'grho' variable from the netcdf file.
-    def grho_gsl_vector(options)
-      grho = GSL::Vector.alloc(netcdf_file.var('grho').get('start' => [0], 'end' => [-1]).to_a)
-      return grho
+    #This function reads in the 'drhodpsi' variable from the netcdf file.
+    def drhodpsi_gsl_vector(options)
+      drhodpsi = netcdf_file.var('drhodpsi').get()[0]
+      return drhodpsi
     end
 
     #This function returns the zonal flow velocity as a function of x (the radial coordinate).
@@ -1043,7 +1043,7 @@ module GSLVectors
                           If using numerical equil use the option :kxfac to override calculation.") unless @qinp or (@pk and @epsl or options[:kxfac])
 
         kx = gsl_vector(:kx).to_box_order
-        grho = gsl_vector('grho')[get_list_of(:theta).length/2]
+        drhodpsi = gsl_vector('drhodpsi')
 
         phi = GSL::Vector.alloc(kx.size)
         for it in 0...gsl_vector(:t).size
@@ -1053,9 +1053,9 @@ module GSLVectors
         phi /= gsl_vector(:t).size
 
         if @qinp
-          kxfac = (@qinp/@rhoc)*grho
+          kxfac = (@qinp/@rhoc)/drhodpsi
         elsif @pk and @epsl
-          kxfac = (@epsl/@pk)*grho
+          kxfac = (@epsl/@pk)/drhodpsi
         elsif options[:kxfac]
           kxfac = options[:kxfac]
         else
@@ -1064,7 +1064,7 @@ module GSLVectors
 
         vec_zf_vel = GSL::Vector.alloc(kx.size)
         #Take imaginary part since i k_x will lead to imaginary part being real
-        vec_zf_vel = kxfac*(phi*kx).backward.imag
+        vec_zf_vel = 0.5*kxfac*(phi*kx).backward.imag
         return vec_zf_vel
       end
     end
