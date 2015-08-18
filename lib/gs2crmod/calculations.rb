@@ -447,6 +447,7 @@ def calculate_transient_amplifications
 				(eputs "\n\n----------\nIn #@run_name:\n\nphi2_by_#{kxy}_over_time is all NaN; unable to calculate growth rate\n----------\n\n"; transient_amplifications[value] = -1; next) if transient_amplifications[value].to_s == "NaN"
                 if @g_exb_start_timestep 
                   @max_transient_amplification_index_at_ky[value] = 
+                    (@g_exb_start_timestep/@nwrite).to_i + 
                     phi2_vec[(@g_exb_start_timestep/@nwrite).to_i...-1].max_index
                 else
                   @max_transient_amplification_index_at_ky[value] = nil 
