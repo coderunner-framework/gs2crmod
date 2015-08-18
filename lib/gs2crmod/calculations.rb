@@ -430,47 +430,38 @@ def calculate_transient_amplifications
 		end
 		
 		@transient_amplification_at_ky ||= FloatHash.new
+		@max_transient_amplification_index_at_ky ||= FloatHash.new
  		eputs
 		to_calc.each do |kxy|
 			transient_amplifications = send(:transient_amplification_at_ + kxy)
 			list(kxy).values.sort.each do |value|
-			
-				#p transient_amplifications.keys, value, transient_amplifications[value.to_f-0.0],
-				#transient_amplifications.class, transient_amplifications.keys.include?(value); exit
-		
 				next if transient_amplifications.keys.include? value
-
 				
 				Terminal.erewind(1)
-				#ep transient_amplifications.keys
 				eputs sprintf("Calculating transient amplification for #{kxy} = % 1.5e#{Terminal::CLEAR_LINE}", value) 
-				
-
-						# Mode has 0 growth rate at ky==0
+                
+                # Mode has 0 growth rate at ky==0
 				(transient_amplifications[value] = 0.0; next) if value == 0.0 and kxy == :ky 
 				phi2_vec = gsl_vector("phi2_by_#{kxy}_over_time", {kxy=>value})
-				#(transient_amplifications[value] = 0.0; next) if phi2_vec.min <= 0.0
 				transient_amplifications[value] = calculate_transient_amplification(phi2_vec)
 				(eputs "\n\n----------\nIn #@run_name:\n\nphi2_by_#{kxy}_over_time is all NaN; unable to calculate growth rate\n----------\n\n"; transient_amplifications[value] = -1; next) if transient_amplifications[value].to_s == "NaN"
+                @max_transient_amplification_index_at_ky[value] = phi2_vec.max_index
 			end
 		end
 		
  		write_results
 		
-# 		ep "transient_amplification_at_ky", @transient_amplification_at_ky
 		if ENV['GS2_CALCULATE_ALL']
 		trap(0){eputs "Calculation of spectrum did not complete: run 'cgrf' (i.e. calculate_transient_amplifications_and_frequencies) for this run. E.g. from the command line \n $ coderunner rc 'cgrf' -j #{@id}"; exit}
 		@transient_amplification_at_ky_at_kx ||= FloatHash.new
 		list(:ky).values.sort.each do |kyv|
 			@transient_amplification_at_ky_at_kx[kyv] ||= FloatHash.new
-			#p @transient_amplification_at_ky_at_kx[kyv]
 			list(:kx).values.sort.each do |kxv|	
 				next if @transient_amplification_at_ky_at_kx[kyv].keys.include? kxv
 				Terminal.erewind(1)
 				eputs sprintf("Calculating growth rate for kx = % 1.5e and ky = % 1.5e#{Terminal::CLEAR_LINE}", kxv, kyv) 
 				(@transient_amplification_at_ky_at_kx[kyv][kxv] = 0.0; next) if kyv == 0.0 # Mode has 0 growth rate at ky==0
 				phi2_vec = gsl_vector("phi2_by_mode_over_time", {:kx=>kxv, :ky=>kyv})
-				#(@transient_amplification_at_ky_at_kx[kyv][kxv] = 0.0; next) if phi2_vec.min <= 0.0
 				@transient_amplification_at_ky_at_kx[kyv][kxv] = calculate_transient_amplification(phi2_vec)
 				(eputs "\n\n----------\nIn #@run_name:\n\nphi2_by_#{kxy}_over_time is all NaN; unable to calculate growth rates\n----------\n\n"; @transient_amplification_at_ky_at_kx[kyv][kxv] = -1; next) if @transient_amplification_at_ky_at_kx[kyv][kxv].to_s == "NaN" 
 			end
@@ -481,19 +472,8 @@ def calculate_transient_amplifications
 		@transient_amplifications = @transient_amplification_at_ky
 		@max_transient_amplification = @transient_amplifications.values.max
 		@most_amplified_mode = @transient_amplifications.key(@max_transient_amplification)
-		#@freq_of_max_transient_amplification = @real_frequencies[@fastest_growing_mode]
-		#ep @max_transient_amplification, @transient_amplifications
-		#@decaying = (@max_transient_amplification < 0) if @max_transient_amplification
+
 		@ky = @aky if @aky
-		#if @grid_option == "single"
-## 			ep @aky, @transient_amplifications
-			#@gamma_r = @transient_amplifications[@aky.to_f]
-			#@gamma_i = @real_frequencies[@aky.to_f]
-		#end
-# 		ep @gamma_r
-		
-		
-# 		eputs @transient_amplifications; gets
 	end
 end
 
@@ -673,7 +653,8 @@ alias :ctehfa :calculate_transient_es_heat_flux_amplifications
 
 def calculate_transient_amplification(vector, options={})
   if @g_exb_start_timestep 
-    return GSL::Sf::log(vector[(@g_exb_start_timestep/@nwrite).to_i...-1].max / vector[(@g_exb_start_timestep/@nwrite).to_i])/2
+    return GSL::Sf::log(vector[(@g_exb_start_timestep/@nwrite).to_i...-1].max / 
+                        vector[(@g_exb_start_timestep/@nwrite).to_i])/2
   else
     eputs "Warning: set g_exb_start_timestep to calculate transient amplifications."
     return 0

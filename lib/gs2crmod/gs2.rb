@@ -141,6 +141,7 @@ eval(%[
   :transient_amplification_at_kx,
   :transient_amplification_at_ky,
   :transient_amplification_at_ky_at_kx,
+  :max_transient_amplification_index_at_ky,
   :transient_es_heat_flux_amplification_at_species_at_kx,
   :transient_es_heat_flux_amplification_at_species_at_ky,
   :transient_es_heat_flux_amplification_at_species_at_ky_at_kx,
