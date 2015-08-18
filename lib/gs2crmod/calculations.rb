@@ -445,7 +445,12 @@ def calculate_transient_amplifications
 				phi2_vec = gsl_vector("phi2_by_#{kxy}_over_time", {kxy=>value})
 				transient_amplifications[value] = calculate_transient_amplification(phi2_vec)
 				(eputs "\n\n----------\nIn #@run_name:\n\nphi2_by_#{kxy}_over_time is all NaN; unable to calculate growth rate\n----------\n\n"; transient_amplifications[value] = -1; next) if transient_amplifications[value].to_s == "NaN"
-                @max_transient_amplification_index_at_ky[value] = phi2_vec.max_index
+                if @g_exb_start_timestep 
+                  @max_transient_amplification_index_at_ky[value] = 
+                    phi2_vec[(@g_exb_start_timestep/@nwrite).to_i...-1].max_index
+                else
+                  @max_transient_amplification_index_at_ky[value] = nil 
+                end
 			end
 		end
 		
