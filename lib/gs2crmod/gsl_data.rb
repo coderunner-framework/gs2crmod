@@ -1040,7 +1040,7 @@ module GSLVectors
     def zf_velocity_over_x_gsl_vector(options)
       Dir.chdir(@directory) do
         raise CRFatal.new("Need either qinp or pk and epsl specified in order to calculate kxfac.
-                          If using numerical equil use the option :kxfac to override calculation.") unless @qinp or (@pk and @epsl or options[:kxfac])
+                          If using numerical equil use the option :kxfac to override calculation.") unless @qinp or (@pk and @eps) or options[:kxfac]
 
         kx = gsl_vector(:kx).to_box_order
         drhodpsi = gsl_vector('drhodpsi')
@@ -1058,8 +1058,6 @@ module GSLVectors
           kxfac = (@epsl/@pk)/drhodpsi
         elsif options[:kxfac]
           kxfac = options[:kxfac]
-        else
-          raise 'Error: Need qinp or pk and epsl to calculate kxfac'
         end
 
         vec_zf_vel = GSL::Vector.alloc(kx.size)
