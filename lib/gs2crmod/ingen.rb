@@ -228,7 +228,7 @@ def check_parameters
 
   warning("You are submitting a nonlinear run with no dissipation.") if @nonlinear_mode == "on" and @hyper_option=="none" and @collision_model=="none"
 
-  warning("You have no spacial implicitness: (bakdif) for one of your species. Be prepared for numerical instabilities!") if (1..@nspec).to_a.find{|i| bd = send("bakdif_#{i}") and bd == 0}
+  warning("You have no spatial implicitness: (bakdif) for one of your species. Be prepared for numerical instabilities!") if (1..@nspec).to_a.find{|i| bd = send("bakdif_#{i}") and bd == 0}
 
   warning("The system will abort with rapid timestep changes...") if !@abort_rapid_time_step_change or @abort_rapid_time_step_change.fortran_true?
 

@@ -24,8 +24,6 @@ def calculate_time_averaged_fluxes
 	@hflux_tot_stav_error = saturated_time_average_error('hflux_tot_over_time', {})
 	@hflux_tot_stav_std_dev = saturated_time_average_std_dev('hflux_tot_over_time', {})
 	@phi2_tot_stav = saturated_time_average('phi2tot_over_time', {})
-	#@par_mom_flux_stav = saturated_time_average('par_mom_flux_over_time', {}) rescue nil
-	#@perp_mom_flux_stav = saturated_time_average('perp_mom_flux_over_time', {}) rescue nil
 	@es_mom_flux_stav = {}
 	@es_heat_flux_stav = {}
 	@es_mom_flux_stav_error = {}
@@ -42,7 +40,6 @@ def calculate_time_averaged_fluxes
 		@es_heat_flux_stav_error[species_index]  = saturated_time_average_error('es_heat_flux_over_time', {species_index: species_index})
 		@es_heat_flux_stav_std_dev[species_index]  = saturated_time_average_std_dev('es_heat_flux_over_time', {species_index: species_index})
 	end
-# 	ep @es_mom_flux_stav, @es_heat_flux_stav
 end
 
 alias :ctaf :calculate_time_averaged_fluxes

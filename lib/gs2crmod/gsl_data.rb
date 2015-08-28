@@ -770,10 +770,6 @@ module GSLVectors
         #eputs "Start theta_along_field_line"
 
         kx_elements = gsl_vector('linked_kx_elements', options).to_a
-        #if @grid_option == "range"
-          #kx_elements = kx_elements.to_gslv.from_box_order.to_a
-        #end
-        ep 'kx_elements', kx_elements.to_a
 #         ep list(:kx).keys.max
 #         ep kx_elements[0], list(:kx)[(kx_elements[0] + 1).to_i]
 #         ep kx_elements[-1], list(:kx)[(kx_elements[-1] + 1).to_i]
@@ -1148,7 +1144,6 @@ module GSLVectorComplexes
           #temp =  GSL::Vector.alloc(a.to_a[0].values_at(*kx_elements).flatten)
           temp =  GSL::Vector.alloc(a.to_a[0][0].flatten)
         when "box"
-          ep 'kx_elements', kx_elements = gsl_vector('linked_kx_elements', options).to_a
           a = netcdf_file.var('phi').get({'start' => [0, 0, 0, options[:ky_index] - 1], 'end' => [-1, -1, -1, options[:ky_index] - 1]})
           temp =  GSL::Vector.alloc(a.to_a[0].values_at(*kx_elements).flatten)
         else
