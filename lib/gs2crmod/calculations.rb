@@ -24,20 +24,31 @@ def calculate_time_averaged_fluxes
 	@hflux_tot_stav_error = saturated_time_average_error('hflux_tot_over_time', {})
 	@hflux_tot_stav_std_dev = saturated_time_average_std_dev('hflux_tot_over_time', {})
 	@phi2_tot_stav = saturated_time_average('phi2tot_over_time', {})
+
+	@es_part_flux_stav = {}
 	@es_mom_flux_stav = {}
 	@es_heat_flux_stav = {}
+
+	@es_part_flux_stav_error = {}
 	@es_mom_flux_stav_error = {}
-	@es_mom_flux_stav_std_dev = {}
 	@es_heat_flux_stav_error = {}
+
+	@es_part_flux_stav_std_dev = {}
+	@es_mom_flux_stav_std_dev = {}
 	@es_heat_flux_stav_std_dev = {}
 
 	@nspec.times do |i|
 		species_index = i + 1
+		@es_part_flux_stav[species_index]  = saturated_time_average('es_part_flux_over_time', {species_index: species_index})
 		@es_mom_flux_stav[species_index]  = saturated_time_average('es_mom_flux_over_time', {species_index: species_index})
 		@es_heat_flux_stav[species_index]  = saturated_time_average('es_heat_flux_over_time', {species_index: species_index})
+
+		@es_part_flux_stav_error[species_index]  = saturated_time_average_error('es_part_flux_over_time', {species_index: species_index})
 		@es_mom_flux_stav_error[species_index]  = saturated_time_average_error('es_mom_flux_over_time', {species_index: species_index})
-		@es_mom_flux_stav_std_dev[species_index]  = saturated_time_average_std_dev('es_heat_flux_over_time', {species_index: species_index})
 		@es_heat_flux_stav_error[species_index]  = saturated_time_average_error('es_heat_flux_over_time', {species_index: species_index})
+
+		@es_part_flux_stav_std_dev[species_index]  = saturated_time_average_std_dev('es_part_flux_over_time', {species_index: species_index})
+		@es_mom_flux_stav_std_dev[species_index]  = saturated_time_average_std_dev('es_mom_flux_over_time', {species_index: species_index})
 		@es_heat_flux_stav_std_dev[species_index]  = saturated_time_average_std_dev('es_heat_flux_over_time', {species_index: species_index})
 	end
 end
