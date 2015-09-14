@@ -304,58 +304,55 @@ module GSLVectors
       return fix_norm(dphi/gsl_vector('dt'), 0, options)
     end
 
-  # <MJL edits on 2013-09-19>
-                  # The real frequency of the fluctuations, read from the .out file, indexed by time and normalised to vth_1/a.
-                  # :ky_index or :kx_index must be specified in options.
+    # The real frequency of the fluctuations, read from the .out file, indexed by time and normalised to vth_1/a.
+    # :ky_index or :kx_index must be specified in options.
 
-                def frequency_by_kx_over_time_gsl_vector(options)
-                        options[:direction] = :kx
-                        frequency_by_kxy_over_time_gsl_vector(options)
-                end
+    def frequency_by_kx_over_time_gsl_vector(options)
+            options[:direction] = :kx
+            frequency_by_kxy_over_time_gsl_vector(options)
+    end
 
-                def frequency_by_ky_over_time_gsl_vector(options)
-                        options[:direction] = :ky
-                        frequency_by_kxy_over_time_gsl_vector(options)
-                end
+    def frequency_by_ky_over_time_gsl_vector(options)
+            options[:direction] = :ky
+            frequency_by_kxy_over_time_gsl_vector(options)
+    end
 
-                def frequency_by_kxy_over_time_gsl_vector(options)
-                    kxy = options[:direction]
-                    kxy_index = kxy + :_index
-                    kxys = get_list_of(kxy)
-                    desired_kxy = kxys[options[kxy_index]]
-                    raise "No k found at the desired index" if desired_kxy.nil?
+    def frequency_by_kxy_over_time_gsl_vector(options)
+      kxy = options[:direction]
+      kxy_index = kxy + :_index
+      kxys = get_list_of(kxy)
+      desired_kxy = kxys[options[kxy_index]]
+      raise "No k found at the desired index" if desired_kxy.nil?
 
-                    omega_reals = []
-                    File.open(@run_name+".out",'r') do |fileHandle|
-                      fileHandle.each_line do |fileLine|
-                        if fileLine.include?('aky=')  # Only examine the lines of the .out file that contain frequency information.
+      omega_reals = []
+      File.open(@run_name+".out",'r') do |fileHandle|
+        fileHandle.each_line do |fileLine|
+          if fileLine.include?('aky=')  # Only examine the lines of the .out file that contain frequency information.
 
-                          index = fileLine.index('akx=')
-                          raise "akx wasn't found where it was expected in the .out file." if index.nil?
-                          akx = fileLine[(index+4)..-1].to_f
+            index = fileLine.index('akx=')
+            raise "akx wasn't found where it was expected in the .out file." if index.nil?
+            akx = fileLine[(index+4)..-1].to_f
 
-                          index = fileLine.index('aky=')
-                          raise "aky wasn't found where it was expected in the .out file." if index.nil?
-                          aky = fileLine[(index+4)..-1].to_f
+            index = fileLine.index('aky=')
+            raise "aky wasn't found where it was expected in the .out file." if index.nil?
+            aky = fileLine[(index+4)..-1].to_f
 
-                          index = fileLine.index('om=')
-                          raise "om wasn't found where it was expected in the .out file." if index.nil?
-                          omr = fileLine[(index+3)..-1].to_f
-                          if kxy == :kx
-                            # You need to be careful when testing equality of the desired k with the k in the .out file
-                            # since the .out file is only written to ~ 5 significant digits:
-                            omega_reals << omr if ((desired_kxy - akx).abs/(desired_kxy.abs + 1e-7) < 1e-4)
-                          else
-                            omega_reals << omr if ((desired_kxy - aky).abs/(desired_kxy.abs + 1e-7) < 1e-4)
-                          end
-                        end
-                      end
-                     end
-                     raise "No real frequencies found in the .out file for the desired k" if (omega_reals.size==0)
-                     GSL::Vector.alloc(omega_reals)
-                end
-  # </MJL>
-
+            index = fileLine.index('om=')
+            raise "om wasn't found where it was expected in the .out file." if index.nil?
+            omr = fileLine[(index+3)..-1].to_f
+            if kxy == :kx
+              # You need to be careful when testing equality of the desired k with the k in the .out file
+              # since the .out file is only written to ~ 5 significant digits:
+              omega_reals << omr if ((desired_kxy - akx).abs/(desired_kxy.abs + 1e-7) < 1e-4)
+            else
+              omega_reals << omr if ((desired_kxy - aky).abs/(desired_kxy.abs + 1e-7) < 1e-4)
+            end
+          end
+        end
+      end
+      raise "No real frequencies found in the .out file for the desired k" if (omega_reals.size==0)
+      GSL::Vector.alloc(omega_reals)
+    end
 
     # The size of each time step,  indexed by time, normalised to a/v_th1.
 
@@ -1109,7 +1106,7 @@ module GSLVectorComplexes
       options.convert_to_index(self, :ky)
       if options[:t_index] or options[:t]
         #extra option required is t_index
-        raise CRFatal.new("write_phi_over_time is not enabled so this function won't work") unless @write_phi_over_time
+        raise CRFatal.new("write_phi_over_time is not enabled so this function won't work") unless (@write_phi_over_time and @write_phi_over_time.fortran_true?)
 
         options.convert_to_index(self, :t)
         case @grid_option
