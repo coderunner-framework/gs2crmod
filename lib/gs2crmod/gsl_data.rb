@@ -4,8 +4,6 @@
 #########################
 #
 
-#
-
 class NumRu::NetCDF
   aliold :var
   def var(*args)
@@ -15,9 +13,9 @@ class NumRu::NetCDF
     return old_var(*args)
   end
 end
+
 class CodeRunner
 class Gs2
-
 
 eval(File.read(File.dirname(__FILE__) + '/gsl_tools.rb'), GLOBAL_BINDING, File.dirname(__FILE__) + '/gsl_tools.rb')
 
@@ -50,13 +48,10 @@ def netcdf_filename
   @directory + '/' +  @run_name + '.out.nc'
 end
 
-
 def ncclose
   cache[:netcdf_file].close
   cache.delete(:netcdf_file)
 end
-
-
 
 module FixNormOption
 #class << self
@@ -225,6 +220,7 @@ module GSLVectors
       return fix_norm(vec, 1, options)
     end
   end
+
   def apar2_over_time_gsl_vector(options)
 
     Dir.chdir(@directory) do      #Necessary options: ky
@@ -247,6 +243,7 @@ module GSLVectors
     options[:direction] = :ky
     transient_es_heat_flux_amplification_over_kxy_gsl_vector(options)
   end
+
   def transient_es_heat_flux_amplification_over_kxy_gsl_vector(options)
     Dir.chdir(@directory) do      # i.e. phi2_by_ky_vs_time or phi2_by_kx_vs_time
       kxy = options[:direction].to_sym
@@ -262,10 +259,12 @@ module GSLVectors
     options[:direction] = :kx
     transient_amplification_over_kxy_gsl_vector(options)
   end
+  
   def transient_amplification_over_ky_gsl_vector(options)
     options[:direction] = :ky
     transient_amplification_over_kxy_gsl_vector(options)
   end
+  
   def transient_amplification_over_kxy_gsl_vector(options)
     Dir.chdir(@directory) do      # i.e. phi2_by_ky_vs_time or phi2_by_kx_vs_time
       kxy = options[:direction]
@@ -276,99 +275,96 @@ module GSLVectors
   end
   private :transient_amplification_over_kxy_gsl_vector
 
-    # The growth rate of the fluctuations, calculated from the potential, indexed by time and normalised to vth_1/a.
-    # :kx or :kx_index must be specified in options
-  #
-    def growth_rate_by_kx_over_time_gsl_vector(options)
-      options[:direction] = :kx
-      growth_rate_by_kxy_over_time_gsl_vector(options)
-    end
+  # The growth rate of the fluctuations, calculated from the potential, indexed by time and normalised to vth_1/a.
+  # :kx or :kx_index must be specified in options
+  def growth_rate_by_kx_over_time_gsl_vector(options)
+    options[:direction] = :kx
+    growth_rate_by_kxy_over_time_gsl_vector(options)
+  end
 
-    # The growth rate of the fluctuations, calculated from the potential, indexed by time and normalised to vth_1/a.
-    # :ky or :ky_index must be specified in options
+  # The growth rate of the fluctuations, calculated from the potential, indexed by time and normalised to vth_1/a.
+  # :ky or :ky_index must be specified in options
+  def growth_rate_by_ky_over_time_gsl_vector(options)
+    options[:direction] = :ky
+    growth_rate_by_kxy_over_time_gsl_vector(options)
+  end
+    
+  def growth_rate_by_kxy_over_time_gsl_vector(options)
+    # i.e. time_dependent_gr_by_ky_vs_time or phi2_by_kx_vs_time
 
-    def growth_rate_by_ky_over_time_gsl_vector(options)
-      options[:direction] = :ky
-      growth_rate_by_kxy_over_time_gsl_vector(options)
-    end
-    def growth_rate_by_kxy_over_time_gsl_vector(options)
-      # i.e. time_dependent_gr_by_ky_vs_time or phi2_by_kx_vs_time
+    kxy = options[:direction]
 
-      kxy = options[:direction]
+    phi = gsl_vector("phi2_by_#{kxy}_over_time", options).log / 2.0
 
-      phi = gsl_vector("phi2_by_#{kxy}_over_time", options).log / 2.0
+    size = phi.size
+    dphi = phi.subvector(1, size - 1) - phi.subvector(0, size-1)
+    # NB dt already has norm fixed, dphi is dimensionless
+    return fix_norm(dphi/gsl_vector('dt'), 0, options)
+  end
 
-      size = phi.size
-      dphi = phi.subvector(1, size - 1) - phi.subvector(0, size-1)
-      # NB dt already has norm fixed, dphi is dimensionless
-      return fix_norm(dphi/gsl_vector('dt'), 0, options)
-    end
+  # The real frequency of the fluctuations, read from the .out file, indexed by time and normalised to vth_1/a.
+  # :ky_index or :kx_index must be specified in options.
+  def frequency_by_kx_over_time_gsl_vector(options)
+    options[:direction] = :kx
+    frequency_by_kxy_over_time_gsl_vector(options)
+  end
 
-    # The real frequency of the fluctuations, read from the .out file, indexed by time and normalised to vth_1/a.
-    # :ky_index or :kx_index must be specified in options.
+  def frequency_by_ky_over_time_gsl_vector(options)
+    options[:direction] = :ky
+    frequency_by_kxy_over_time_gsl_vector(options)
+  end
 
-    def frequency_by_kx_over_time_gsl_vector(options)
-            options[:direction] = :kx
-            frequency_by_kxy_over_time_gsl_vector(options)
-    end
+  def frequency_by_kxy_over_time_gsl_vector(options)
+    kxy = options[:direction]
+    kxy_index = kxy + :_index
+    kxys = get_list_of(kxy)
+    desired_kxy = kxys[options[kxy_index]]
+    raise "No k found at the desired index" if desired_kxy.nil?
 
-    def frequency_by_ky_over_time_gsl_vector(options)
-            options[:direction] = :ky
-            frequency_by_kxy_over_time_gsl_vector(options)
-    end
+    omega_reals = []
+    File.open(@run_name+".out",'r') do |fileHandle|
+      fileHandle.each_line do |fileLine|
+        if fileLine.include?('aky=')  # Only examine the lines of the .out file that contain frequency information.
 
-    def frequency_by_kxy_over_time_gsl_vector(options)
-      kxy = options[:direction]
-      kxy_index = kxy + :_index
-      kxys = get_list_of(kxy)
-      desired_kxy = kxys[options[kxy_index]]
-      raise "No k found at the desired index" if desired_kxy.nil?
+          index = fileLine.index('akx=')
+          raise "akx wasn't found where it was expected in the .out file." if index.nil?
+          akx = fileLine[(index+4)..-1].to_f
 
-      omega_reals = []
-      File.open(@run_name+".out",'r') do |fileHandle|
-        fileHandle.each_line do |fileLine|
-          if fileLine.include?('aky=')  # Only examine the lines of the .out file that contain frequency information.
+          index = fileLine.index('aky=')
+          raise "aky wasn't found where it was expected in the .out file." if index.nil?
+          aky = fileLine[(index+4)..-1].to_f
 
-            index = fileLine.index('akx=')
-            raise "akx wasn't found where it was expected in the .out file." if index.nil?
-            akx = fileLine[(index+4)..-1].to_f
-
-            index = fileLine.index('aky=')
-            raise "aky wasn't found where it was expected in the .out file." if index.nil?
-            aky = fileLine[(index+4)..-1].to_f
-
-            index = fileLine.index('om=')
-            raise "om wasn't found where it was expected in the .out file." if index.nil?
-            omr = fileLine[(index+3)..-1].to_f
-            if kxy == :kx
-              # You need to be careful when testing equality of the desired k with the k in the .out file
-              # since the .out file is only written to ~ 5 significant digits:
-              omega_reals << omr if ((desired_kxy - akx).abs/(desired_kxy.abs + 1e-7) < 1e-4)
-            else
-              omega_reals << omr if ((desired_kxy - aky).abs/(desired_kxy.abs + 1e-7) < 1e-4)
-            end
+          index = fileLine.index('om=')
+          raise "om wasn't found where it was expected in the .out file." if index.nil?
+          omr = fileLine[(index+3)..-1].to_f
+          if kxy == :kx
+            # You need to be careful when testing equality of the desired k with the k in the .out file
+            # since the .out file is only written to ~ 5 significant digits:
+            omega_reals << omr if ((desired_kxy - akx).abs/(desired_kxy.abs + 1e-7) < 1e-4)
+          else
+            omega_reals << omr if ((desired_kxy - aky).abs/(desired_kxy.abs + 1e-7) < 1e-4)
           end
         end
       end
-      raise "No real frequencies found in the .out file for the desired k" if (omega_reals.size==0)
-      GSL::Vector.alloc(omega_reals)
     end
+    raise "No real frequencies found in the .out file for the desired k" if (omega_reals.size==0)
+    GSL::Vector.alloc(omega_reals)
+  end
 
-    # The size of each time step,  indexed by time, normalised to a/v_th1.
+  # The size of each time step,  indexed by time, normalised to a/v_th1.
+  def dt_gsl_vector(options)
+    t = gsl_vector('t', options)
+    size = t.size
+    # NB t already has norm fixed
+    return t.subvector(1, size - 1) - t.subvector(0, size-1)
+  end
 
-    def dt_gsl_vector(options)
-      t = gsl_vector('t', options)
-      size = t.size
-      # NB t already has norm fixed
-      return t.subvector(1, size - 1) - t.subvector(0, size-1)
-    end
-
-    # The growth rate, calculated from the potential, indexed by kx. Only makes sense in linear calculations.
+  # The growth rate, calculated from the potential, indexed by kx. Only makes sense in linear calculations.
   def growth_rate_over_kx_gsl_vector(options)
     options[:direction] = :kx
     growth_rate_over_kxy_gsl_vector(options)
   end
-    # The growth rate, calculated from the potential, indexed by ky. Only makes sense in linear calculations.
+  # The growth rate, calculated from the potential, indexed by ky. Only makes sense in linear calculations.
   def growth_rate_over_ky_gsl_vector(options)
     options[:direction] = :ky
     growth_rate_over_kxy_gsl_vector(options)
@@ -377,9 +373,7 @@ module GSLVectors
   def growth_rate_over_kxy_gsl_vector(options)
     Dir.chdir(@directory) do      # i.e. phi2_by_ky_vs_time or phi2_by_kx_vs_time
       kxy = options[:direction]
-#       ep :growth_rate_at_ + kxy
       return GSL::Vector.alloc(send(:growth_rate_at_ + kxy).values)
-
     end
   end
   private :growth_rate_over_kxy_gsl_vector
@@ -403,16 +397,11 @@ module GSLVectors
     end
   end
 
-  # Frequency, indexed over ky, taken direct from the gs2 output file
-  def frequency_over_ky_gsl_vector(options)
-      options.convert_to_index(self, :kx)
-      return GSL::Vector.alloc(gsl_vector('ky').to_a.map{|ky| frequency_at_ky_at_kx[ky].values[options[:kx_index]-1]})
-  end
-
   def es_heat_flux_by_kx_over_time_gsl_vector(options)
     options[:direction] = :kx
     es_heat_flux_by_kxy_over_time_gsl_vector(options)
   end
+
   def es_heat_flux_by_ky_over_time_gsl_vector(options)
     options[:direction] = :ky
     es_heat_flux_by_kxy_over_time_gsl_vector(options)
@@ -450,6 +439,7 @@ module GSLVectors
     options[:direction] = :kx
     es_heat_flux_over_kxy_gsl_vector(options)
   end
+
   def es_heat_flux_over_ky_gsl_vector(options)
     options[:direction] = :ky
     es_heat_flux_over_kxy_gsl_vector(options)
@@ -487,14 +477,17 @@ module GSLVectors
       end
     end
   end
+
   def phi2_by_kx_over_time_gsl_vector(options)
     options[:direction] = :kx
     phi2_by_kxy_over_time_gsl_vector(options)
   end
+  
   def phi2_by_ky_over_time_gsl_vector(options)
     options[:direction] = :ky
     phi2_by_kxy_over_time_gsl_vector(options)
   end
+  
   def phi2_by_kxy_over_time_gsl_vector(options)
     Dir.chdir(@directory) do
       # i.e. phi2_by_ky_vs_time or phi2_by_kx_vs_time
@@ -505,31 +498,19 @@ module GSLVectors
       end
       kxy_index = kxy + :_index
 
-
       #Necessary options: :ky or :kx
       #Optional options: :t_index_window
-      #     eputs "got here"
-      #options[:begin_element], options[:end_element] = (options[:t_index_window] ? options[:t_index_window].map{|ind| ind -1} : [0, -1])
       phi_t_array=nil
       if @grid_option == "single"
         phi_t_array = netcdf_file.var('phi2').get('start' => [options[:begin_element]], 'end' => [options[:end_element]]).to_a.flatten
       else
-#         value = options[:ky]
-#         eputs value
-#         get_list_of(:ky)
-#         index = @ky_list.find{|index,val| (val-value).abs < Float::EPSILON}[0]
-#         ep options
         options.convert_to_index(self, kxy)
-        #ep options
         phi_t_array = netcdf_file.var("phi2_by_#{kxy}").get('start' => [options[kxy_index] - 1, options[:begin_element]], 'end' => [options[kxy_index] - 1, options[:end_element]]).to_a.flatten
-#         eputs 'phi_t_array.size', phi_t_array.size
       end
       return GSL::Vector.alloc(phi_t_array)
-
     end
   end
   private :phi2_by_kxy_over_time_gsl_vector
-
 
   def phi2_by_mode_over_time_gsl_vector(options)
     Dir.chdir(@directory) do      #Necessary options: :ky and :kx
@@ -608,7 +589,6 @@ module GSLVectors
       options.convert_to_index(self, :kx, :ky)
       phi0_array = netcdf_file.var('phi0').get.to_a.map{|arr| arr[options[:kx_index] - 1][options[:ky_index] - 1][options[:ri]]}
       return GSL::Vector.alloc(phi0_array)
-
     end
   end
 
@@ -704,6 +684,7 @@ module GSLVectors
       end
     end
   end
+ 
   def kpar_gsl_vector(options)
 
     Dir.chdir(@directory) do
@@ -829,93 +810,120 @@ module GSLVectors
     end
   end
 
-    def hflux_tot_over_time_gsl_vector(options)
-      Dir.chdir(@directory) do
-        options.setup_time_window
-        narr = netcdf_file.var('hflux_tot').get('start' => [options[:begin_element]], 'end' => [options[:end_element]])
-        #eputs 'Got narr'
-        #ep 'hflux_tot', hflux
-        #eputs "fixing norm"
-        return fix_heat_flux_norm(GSL::Vector.alloc(narr.to_a), options)
-      end
+  def hflux_tot_over_time_gsl_vector(options)
+    Dir.chdir(@directory) do
+      options.setup_time_window
+      narr = netcdf_file.var('hflux_tot').get('start' => [options[:begin_element]], 'end' => [options[:end_element]])
+      #eputs 'Got narr'
+      #ep 'hflux_tot', hflux
+      #eputs "fixing norm"
+      return fix_heat_flux_norm(GSL::Vector.alloc(narr.to_a), options)
     end
-    alias :hflux_tot_gsl_vector :hflux_tot_over_time_gsl_vector
-    def es_heat_flux_over_time_gsl_vector(options)
-      Dir.chdir(@directory) do
-
-        options.setup_time_window
-        return GSL::Vector.alloc(netcdf_file.var('es_heat_flux').get('start' => [options[:species_index].to_i - 1, options[:begin_element]], 'end' => [options[:species_index].to_i - 1, options[:end_element]]).to_a.flatten)
-      end
-    end
-    def es_heat_par_over_time_gsl_vector(options)
-      Dir.chdir(@directory) do
-
-        options.setup_time_window
-        return GSL::Vector.alloc(netcdf_file.var('es_heat_par').get('start' => [options[:species_index].to_i - 1, options[:begin_element]], 'end' => [options[:species_index].to_i - 1, options[:end_element]]).to_a.flatten)
-      end
-    end
-    alias :es_heat_par_gsl_vector :es_heat_par_over_time_gsl_vector
-    def es_heat_perp_over_time_gsl_vector(options)
-      Dir.chdir(@directory) do
-
-        options.setup_time_window
-        return GSL::Vector.alloc(netcdf_file.var('es_heat_perp').get('start' => [options[:species_index].to_i - 1, options[:begin_element]], 'end' => [options[:species_index].to_i - 1, options[:end_element]]).to_a.flatten)
-      end
-    end
-    alias :es_heat_perp_gsl_vector :es_heat_perp_over_time_gsl_vector
-    def es_heat_flux_over_time_gsl_vector(options)
-      Dir.chdir(@directory) do
-
-        options.setup_time_window
-        return GSL::Vector.alloc(netcdf_file.var('es_heat_flux').get('start' => [options[:species_index].to_i - 1, options[:begin_element]], 'end' => [options[:species_index].to_i - 1, options[:end_element]]).to_a.flatten)
-      end
-    end
-    def es_mom_flux_over_time_gsl_vector(options)
-      Dir.chdir(@directory) do
-        options.setup_time_window
-        return GSL::Vector.alloc(netcdf_file.var('es_mom_flux').get('start' => [options[:species_index].to_i - 1, options[:begin_element]], 'end' => [options[:species_index].to_i - 1, options[:end_element]]).to_a.flatten)
-      end
-    end
-    def es_part_flux_over_time_gsl_vector(options)
-      Dir.chdir(@directory) do
-        options.setup_time_window
-        return GSL::Vector.alloc(netcdf_file.var('es_part_flux').get('start' => [options[:species_index].to_i - 1, options[:begin_element]], 'end' => [options[:species_index].to_i - 1, options[:end_element]]).to_a.flatten)
-      end
-    end
-    # Velocity space diagnostics: fraction of dist func in higher
-    # pitch angle harmonics
-    def lpc_pitch_angle_gsl_vector(options)
-      raise "Velocity space lpc diagnostics not found" unless FileTest.exist? "#@directory/#@run_name.lpc"
-      lpc = GSL::Vector.filescan("#@directory/#@run_name.lpc")
-      return lpc[1]
-    end
-    # Velocity space diagnostics: fraction of dist func in higher
-    # energy harmonics
-    def lpc_energy_gsl_vector(options)
-      raise "Velocity space lpc diagnostics not found" unless FileTest.exist? "#@directory/#@run_name.lpc"
-      lpc = GSL::Vector.filescan("#@directory/#@run_name.lpc")
-      return lpc[2]
-    end
-    # Velocity space diagnostics: integral error due to
-    # pitch angle resolution
-    def vres_pitch_angle_gsl_vector(options)
-      raise "Velocity space vres diagnostics not found" unless FileTest.exist? "#@directory/#@run_name.vres"
-      vres = GSL::Vector.filescan("#@directory/#@run_name.vres")
-      return vres[1]
-    end
-    # Velocity space diagnostics: integral error due to
-    # energy resolution
-    def vres_energy_gsl_vector(options)
-      raise "Velocity space vres diagnostics not found" unless FileTest.exist? "#@directory/#@run_name.vres"
-      vres = GSL::Vector.filescan("#@directory/#@run_name.vres")
-      return vres[2]
-    end
-    def par_mom_flux_over_time_gsl_vector(options)
+  end
+  alias :hflux_tot_gsl_vector :hflux_tot_over_time_gsl_vector
+  
+  def es_heat_flux_over_time_gsl_vector(options)
     Dir.chdir(@directory) do
 
       options.setup_time_window
+      return GSL::Vector.alloc(netcdf_file.var('es_heat_flux').get('start' => [options[:species_index].to_i - 1, options[:begin_element]], 'end' => [options[:species_index].to_i - 1, options[:end_element]]).to_a.flatten)
+    end
+  end
+  
+  def es_heat_par_over_time_gsl_vector(options)
+    Dir.chdir(@directory) do
+
+      options.setup_time_window
+      return GSL::Vector.alloc(netcdf_file.var('es_heat_par').get('start' => [options[:species_index].to_i - 1, options[:begin_element]], 'end' => [options[:species_index].to_i - 1, options[:end_element]]).to_a.flatten)
+    end
+  end
+  alias :es_heat_par_gsl_vector :es_heat_par_over_time_gsl_vector
+  
+  def es_heat_perp_over_time_gsl_vector(options)
+    Dir.chdir(@directory) do
+
+      options.setup_time_window
+      return GSL::Vector.alloc(netcdf_file.var('es_heat_perp').get('start' => [options[:species_index].to_i - 1, options[:begin_element]], 'end' => [options[:species_index].to_i - 1, options[:end_element]]).to_a.flatten)
+    end
+  end
+  alias :es_heat_perp_gsl_vector :es_heat_perp_over_time_gsl_vector
+  
+  def es_heat_flux_over_time_gsl_vector(options)
+    Dir.chdir(@directory) do
+
+      options.setup_time_window
+      return GSL::Vector.alloc(netcdf_file.var('es_heat_flux').get('start' => [options[:species_index].to_i - 1, options[:begin_element]], 'end' => [options[:species_index].to_i - 1, options[:end_element]]).to_a.flatten)
+    end
+  end
+  
+  def es_mom_flux_over_time_gsl_vector(options)
+    Dir.chdir(@directory) do
+      options.setup_time_window
+      return GSL::Vector.alloc(netcdf_file.var('es_mom_flux').get('start' => [options[:species_index].to_i - 1, options[:begin_element]], 'end' => [options[:species_index].to_i - 1, options[:end_element]]).to_a.flatten)
+    end
+  end
+  
+  def es_part_flux_over_time_gsl_vector(options)
+    Dir.chdir(@directory) do
+      options.setup_time_window
+      return GSL::Vector.alloc(netcdf_file.var('es_part_flux').get('start' => [options[:species_index].to_i - 1, options[:begin_element]], 'end' => [options[:species_index].to_i - 1, options[:end_element]]).to_a.flatten)
+    end
+  end
+  
+  # Velocity space diagnostics: fraction of dist func in higher
+  # pitch angle harmonics
+  def lpc_pitch_angle_gsl_vector(options)
+    raise "Velocity space lpc diagnostics not found" unless FileTest.exist? "#@directory/#@run_name.lpc"
+    lpc = GSL::Vector.filescan("#@directory/#@run_name.lpc")
+    return lpc[1]
+  end
+  
+  # Velocity space diagnostics: fraction of dist func in higher
+  # energy harmonics
+  def lpc_energy_gsl_vector(options)
+    raise "Velocity space lpc diagnostics not found" unless FileTest.exist? "#@directory/#@run_name.lpc"
+    lpc = GSL::Vector.filescan("#@directory/#@run_name.lpc")
+    return lpc[2]
+  end
+  
+  # Velocity space diagnostics: integral error due to
+  # pitch angle resolution
+  def vres_pitch_angle_gsl_vector(options)
+    raise "Velocity space vres diagnostics not found" unless FileTest.exist? "#@directory/#@run_name.vres"
+    vres = GSL::Vector.filescan("#@directory/#@run_name.vres")
+    return vres[1]
+  end
+  
+  # Velocity space diagnostics: integral error due to
+  # energy resolution
+  def vres_energy_gsl_vector(options)
+    raise "Velocity space vres diagnostics not found" unless FileTest.exist? "#@directory/#@run_name.vres"
+    vres = GSL::Vector.filescan("#@directory/#@run_name.vres")
+    return vres[2]
+  end
+  
+  def par_mom_flux_over_time_gsl_vector(options)
+  Dir.chdir(@directory) do
+
+    options.setup_time_window
+    # This is a hack... one day some one will put it in the NetCDF file (haha).
+    momlines = `grep parmom #@run_name.out`
+    mom = []
+    momlines.scan(Regexp.new("#{LongRegexen::FLOAT.to_s}$")) do
+      mom.push $~[:float].to_f
+    end
+    options[:end_element] = (mom.size + options[:end_element]) if options[:end_element] < 0
+#       p options
+    return GSL::Vector.alloc(mom).subvector(options[:begin_element], options[:end_element] - options[:begin_element] + 1)
+  end
+  end
+
+  def perp_mom_flux_over_time_gsl_vector(options)
+
+    Dir.chdir(@directory) do
+      options.setup_time_window
       # This is a hack... one day some one will put it in the NetCDF file (haha).
-      momlines = `grep parmom #@run_name.out`
+      momlines = `grep perpmom #@run_name.out`
       mom = []
       momlines.scan(Regexp.new("#{LongRegexen::FLOAT.to_s}$")) do
         mom.push $~[:float].to_f
@@ -924,165 +932,154 @@ module GSLVectors
 #       p options
       return GSL::Vector.alloc(mom).subvector(options[:begin_element], options[:end_element] - options[:begin_element] + 1)
     end
+  end
+
+  def scan_parameter_value_gsl_vector(options)
+    return GSL::Vector.alloc(netcdf_file.var('scan_parameter_value').get.to_a)
+  end
+  
+  def spectrum_over_kx_gsl_vector(options)
+    options[:direction] = :kx
+    spectrum_over_kxy_gsl_vector(options)
+  end
+
+  def spectrum_over_kx_avg_gsl_vector(options)
+    options[:direction] = :kx
+    spectrum_over_kxy_avg_gsl_vector(options)
+  end
+ 
+  def spectrum_over_ky_gsl_vector(options)
+    options[:direction] = :ky
+    spectrum_over_kxy_gsl_vector(options)
+  end
+  
+  def spectrum_over_ky_avg_gsl_vector(options)
+    options[:direction] = :ky
+    spectrum_over_kxy_avg_gsl_vector(options)
+  end
+  
+  def spectrum_over_kxy_gsl_vector(options)
+    Dir.chdir(@directory) do
+      # i.e. spectrum_over_ky or spectrum_over_kx
+      kxy = options[:direction]
+#       eputs options[:t_index]
+      raise "Spectrum makes no sense for single modes" if @grid_option == "single"
+
+      options.convert_to_index(:t) if options[:t] or options[:t_element]
+#       eputs options[:t_index]
+
+      options[:t_index] ||= list(:t).keys.max
+#       eputs options[:t_index]
+      phi_array = netcdf_file.var("phi2_by_#{kxy}").get('start' => [0, options[:t_index] - 1], 'end' => [-1, options[:t_index] - 1]).to_a.flatten
+      v = GSL::Vector.alloc(phi_array)
+      v = v.from_box_order if kxy == :kx
+      v = v.mul(gsl_vector(kxy).square) unless options[:phi2_only]
+      return v
     end
+  end
 
-    def perp_mom_flux_over_time_gsl_vector(options)
+  #spectrum averaged in time
+  def spectrum_over_kxy_avg_gsl_vector(options)
+    Dir.chdir(@directory) do
+      # i.e. spectrum_over_ky or spectrum_over_kx
+      kxy = options[:direction]
+      raise "Spectrum makes no sense for single modes" if @grid_option == "single"
 
-      Dir.chdir(@directory) do
-        options.setup_time_window
-        # This is a hack... one day some one will put it in the NetCDF file (haha).
-        momlines = `grep perpmom #@run_name.out`
-        mom = []
-        momlines.scan(Regexp.new("#{LongRegexen::FLOAT.to_s}$")) do
-          mom.push $~[:float].to_f
-        end
-        options[:end_element] = (mom.size + options[:end_element]) if options[:end_element] < 0
-  #       p options
-        return GSL::Vector.alloc(mom).subvector(options[:begin_element], options[:end_element] - options[:begin_element] + 1)
+      phi_array = netcdf_file.var("phi2_by_#{kxy}").get('start' => [0, 0], 'end' => [-1, -1]) #index = [kx or ky, t]
+
+      shape = phi_array.shape
+      phi_av = [];
+      #average over time for each kx or ky individually
+      for i in 0...shape[0]
+        phi_av[i] = phi_array[i,0..-1].sum / shape[1]
       end
-    end
 
-    def scan_parameter_value_gsl_vector(options)
-      return GSL::Vector.alloc(netcdf_file.var('scan_parameter_value').get.to_a)
+      v = GSL::Vector.alloc(phi_av)
+      v = v.from_box_order if kxy == :kx
+      v = v.mul(gsl_vector(kxy).square) unless options[:phi2_only]
+      return v
     end
-    def spectrum_over_kx_gsl_vector(options)
-      options[:direction] = :kx
-      spectrum_over_kxy_gsl_vector(options)
-    end
+  end
 
-    def spectrum_over_kx_avg_gsl_vector(options)
-      options[:direction] = :kx
-      spectrum_over_kxy_avg_gsl_vector(options)
-    end
-    def spectrum_over_ky_gsl_vector(options)
-      options[:direction] = :ky
-      spectrum_over_kxy_gsl_vector(options)
-    end
-    def spectrum_over_ky_avg_gsl_vector(options)
-      options[:direction] = :ky
-      spectrum_over_kxy_avg_gsl_vector(options)
-    end
-    def spectrum_over_kxy_gsl_vector(options)
-      Dir.chdir(@directory) do
-        # i.e. spectrum_over_ky or spectrum_over_kx
-        kxy = options[:direction]
-  #       eputs options[:t_index]
-        raise "Spectrum makes no sense for single modes" if @grid_option == "single"
+  def x_gsl_vector(options)
+    raise "options nakx and interpolate_x are incompatible" if options[:nakx] and options[:interpolate_x]
+    kx = gsl_vector(:kx, options)
+    lx = 2*Math::PI/kx.to_box_order[1]
+    #ep 'lx', lx
+    nx = options[:nakx]||kx.size
+    GSL::Vector.indgen(nx, 0, lx/nx)
+  end
+  
+  def y_gsl_vector(options)
+    raise "options naky and interpolate_y are incompatible" if options[:naky] and options[:interpolate_y]
+    ky = gsl_vector(:ky, options)
+    ly = 2*Math::PI/ky[1]
+    ny = options[:naky]||ky.size
+    ysize = ny*2-2+ny%2
+    GSL::Vector.indgen(ysize, 0, ly/ysize)
+  end
 
-        options.convert_to_index(:t) if options[:t] or options[:t_element]
-  #       eputs options[:t_index]
+  #This function reads in the 'drhodpsi' variable from the netcdf file.
+  def drhodpsi_gsl_vector(options)
+    drhodpsi = netcdf_file.var('drhodpsi').get()[0]
+    return drhodpsi
+  end
 
-        options[:t_index] ||= list(:t).keys.max
-  #       eputs options[:t_index]
-        phi_array = netcdf_file.var("phi2_by_#{kxy}").get('start' => [0, options[:t_index] - 1], 'end' => [-1, options[:t_index] - 1]).to_a.flatten
-        v = GSL::Vector.alloc(phi_array)
-        v = v.from_box_order if kxy == :kx
-        v = v.mul(gsl_vector(kxy).square) unless options[:phi2_only]
-        return v
+  #This function returns the zonal flow velocity as a function of x (the radial coordinate).
+  #This is v_ZF = kxfac*IFT(i k_x phi_imag), where kxfac = (qinp/rhoc)*grho(rhoc).
+  def zf_velocity_over_x_gsl_vector(options)
+    Dir.chdir(@directory) do
+      raise CRFatal.new("Need either qinp or pk and epsl specified in order to calculate kxfac.
+                        If using numerical equil use the option :kxfac to override calculation.") unless @qinp or (@pk and @eps) or options[:kxfac]
+
+      kx = gsl_vector(:kx).to_box_order
+      drhodpsi = gsl_vector('drhodpsi')
+
+      phi = GSL::Vector.alloc(kx.size)
+      for it in 0...gsl_vector(:t).size
+        options[:t_index] = it
+        phi += gsl_vector_complex('phi_zonal', options)
       end
-    end
+      phi /= gsl_vector(:t).size
 
-    #spectrum averaged in time
-    def spectrum_over_kxy_avg_gsl_vector(options)
-      Dir.chdir(@directory) do
-        # i.e. spectrum_over_ky or spectrum_over_kx
-        kxy = options[:direction]
-        raise "Spectrum makes no sense for single modes" if @grid_option == "single"
-
-        phi_array = netcdf_file.var("phi2_by_#{kxy}").get('start' => [0, 0], 'end' => [-1, -1]) #index = [kx or ky, t]
-
-        shape = phi_array.shape
-        phi_av = [];
-        #average over time for each kx or ky individually
-        for i in 0...shape[0]
-          phi_av[i] = phi_array[i,0..-1].sum / shape[1]
-        end
-
-        v = GSL::Vector.alloc(phi_av)
-        v = v.from_box_order if kxy == :kx
-        v = v.mul(gsl_vector(kxy).square) unless options[:phi2_only]
-        return v
+      if @qinp
+        kxfac = (@qinp/@rhoc)/drhodpsi
+      elsif @pk and @epsl
+        kxfac = (@epsl/@pk)/drhodpsi
+      elsif options[:kxfac]
+        kxfac = options[:kxfac]
       end
+
+      vec_zf_vel = GSL::Vector.alloc(kx.size)
+      #Take imaginary part since i k_x will lead to imaginary part being real
+      vec_zf_vel = 0.5*kxfac*(phi*kx).backward.imag
+      return vec_zf_vel
     end
+  end
 
-    def x_gsl_vector(options)
-      raise "options nakx and interpolate_x are incompatible" if options[:nakx] and options[:interpolate_x]
-      kx = gsl_vector(:kx, options)
-      lx = 2*Math::PI/kx.to_box_order[1]
-      #ep 'lx', lx
-      nx = options[:nakx]||kx.size
-      GSL::Vector.indgen(nx, 0, lx/nx)
+  #This function returns the mean flow velocity as a function of x (the radial coordinate).
+  #This is v_g_exb = (x - x(centre))*g_exb. The x-x(centre) ensures that the flow is zero
+  #at the middle of the box.
+  def mean_flow_velocity_over_x_gsl_vector(options)
+    Dir.chdir(@directory) do
+      raise CRFatal.new("Need to have g_exb > 0 to have a mean flow.") unless @g_exb
+      x = gsl_vector(:x)
+
+      vec_exb_vel = GSL::Vector.alloc(x.size)
+      #Take imaginary part since i k_x will lead to imaginary part being real
+      vec_exb_vel = (x - x[x.size/2])*@g_exb
+      return vec_exb_vel
     end
-    def y_gsl_vector(options)
-      raise "options naky and interpolate_y are incompatible" if options[:naky] and options[:interpolate_y]
-      ky = gsl_vector(:ky, options)
-      ly = 2*Math::PI/ky[1]
-      ny = options[:naky]||ky.size
-      ysize = ny*2-2+ny%2
-      GSL::Vector.indgen(ysize, 0, ly/ysize)
+  end
+
+  def zonal_spectrum_gsl_vector(options)
+    Dir.chdir(@directory) do
+      gmzf = gsl_matrix('spectrum_over_ky_over_kx',options)
+      veczf = GSL::Vector.alloc(gmzf.shape[1])
+      gmzf.shape[1].times{|i| veczf[i] = gmzf[0,i]}
+      return veczf
     end
-
-    #This function reads in the 'drhodpsi' variable from the netcdf file.
-    def drhodpsi_gsl_vector(options)
-      drhodpsi = netcdf_file.var('drhodpsi').get()[0]
-      return drhodpsi
-    end
-
-    #This function returns the zonal flow velocity as a function of x (the radial coordinate).
-    #This is v_ZF = kxfac*IFT(i k_x phi_imag), where kxfac = (qinp/rhoc)*grho(rhoc).
-    def zf_velocity_over_x_gsl_vector(options)
-      Dir.chdir(@directory) do
-        raise CRFatal.new("Need either qinp or pk and epsl specified in order to calculate kxfac.
-                          If using numerical equil use the option :kxfac to override calculation.") unless @qinp or (@pk and @eps) or options[:kxfac]
-
-        kx = gsl_vector(:kx).to_box_order
-        drhodpsi = gsl_vector('drhodpsi')
-
-        phi = GSL::Vector.alloc(kx.size)
-        for it in 0...gsl_vector(:t).size
-          options[:t_index] = it
-          phi += gsl_vector_complex('phi_zonal', options)
-        end
-        phi /= gsl_vector(:t).size
-
-        if @qinp
-          kxfac = (@qinp/@rhoc)/drhodpsi
-        elsif @pk and @epsl
-          kxfac = (@epsl/@pk)/drhodpsi
-        elsif options[:kxfac]
-          kxfac = options[:kxfac]
-        end
-
-        vec_zf_vel = GSL::Vector.alloc(kx.size)
-        #Take imaginary part since i k_x will lead to imaginary part being real
-        vec_zf_vel = 0.5*kxfac*(phi*kx).backward.imag
-        return vec_zf_vel
-      end
-    end
-
-    #This function returns the mean flow velocity as a function of x (the radial coordinate).
-    #This is v_g_exb = (x - x(centre))*g_exb. The x-x(centre) ensures that the flow is zero
-    #at the middle of the box.
-    def mean_flow_velocity_over_x_gsl_vector(options)
-      Dir.chdir(@directory) do
-        raise CRFatal.new("Need to have g_exb > 0 to have a mean flow.") unless @g_exb
-        x = gsl_vector(:x)
-
-        vec_exb_vel = GSL::Vector.alloc(x.size)
-        #Take imaginary part since i k_x will lead to imaginary part being real
-        vec_exb_vel = (x - x[x.size/2])*@g_exb
-        return vec_exb_vel
-      end
-    end
-
-    def zonal_spectrum_gsl_vector(options)
-      Dir.chdir(@directory) do
-        gmzf = gsl_matrix('spectrum_over_ky_over_kx',options)
-        veczf = GSL::Vector.alloc(gmzf.shape[1])
-        gmzf.shape[1].times{|i| veczf[i] = gmzf[0,i]}
-        return veczf
-      end
-    end
+  end
 
 end # module GSLVectors
 include GSLVectors
@@ -1189,6 +1186,7 @@ def gsl_matrix(name, options={})
 end
 
 module GSLMatrices
+  
   def growth_rate_over_ky_over_kx_gsl_matrix(options)
     if @growth_rate_at_ky_at_kx.nil?
        raise("The CodeRunner variable growth_rate_at_ky_at_kx does not seem to have been calculated for this run. This may result when the environment variable GS2_CALCULATE_ALL is not set when the run was analyzed. Try setting GS2_CALCULATE_ALL and then re-analyze the run using, e.g. from the command line,\n $ coderunner rc 'cgrf\' -j #{@id}")
@@ -1196,10 +1194,12 @@ module GSLMatrices
     array = @growth_rate_at_ky_at_kx.values.map{|h| h.values}
     return GSL::Matrix.alloc(array.flatten, array.size, array[0].size)
   end
+  
   def transient_amplification_over_ky_over_kx_gsl_matrix(options)
       array = @transient_amplification_at_ky_at_kx.values.map{|h| h.values}
       return GSL::Matrix.alloc(array.flatten, array.size, array[0].size)
   end
+  
   def es_heat_flux_over_ky_over_kx_gsl_matrix(options)
   Dir.chdir(@directory) do
       raise "Heat flux spectrum makes no sense for single modes" if @grid_option == "single"
@@ -1222,6 +1222,7 @@ module GSLMatrices
       return gm
   end
   end
+  
   def spectrum_over_ky_over_kx_gsl_matrix(options)
   Dir.chdir(@directory) do
       raise "Spectrum makes no sense for single modes" if @grid_option == "single"
@@ -1256,6 +1257,7 @@ module GSLMatrices
       return gm
   end
   end
+  
   def spectrum_over_ky_over_kpar_gsl_matrix(options)
   Dir.chdir(@directory) do
 
@@ -1504,9 +1506,6 @@ def physical_kx_index(box_kx_index)
   #end
 end
 
-
-
-
 def gsl_complex(name, options={})
   options = eval(options) if options.class == String
 #   p @directory
@@ -1553,8 +1552,6 @@ end
 #     return cache[[:gsl_vector, name, options]] ||= get_gsl_matrix(name, options)
 #   end
 # end
-
-
 
 end
 end

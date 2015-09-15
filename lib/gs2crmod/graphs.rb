@@ -12,51 +12,50 @@ def auto_axiskits(name, options)
     hash = cache[:auto_axiskits] ||= {'t' => ['Time', ''],
     'phi2tot_over_time' => ['Phi^2 Total', ''],
     'apar2_over_time' => ['Apar^2 Total', ''],
+    'es_heat_flux_by_ky_over_time' => ['Heat flux by ky', ''],
+    'es_heat_flux_by_kx_over_time' => ['Heat flux by kx', ''],  
+    'es_heat_par' => ['Parallel electrostatic heat flux', ''],
+    'es_heat_perp' => ['Perpendicular electrostatic heat flux', ''],
+    'es_heat_flux_over_kx' => ["Heat Flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", 'Q_gB', 1],
+    'es_heat_flux_over_ky' => ["Heat Flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", 'Q_gB', 1],
+    'es_heat_flux_over_ky_over_kx' => ["Heat flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
+    'es_mom_flux_over_time' => ["#{species_type((options[:species_index] or 1)).capitalize} Momentum Flux", '', 1],
+    'es_part_flux_over_time' => ["#{species_type((options[:species_index] or 1)).capitalize} Particle Flux", '', 1],
+    'frequency_over_kx' => ['Frequency', "v_th#{species_letter}/a", 1],
+    'frequency_over_ky' => ['Frequency', "v_th#{species_letter}/a", 1],
+    'frequency_by_ky_over_time' => ['Real frequency by ky', ''],
+    'frequency_by_kx_over_time' => ['Real frequency by kx', ''],
     'growth_rate_by_ky_over_time' => ['Growth Rate by ky', ''],
     'growth_rate_by_kx_over_time' => ['Growth Rate by kx', ''],  
     'growth_rate_by_mode_over_time' => ["Growth Rate by mode", ''],
-    # <MJL additions 2013-09-19>
-    'frequency_by_ky_over_time' => ['Real frequency by ky', ''],
-    'frequency_by_kx_over_time' => ['Real frequency by kx', ''],
-    # </MJL>
-    'phi2_by_ky_over_time' => ['Phi^2 by ky', ''],
-    'phi2_by_kx_over_time' => ['Phi^2 by ky', ''],  
-    'es_heat_flux_by_ky_over_time' => ['Heat flux by ky', ''],
-    'es_heat_flux_by_kx_over_time' => ['Heat flux by kx', ''],  
-    'phi2_by_mode_over_time' => ["Phi^2 by mode", ''],
-    'tpar2_by_mode_over_time' => ["(delta T_parallel)^2 by mode", '%'],
-    'tperp2_by_mode_over_time' => ["(delta T_perp)^2 by mode", '%'],
-    'hflux_tot' => ['Total Heat Flux', ''],
-    'es_heat_par' => ['Parallel electrostatic heat flux', ''],
-    'es_heat_perp' => ['Perpendicular electrostatic heat flux', ''],
-    'ky' => ['ky', "1/rho_#{species_letter}"],
-    'kx' => ['kx', "1/rho_#{species_letter}"],
-    'x' => ['x', "rho_#{species_letter}", 1],
-    'kpar' => ['kpar', "2 pi/qR"],
     'growth_rate_over_kx' => ['Growth Rate', "v_th#{species_letter}/a", 1],
     'growth_rate_over_ky' => ['Growth Rate', "v_th#{species_letter}/a", 1],
     'growth_rate_over_kx_slice' => ['Growth Rate', "v_th#{species_letter}/a", 1],
     'growth_rate_over_ky_slice' => ['Growth Rate', "v_th#{species_letter}/a", 1],
     'growth_rate_over_ky_over_kx' => ["Growth Rate", "v_th#{species_letter}/a", 2],
-    'frequency_over_ky' => ['Frequency', "v_th#{species_letter}/a", 1],
-    'transient_es_heat_flux_amplification_over_kx' => ['Transient Electrostatic Heat Amplification', "", 1],
-    'transient_es_heat_flux_amplification_over_ky' => ['Transient Electrostatic Heat Amplification', "", 1],
-    'transient_amplification_over_kx' => ['Transient Amplification', "", 1],
-    'transient_amplification_over_ky' => ['Transient Amplification', "", 1],
+    'hflux_tot' => ['Total Heat Flux', ''],
+    'kpar' => ['kpar', "2 pi/qR"],
+    'ky' => ['ky', "1/rho_#{species_letter}"],
+    'kx' => ['kx', "1/rho_#{species_letter}"],
+    'phi2_by_ky_over_time' => ['Phi^2 by ky', ''],
+    'phi2_by_kx_over_time' => ['Phi^2 by ky', ''],  
+    'phi2_by_mode_over_time' => ["Phi^2 by mode", ''],
+    'tpar2_by_mode_over_time' => ["(delta T_parallel)^2 by mode", '%'],
+    'tperp2_by_mode_over_time' => ["(delta T_perp)^2 by mode", '%'],
+    'x' => ['x', "rho_#{species_letter}", 1],
     'spectrum_over_kx' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
     'spectrum_over_kx_avg' => ["Spectrum Averaged Over Time", '', 1],
     'spectrum_over_ky' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
     'spectrum_over_ky_avg' => ["Spectrum Averaged Over Time", '', 1],
-    'es_heat_flux_over_kx' => ["Heat Flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", 'Q_gB', 1],
-    'es_heat_flux_over_ky' => ["Heat Flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", 'Q_gB', 1],
-    'es_heat_flux_over_ky_over_kx' => ["Heat flux at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
     'spectrum_over_kpar' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
     'spectrum_over_ky_over_kx' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
     'spectrum_over_ky_over_kpar' => ["Spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
     #'phi0_over_x_over_y' => ["Phi at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 2],
     'phi0_over_x_over_y' => ["Phi at theta = 0", '', 2],
-    'es_mom_flux_over_time' => ["#{species_type((options[:species_index] or 1)).capitalize} Momentum Flux", '', 1],
-    'es_part_flux_over_time' => ["#{species_type((options[:species_index] or 1)).capitalize} Particle Flux", '', 1],
+    'transient_es_heat_flux_amplification_over_kx' => ['Transient Electrostatic Heat Amplification', "", 1],
+    'transient_es_heat_flux_amplification_over_ky' => ['Transient Electrostatic Heat Amplification', "", 1],
+    'transient_amplification_over_kx' => ['Transient Amplification', "", 1],
+    'transient_amplification_over_ky' => ['Transient Amplification', "", 1],
     'zonal_spectrum' => ["Zonal spectrum at t = #{sprintf("%.3f" ,(options[:t] or list(:t)[options[:t_index]] or list(:t).values.max))}", '', 1],
     'zf_velocity_over_x' => ['Zonal Flow Velocity', "", 1],
     'mean_flow_velocity_over_x' => ['Mean Flow Velocity', "", 1]
@@ -479,62 +478,6 @@ module GraphKits
       end
     end
 
-    def transient_es_heat_flux_amplification_vs_kx_graphkit(options={})
-      options[:kxy] = :kx
-      transient_es_heat_flux_amplification_vs_kxy_graphkit(options)
-    end
-
-    def transient_es_heat_flux_amplification_vs_ky_graphkit(options={})
-      options[:kxy] = :ky
-      transient_es_heat_flux_amplification_vs_kxy_graphkit(options)
-    end
-
-    def transient_es_heat_flux_amplification_vs_kxy_graphkit(options={})
-        case options[:command]
-        when :help
-            return "transient_es_heat_flux_amplification_vs_ky or transient_es_heat_flux_amplification_vs_kx. Growth rates vs either ky or kx for phi^2 integrated over the other direction. For growth rates at a specific kx AND ky, see /transient_es_heat_flux_amplification_vs_kx_vs_ky/. "
-        when :options
-            return []
-        else
-            #raise "Growth Rates are not available in non-linear mode" if @nonlinear_mode == "on"
-            kxy = options[:kxy]
-            kit = GraphKit.autocreate({x: axiskit(kxy.to_s, options), y: axiskit("transient_es_heat_flux_amplification_over_#{kxy}", options)})
-            kit.title  = "Transient Amplification of the ES Heat flux for species #{options[:species_index]} by #{kxy}"
-            kit.data[0].with = "lp"
-            kit.data[0].title = @run_name
-            kit.file_name = options[:graphkit_name]
-            kit
-        end 
-    end
-
-    def transient_amplification_vs_kx_graphkit(options={})
-      options[:kxy] = :kx
-      transient_amplification_vs_kxy_graphkit(options)
-    end
-
-    def transient_amplification_vs_ky_graphkit(options={})
-      options[:kxy] = :ky
-      transient_amplification_vs_kxy_graphkit(options)
-    end
-
-    def transient_amplification_vs_kxy_graphkit(options={})
-      case options[:command]
-      when :help
-        return "transient_amplification_vs_ky or transient_amplification_vs_kx. Growth rates vs either ky or kx for phi^2 integrated over the other direction. For growth rates at a specific kx AND ky, see /transient_amplification_vs_kx_vs_ky/. "
-      when :options
-        return []
-      else
-        #raise "Growth Rates are not available in non-linear mode" if @nonlinear_mode == "on"
-        kxy = options[:kxy]
-        kit = GraphKit.autocreate({x: axiskit(kxy.to_s, options), y: axiskit("transient_amplification_over_#{kxy}", options)})
-        kit.title  = "Transient Amplification by #{kxy}"
-        kit.data[0].with = "lp"
-        kit.data[0].title = @run_name
-        kit.file_name = options[:graphkit_name]
-        kit
-      end 
-    end
-
     def growth_rate_vs_kx_graphkit(options={})
       options[:kxy] = :kx
       growth_rate_vs_kxy_graphkit(options)
@@ -636,24 +579,6 @@ module GraphKits
             kit.file_name = options[:graphkit_name]
             kit
         end
-    end
-
-    def frequency_vs_ky_graphkit(options={})
-        case options[:command]
-        when :help
-            return "Frequencies vs ky. You need the parameter write_line set to \".true.\". "
-        when :options
-            return []
-        else
-            raise "Frequencies are not available in non-linear mode" if @nonlinear_mode == "on"
-            kxy = options[:kxy]
-            kit = GraphKit.autocreate({x: axiskit('ky', options), y: axiskit("frequency_over_ky", options)})
-            kit.title  = "Frequencies vs ky"
-            kit.data[0].gp.with = "lp"
-            kit.data[0].gp.title = @run_name
-            kit.file_name = options[:graphkit_name]
-            kit
-        end 
     end
 
     def hflux_tot_vs_time_graphkit(options={})
@@ -2195,6 +2120,62 @@ module GraphKits
             kit
         end
     end
+
+    def transient_es_heat_flux_amplification_vs_kx_graphkit(options={})
+      options[:kxy] = :kx
+      transient_es_heat_flux_amplification_vs_kxy_graphkit(options)
+    end
+
+    def transient_es_heat_flux_amplification_vs_ky_graphkit(options={})
+      options[:kxy] = :ky
+      transient_es_heat_flux_amplification_vs_kxy_graphkit(options)
+    end
+
+    def transient_es_heat_flux_amplification_vs_kxy_graphkit(options={})
+        case options[:command]
+        when :help
+            return "transient_es_heat_flux_amplification_vs_ky or transient_es_heat_flux_amplification_vs_kx. Growth rates vs either ky or kx for phi^2 integrated over the other direction. For growth rates at a specific kx AND ky, see /transient_es_heat_flux_amplification_vs_kx_vs_ky/. "
+        when :options
+            return []
+        else
+            #raise "Growth Rates are not available in non-linear mode" if @nonlinear_mode == "on"
+            kxy = options[:kxy]
+            kit = GraphKit.autocreate({x: axiskit(kxy.to_s, options), y: axiskit("transient_es_heat_flux_amplification_over_#{kxy}", options)})
+            kit.title  = "Transient Amplification of the ES Heat flux for species #{options[:species_index]} by #{kxy}"
+            kit.data[0].with = "lp"
+            kit.data[0].title = @run_name
+            kit.file_name = options[:graphkit_name]
+            kit
+        end 
+    end
+
+    def transient_amplification_vs_kx_graphkit(options={})
+      options[:kxy] = :kx
+      transient_amplification_vs_kxy_graphkit(options)
+    end
+
+    def transient_amplification_vs_ky_graphkit(options={})
+      options[:kxy] = :ky
+      transient_amplification_vs_kxy_graphkit(options)
+    end
+
+    def transient_amplification_vs_kxy_graphkit(options={})
+      case options[:command]
+      when :help
+        return "transient_amplification_vs_ky or transient_amplification_vs_kx. Growth rates vs either ky or kx for phi^2 integrated over the other direction. For growth rates at a specific kx AND ky, see /transient_amplification_vs_kx_vs_ky/. "
+      when :options
+        return []
+      else
+        #raise "Growth Rates are not available in non-linear mode" if @nonlinear_mode == "on"
+        kxy = options[:kxy]
+        kit = GraphKit.autocreate({x: axiskit(kxy.to_s, options), y: axiskit("transient_amplification_over_#{kxy}", options)})
+        kit.title  = "Transient Amplification by #{kxy}"
+        kit.data[0].with = "lp"
+        kit.data[0].title = @run_name
+        kit.file_name = options[:graphkit_name]
+        kit
+      end 
+    end
     
     def apar2_vs_time_graphkit(options={})
         case options[:command]
@@ -2229,22 +2210,20 @@ module GraphKits
     end
    
     def spectrum_graphkit(options={})
-        case options[:command]
-        when :help
-            return "Graph of phi^2 at a given time vs kx and ky"
-        when :options
-            return  [:with]
-        else
-#                           p @name_match 
-            #options[:times_kx4] = true if @name_match[:kxsq]
-            zaxis = axiskit('spectrum_over_ky_over_kx', options)
-            zaxis.data = zaxis.data.transpose
-            kit = GraphKit.autocreate({y: axiskit('ky', options), x: axiskit('kx', options), z: zaxis})
-            kit.title = "#{options[:log] ?  "Log ": ""}Spectrum (phi^2#{options[:times_kx2] ? " * kx^2" : ""}#{options[:times_kx4] ? " * kx^4" : ""})"
-            kit.data[0].with = (options[:with] or 'pm3d palette')
-            kit.file_name = options[:graphkit_name]
-            kit
-        end
+      case options[:command]
+      when :help
+        return "Graph of phi^2 at a given time vs kx and ky"
+      when :options
+        return  [:with]
+      else
+        zaxis = axiskit('spectrum_over_ky_over_kx', options)
+        zaxis.data = zaxis.data.transpose
+        kit = GraphKit.autocreate({y: axiskit('ky', options), x: axiskit('kx', options), z: zaxis})
+        kit.title = "#{options[:log] ?  "Log ": ""}Spectrum (phi^2#{options[:times_kx2] ? " * kx^2" : ""}#{options[:times_kx4] ? " * kx^4" : ""})"
+        kit.data[0].with = (options[:with] or 'pm3d palette')
+        kit.file_name = options[:graphkit_name]
+        kit
+      end
     end
    
     def spectrum_vs_kpar_vs_ky_graphkit(options={})

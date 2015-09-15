@@ -100,51 +100,51 @@ eval(%[
 @results = [
   :converged,
   :decaying,
-  :growth_rates,
-  :real_frequencies,
-  :growth_rates_by_ky, # deprecated
-  :growth_rates_by_kx, # deprecated
-  :growth_rate_at_ky,
-  :growth_rate_at_kx,
-  :growth_rate_at_ky_at_kx,
-  :frequency_at_ky_at_kx,
-  :real_frequencies_by_ky,
-  :max_growth_rate,
-  :fastest_growing_mode,
-  :freq_of_max_growth_rate,
-  :ky,
-  :gamma_r,
-  :gamma_i,
-  :run_time,
-  :hflux_tot_stav,
-  :phi2_tot_stav,
-  :saturation_time_index,
-  :es_heat_flux_stav,
-  :es_mom_flux_stav,
-  :es_part_flux_stav,
-  :hflux_tot_stav_error,
-  :hflux_tot_stav_std_dev,
   :es_heat_flux_stav_error,
   :es_heat_flux_stav_std_dev,
   :es_mom_flux_stav_error,
   :es_mom_flux_stav_std_dev,
   :es_part_flux_stav_error,
   :es_part_flux_stav_std_dev,
-  :saturated,
-  :shot_time,
-  :spectrum_check,
+  :es_heat_flux_stav,
+  :es_mom_flux_stav,
+  :es_part_flux_stav,
+  :frequency_at_ky_at_kx,
+  :fastest_growing_mode,
+  :freq_of_max_growth_rate,
+  :gamma_r,
+  :gamma_i,
+  :growth_rates,
+  :growth_rates_by_ky, # deprecated
+  :growth_rates_by_kx, # deprecated
+  :growth_rate_at_ky,
+  :growth_rate_at_kx,
+  :growth_rate_at_ky_at_kx,
+  :hflux_tot_stav,
+  :hflux_tot_stav_error,
+  :hflux_tot_stav_std_dev,
+  :ky,
   :ky_spectrum_peak_idx,
   :ky_spectrum_peak_ky,
   :ky_spectrum_peak_phi2,
   :kx_spectrum_peak_kx,
   :kx_spectrum_peak_phi2,
+  :max_growth_rate,
+  :max_transient_amplification_index_at_ky,
+  :phi2_tot_stav,
   :par_mom_flux_stav,
   :perp_mom_flux_stav,
   :phi2_zonal,
+  :run_time,
+  :real_frequencies,
+  :real_frequencies_by_ky,
+  :saturation_time_index,
+  :saturated,
+  :shot_time,
+  :spectrum_check,
   :transient_amplification_at_kx,
   :transient_amplification_at_ky,
   :transient_amplification_at_ky_at_kx,
-  :max_transient_amplification_index_at_ky,
   :transient_es_heat_flux_amplification_at_species_at_kx,
   :transient_es_heat_flux_amplification_at_species_at_ky,
   :transient_es_heat_flux_amplification_at_species_at_ky_at_kx,
@@ -238,12 +238,9 @@ end
 def calculate_results
   return if ENV['CODE_RUNNER_NO_ANALYSIS'] =~ /true/
 
-
   eputs "Analysing run"
 
   if @nonlinear_mode == "off"
-
-    calculate_growth_rates_and_frequencies
     calculate_transient_amplifications
   elsif @nonlinear_mode == "on"
     calculate_saturation_time_index
@@ -258,7 +255,6 @@ def calculate_results
   @growth_rates ||={}
   @real_frequencies ||={}
 end
-
 
 # Try to read the runtime in minutes from the GS2 standard out.
 
@@ -280,7 +276,6 @@ end
 # ncdump(:hflux)
 # ncdump([:hflux, :phi])
 # ncdump([:hflux, :phi], :dims)
-
 
 def ncdump(names=nil, values=nil, extension = '.out.nc')
   names = [names] unless !names or names.class == Array
@@ -1323,16 +1318,14 @@ class Hash
 # puts self
 
   def convert_to_index(run, *names)
-      if self[:strongest_non_zonal_mode]
-           ky_element, kx_element =  run.gsl_matrix('spectrum_over_ky_over_kx', no_zonal: true).max_index
-           p self[:kx_index] = kx_element + 1
-           p self[:ky_index] = ky_element + 1
-           self[:strongest_non_zonal_mode] = false
-      end
+    if self[:strongest_non_zonal_mode]
+       ky_element, kx_element =  run.gsl_matrix('spectrum_over_ky_over_kx', no_zonal: true).max_index
+       p self[:kx_index] = kx_element + 1
+       p self[:ky_index] = ky_element + 1
+       self[:strongest_non_zonal_mode] = false
+    end
     raise "No names specified" if names.size == 0
 
-
-#     ep run
     names.each do |name|
       if name == :kx
         if lkx = self[:lagrangian_kx]
@@ -1343,10 +1336,8 @@ class Hash
         end
       end
 
-      #ep 'name', name
       self[:ky_index] = 1 if name == :ky and run.grid_option == "single"
       self[:kx_index] = 1 if name == :kx and run.grid_option == "single"
-#       ep run.list(name)
       self[name + :_index] ||= run.list(name).key(self[name]) || (raise ("#{name} not specified"))
     end
 

@@ -10,11 +10,8 @@
 #
 ##########################################
 
-
 class CodeRunner
 class Gs2 
-
-
 
 def calculate_time_averaged_fluxes
 	eputs 'Calculating time averaged fluxes'
@@ -123,7 +120,6 @@ def saturated_time_average_std_dev(name, options)
 	end
 	return vec.sd
 end
-
 
 # I.e. the time at which the primary modes are saturated and the fluxes settle around a long term average. 
 
@@ -274,127 +270,98 @@ end
 
 alias :csti :calculate_saturation_time_index
 
-#Actually, this doesn't calculate the frequencies but reads them from run_name.out. Requires write_line to be .true.
-#
 def calculate_frequencies
-		@real_frequencies = FloatHash.new
-		gs2_out = FileUtils.tail(@run_name + ".out", list(:ky).size*list(:kx).size)
-# 		a  = gs2_out.split("\n")
-		final_timestep_list = gs2_out #a.slice((a.size-@ky_list.size*@kx_list.size-1)..a.size-1).join("\n")
- 		log(final_timestep_list.slice(-2..-1))
-# 		eputs final_timestep_list
-		f = LongRegexen::FLOAT.verbatim
-		logi(f)
-		@frequency_at_ky_at_kx||= FloatHash.new
-		ky_values = []
-		regex = Regexp.new( "^.*ky=\\s*(?<aky>#{f})\s*kx=\\s*(?<akx>#{f}).*omav=\\s*(?<re>#{f})\\s*(?<gr>#{f})")
-		final_timestep_list.scan(regex) do
-			aky = eval($~[:aky])
-			akx = eval($~[:akx])
-			@frequency_at_ky_at_kx[aky] = FloatHash.new unless ky_values.include? aky
-			ky_values.push aky
-			@frequency_at_ky_at_kx[aky][akx] = eval($~[:re])
-		end
+  @real_frequencies = FloatHash.new
+  omega_avg_narray = netcdf_file.var("omega_average").get('start' => [0, 0, 0, -1], 
+                                                          'end' => [0, -1, -1, -1])
+  omega_avg_narray.reshape!(*omega_avg_narray.shape.slice(1..2))
+
+  list(:ky).values.sort.each_with_index do |kyv, i|
+    @frequency_at_ky_at_kx[kyv] = FloatHash.new
+    list(:kx).values.sort.each_with_index do |kxv, j|	
+      @frequency_at_ky_at_kx[kyv][kxv] = omega_avg_narray[i, j]
+    end
+    write_results
+  end
 end
+
 def calculate_growth_rates_and_frequencies
-        return if @grid_option == "single" and @aky == 0.0 # no meaningful results
-	Dir.chdir(@directory) do
-		logf(:calculate_growth_rates_and_frequencies)
-		logd
+  return if @grid_option == "single" and @aky == 0.0 # no meaningful results
+  
+  Dir.chdir(@directory) do
+    logf(:calculate_growth_rates_and_frequencies)
+    logd
 
-		calculate_frequencies
-		
-# 		get_list_of(:ky, :kx)
-		@growth_rates= FloatHash.new
-			#raise CRFatal.new("Unknown value of ky read from output file: #{data[:aky].to_f}. Not in list:\n#{list(:ky).values.inspect}") 
-# 		pp @ky_list
-		
-		# With zero magnetic shear, calculate growth rates for both kx and ky
-		#if @shat and @shat.abs < 1.0e-5 and @nx and @nx > 1 
-			to_calc = [:kx, :ky]
-			@growth_rate_at_kx ||= FloatHash.new
-		#else
-			#to_calc = [:ky]
-		#end
-		
-		@growth_rate_at_ky ||= FloatHash.new
- 		eputs
-#		p @growth_rate_at_kx; exit
-		to_calc.each do |kxy|
-			growth_rates = send(:growth_rate_at_ + kxy)
-		list(kxy).values.sort.each do |value|
-			
-			#p growth_rates.keys, value, growth_rates[value.to_f-0.0],
-			#growth_rates.class, growth_rates.keys.include?(value); exit
-	
-			next if growth_rates.keys.include? value
+    calculate_frequencies
+    
+    @growth_rates= FloatHash.new
+    
+    # With zero magnetic shear, calculate growth rates for both kx and ky
+    to_calc = [:kx, :ky]
+    @growth_rate_at_kx ||= FloatHash.new
+    
+    @growth_rate_at_ky ||= FloatHash.new
+    eputs
+    to_calc.each do |kxy|
+      growth_rates = send(:growth_rate_at_ + kxy)
+      list(kxy).values.sort.each do |value|
+      
+      next if growth_rates.keys.include? value
+      
+      Terminal.erewind(1)
+      #ep growth_rates.keys
+      eputs sprintf("Calculating growth rate for #{kxy} = % 1.5e#{Terminal::CLEAR_LINE}", value) 
 
-			
-			Terminal.erewind(1)
-			#ep growth_rates.keys
-			eputs sprintf("Calculating growth rate for #{kxy} = % 1.5e#{Terminal::CLEAR_LINE}", value) 
-			
-
-					# Mode has 0 growth rate at ky==0
-			(growth_rates[value] = 0.0; next) if value == 0.0 and kxy == :ky 
-			if @g_exb_start_timestep
-				t_index_window = [1, [(g_exb_start_timestep-1)/@nwrite, list(:t).keys.max].min]
-				#ep "t_index_window", t_index_window
-			else
-				t_index_window = nil
-			end
-			if list(kxy).size == 1
-				phi2_vec = gsl_vector("phi2tot_over_time", t_index_window: t_index_window)
-			else
-				phi2_vec = gsl_vector("phi2_by_#{kxy}_over_time", kxy=>value, :t_index_window=> t_index_window)
-			end
-			(growth_rates[value] = 0.0; next) if phi2_vec.min <= 0.0
-			growth_rates[value] = calculate_growth_rate(phi2_vec)
-			(eputs "\n\n----------\nIn #@run_name:\n\nphi2_by_#{kxy}_over_time is all NaN; unable to calculate growth rate\n----------\n\n"; growth_rates[value] = -1; next) if growth_rates[value] == "NaN"
-		end
-		end
-		
- 		write_results
-		
-# 		ep "growth_rate_at_ky", @growth_rate_at_ky
-		if ENV['GS2_CALCULATE_ALL']
-		trap(0){eputs "Calculation of spectrum did not complete: run 'cgrf' (i.e. calculate_growth_rates_and_frequencies) for this run. E.g. from the command line \n $ coderunner rc 'cgrf' -j #{@id}"; exit}
-		@growth_rate_at_ky_at_kx ||= FloatHash.new
-		list(:ky).values.sort.each do |kyv|
-			# MJL 2013-11-07: The line below originally used ||= instead of =. I'm not sure why, since ||= does not seem to work.
-			@growth_rate_at_ky_at_kx[kyv] = FloatHash.new
-			list(:kx).values.sort.each do |kxv|	
-				# MJL 2013-11-07: I'm not sure why this next line was originally included. It seemed to cause almost all k's to be skipped.
-				#next if @growth_rate_at_ky_at_kx[kyv].keys.include? kxv
-				Terminal.erewind(1)
-				eputs sprintf("Calculating growth rate for kx = % 1.5e and ky = % 1.5e#{Terminal::CLEAR_LINE}", kxv, kyv) 
-				(@growth_rate_at_ky_at_kx[kyv][kxv] = 0.0; next) if kyv == 0.0 # Mode has 0 growth rate at ky==0
-				phi2_vec = gsl_vector("phi2_by_mode_over_time", {:kx=>kxv, :ky=>kyv})
-				(@growth_rate_at_ky_at_kx[kyv][kxv] = 0.0; next) if phi2_vec.min <= 0.0
-				@growth_rate_at_ky_at_kx[kyv][kxv] = calculate_growth_rate(phi2_vec)
-				(eputs "\n\n----------\nIn #@run_name:\n\nphi2_by_#{kxy}_over_time is all NaN; unable to calculate growth rates\n----------\n\n"; @growth_rate_at_ky_at_kx[kyv][kxv] = -1; next) if @growth_rate_at_ky_at_kx[kyv][kxv] == "NaN" 
-			end
-			write_results
-		end
-		trap(0){}
-		end
-		@growth_rates = @growth_rate_at_ky
-		@max_growth_rate = @growth_rates.values.max
-		@fastest_growing_mode = @growth_rates.key(@max_growth_rate)
-    @freq_of_max_growth_rate = @real_frequencies[@fastest_growing_mode] rescue nil
-		ep @max_growth_rate, @growth_rates
-		@decaying = (@max_growth_rate < 0) if @max_growth_rate
-		@ky = @aky if @aky
-		if @grid_option == "single"
-# 			ep @aky, @growth_rates
-			@gamma_r = @growth_rates[@aky.to_f]
-			@gamma_i = @real_frequencies[@aky.to_f]
-		end
-# 		ep @gamma_r
-		
-		
-# 		eputs @growth_rates; gets
-	end
+      # Mode has 0 growth rate at ky==0
+      (growth_rates[value] = 0.0; next) if value == 0.0 and kxy == :ky 
+      if @g_exb_start_timestep
+          t_index_window = [1, [(g_exb_start_timestep-1)/@nwrite, list(:t).keys.max].min]
+      else
+          t_index_window = nil
+      end
+      if list(kxy).size == 1
+          phi2_vec = gsl_vector("phi2tot_over_time", t_index_window: t_index_window)
+      else
+          phi2_vec = gsl_vector("phi2_by_#{kxy}_over_time", kxy=>value, :t_index_window=> t_index_window)
+      end
+      (growth_rates[value] = 0.0; next) if phi2_vec.min <= 0.0
+      growth_rates[value] = calculate_growth_rate(phi2_vec)
+      (eputs "\n\n----------\nIn #@run_name:\n\nphi2_by_#{kxy}_over_time is all NaN; unable to calculate growth rate\n----------\n\n"; growth_rates[value] = -1; next) if growth_rates[value] == "NaN"
+    end
+  end
+      
+    write_results
+    
+    if ENV['GS2_CALCULATE_ALL']
+    trap(0){eputs "Calculation of spectrum did not complete: run 'cgrf' (i.e. calculate_growth_rates_and_frequencies) for this run. E.g. from the command line \n $ coderunner rc 'cgrf' -j #{@id}"; exit}
+    @growth_rate_at_ky_at_kx ||= FloatHash.new
+    list(:ky).values.sort.each do |kyv|
+      @growth_rate_at_ky_at_kx[kyv] = FloatHash.new
+      list(:kx).values.sort.each do |kxv|	
+        Terminal.erewind(1)
+        eputs sprintf("Calculating growth rate for kx = % 1.5e and ky = % 1.5e#{Terminal::CLEAR_LINE}", kxv, kyv) 
+        (@growth_rate_at_ky_at_kx[kyv][kxv] = 0.0; next) if kyv == 0.0 # Mode has 0 growth rate at ky==0
+        phi2_vec = gsl_vector("phi2_by_mode_over_time", {:kx=>kxv, :ky=>kyv})
+        (@growth_rate_at_ky_at_kx[kyv][kxv] = 0.0; next) if phi2_vec.min <= 0.0
+        @growth_rate_at_ky_at_kx[kyv][kxv] = calculate_growth_rate(phi2_vec)
+        (eputs "\n\n----------\nIn #@run_name:\n\nphi2_by_#{kxy}_over_time is all NaN; unable to calculate growth rates\n----------\n\n"; @growth_rate_at_ky_at_kx[kyv][kxv] = -1; next) if @growth_rate_at_ky_at_kx[kyv][kxv] == "NaN" 
+      end
+      write_results
+    end
+    trap(0){}
+    end
+    @growth_rates = @growth_rate_at_ky
+    @max_growth_rate = @growth_rates.values.max
+    @fastest_growing_mode = @growth_rates.key(@max_growth_rate)
+@freq_of_max_growth_rate = @real_frequencies[@fastest_growing_mode] rescue nil
+    ep @max_growth_rate, @growth_rates
+    @decaying = (@max_growth_rate < 0) if @max_growth_rate
+    @ky = @aky if @aky
+    if @grid_option == "single"
+      @gamma_r = @growth_rates[@aky.to_f]
+      @gamma_i = @real_frequencies[@aky.to_f]
+    end
+  end
 end
 
 alias :cgrf :calculate_growth_rates_and_frequencies
@@ -410,18 +377,16 @@ def calculate_growth_rate(vector, options={})
 	growth_rate = GSL::Fit::linear(gsl_vector(:t).subvector(offset, length-offset), 0.5*GSL::Sf::log(vector.subvector(offset, length - offset)))[1]
 	divisor = 1
 	while (growth_rate.to_s == "NaN")
-			#This corrects the growth rate if phi has grown all the way to NaN during the simulation
-		divisor *= 2
-		length = (vector.size.to_f / divisor.to_f).floor
-# 				p length
-		return "NaN" if length <= offset + 1
-		growth_rate = GSL::Fit::linear(gsl_vector(:t).subvector(offset, length-offset), 0.5*GSL::Sf::log(vector.subvector(offset, length-offset)))[1]
+      #This corrects the growth rate if phi has grown all the way to NaN during the simulation
+      divisor *= 2
+      length = (vector.size.to_f / divisor.to_f).floor
+      return "NaN" if length <= offset + 1
+      growth_rate = GSL::Fit::linear(gsl_vector(:t).subvector(offset, length-offset), 0.5*GSL::Sf::log(vector.subvector(offset, length-offset)))[1]
 	end	
 	growth_rate
 end
 
 # Not needed for GS2 built after 16/06/2010
-
 def corrected_mom_flux_stav
 	par_mom_flux_stav - perp_mom_flux_stav
 end
@@ -492,7 +457,6 @@ def calculate_transient_amplifications
 end
 
 alias :cta :calculate_transient_amplifications
-
 
 def calculate_transient_es_heat_flux_amplifications
   return if @grid_option == "single" and @aky == 0.0 # no meaningful results
@@ -663,7 +627,6 @@ end
 
 alias :ctehfa :calculate_transient_es_heat_flux_amplifications
 alias :ctehfa :calculate_transient_es_heat_flux_amplifications
-
 
 def calculate_transient_amplification(vector, options={})
   if @g_exb and @g_exb > 0.0 and @g_exb_start_timestep
