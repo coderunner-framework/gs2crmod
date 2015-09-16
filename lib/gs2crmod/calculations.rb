@@ -276,12 +276,16 @@ def calculate_frequencies
                                                           'end' => [0, -1, -1, -1])
   omega_avg_narray.reshape!(*omega_avg_narray.shape.slice(1..2))
 
-  list(:ky).values.sort.each_with_index do |kyv, i|
-    @frequency_at_ky_at_kx[kyv] = FloatHash.new
-    list(:kx).values.sort.each_with_index do |kxv, j|	
-      @frequency_at_ky_at_kx[kyv][kxv] = omega_avg_narray[i, j]
+  if @grid_option == 'single'
+    @frequency_at_ky_at_kx = omega_avg_narray[0]
+  else
+    list(:ky).values.sort.each_with_index do |kyv, i|
+      @frequency_at_ky_at_kx[kyv] = FloatHash.new
+      list(:kx).values.sort.each_with_index do |kxv, j|	
+        @frequency_at_ky_at_kx[kyv][kxv] = omega_avg_narray[i, j]
+      end
+      write_results
     end
-    write_results
   end
 end
 
