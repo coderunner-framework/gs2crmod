@@ -17,19 +17,13 @@
 #
 # raw NumRu::NetCDF grids are in Fortran row-major order. This means that when you access grids using the NetCDF function NetCDF#get, you must specify the indices in fortran order (but 0-based!). The NetCDF#get function then returns a C-like NArray with the indices in the opposite order. You can convert this to a Ruby Array using the method NArray#to_a (the indices will still be in the same order).
 
-
-#
-
 begin
   require "numru/netcdf"
 rescue LoadError
     eputs "Error: No NetCDF: data analysis for gs2 not possible"
 end
 
-
 class CodeRunner
-
-
 
   # This is a customised subclass of CodeRunner::Run which allows CodeRunner to submit and analyse simulations from the gyrokinetic flux tube code GS2, which is principally used for simulating plasmas in magnetic confinement fusion.
   #
@@ -54,7 +48,6 @@ class Gs2 < Run::FortranNamelist
 
 #GS2_CRMOD_VERSION = Version.new(Gem.loaded_specs['gs2crmod'].version.to_s)
 GS2_CRMOD_VERSION = Version.new('0.5.0')
-
 
 def agk?
   false
@@ -89,13 +82,11 @@ NaN = GSL::NAN
 eval(%[
 ], GLOBAL_BINDING)
 
-
 ################################################
 # Quantities that are calculated or determined by CodeRunner
 # after the simulation has ended, i.e. quantities
 # that are not available from the GS2 output files.
 ################################################
-
 
 @results = [
   :converged,
@@ -150,7 +141,6 @@ eval(%[
   :transient_es_heat_flux_amplification_at_species_at_ky_at_kx,
   :vspace_check
 ]
-
 
 ###############################################
 # Other useful information about the run
@@ -235,6 +225,7 @@ def process_directory_code_specific
   calculate_results
 
 end
+
 def calculate_results
   return if ENV['CODE_RUNNER_NO_ANALYSIS'] =~ /true/
 
@@ -257,7 +248,6 @@ def calculate_results
 end
 
 # Try to read the runtime in minutes from the GS2 standard out.
-
 def get_run_time
   logf(:get_run_time)
   output = @output_file || try_to_get_output_file
@@ -282,9 +272,6 @@ def ncdump(names=nil, values=nil, extension = '.out.nc')
   names.map!{|name| name.to_s} if names
   pp NumRu::NetCDF.open(@run_name + extension).vars(names).to_a.sort{|var1, var2| var1.name <=> var2.name}.map{|var| values ? [var.name, var.send(values)] : var.name.to_sym}
 end
-
-
-#
 
 def generate_component_runs
   @component_runs = []
@@ -332,8 +319,6 @@ def generate_component_runs
   end
 end
 
-
-
 def get_time
   begin
     lt = list(:t)
@@ -369,6 +354,7 @@ end
 
 def parameter_transition(run)
 end
+
 # @@executable_location = nil
 # def executable_location
 #   return "~/gs2_newterm" #(@@executable_location || ($gs2_new_term ? "~/gs2_newterm" : "~/gs2"))
@@ -433,7 +419,6 @@ def print_out_line
 
 end
 
-
 def get_list_of(*args)
   #args can be any list of e.g. :ky, :kx, :theta, :t ...
   logf(:get_list_of)
@@ -468,7 +453,6 @@ def get_list_of(*args)
   logfc :get_list_of
   return cache[args[0] + :_list] if args.size == 1
 end
-
 alias :list :get_list_of
 
 def visually_check_growth_rate(ky=nil)
@@ -486,7 +470,6 @@ def visually_check_growth_rate(ky=nil)
 
 end
 
-
 def show_graph
   thegraph = special_graph('phi2tot_vs_time_all_kys')
   thegraph.title += " for g_exb = #{@g_exb.to_f.to_s}"
@@ -495,11 +478,6 @@ def show_graph
 #   @decaying = Feedback.get_boolean("Is the graph decaying?")
   thegraph.kill
 end
-
-# @@phi2tot_vs_time_template = {title: "Phi^2 Total vs Time", xlabel: " Time ", ylabel: "Phi^2 Total"})
-
-
-
 
 def restart(new_run)
   (rcp.variables).each{|v| new_run.set(v, send(v)) if send(v)}
@@ -606,7 +584,6 @@ def diff_run_parameters(run_1, run_2)
       (col_widths.sum + col_widths.size*3 - 1) }
 end
 
-
 # Return a list of restart file paths (relative to the run directory).
 def list_of_restart_files
   Dir.chdir(@directory) do
@@ -625,7 +602,6 @@ def list_of_restart_files
     return files
   end # Dir.chdir(@directory) do
 end
-
 alias :lorf :list_of_restart_files
 
 # Return list of response files similar to method for restart files
@@ -644,7 +620,6 @@ def list_of_response_files
 end
 
 # Put restart files in the conventional location, i.e. nc/run_name.proc
-
 def standardize_restart_files
   Dir.chdir(@directory) do
     FileUtils.makedirs('nc')
@@ -666,10 +641,6 @@ def delete_restart_files(options={})
   list_of_restart_files.each{|file| FileUtils.rm file}
 end
 
-
-
-
-
 def species_letter
   species_type(1).downcase[0,1]
 end
@@ -684,14 +655,12 @@ def species_type(index)
   type
 end
 
-
-# Returns true if this run  has not been restarted, false if it has. This allows one to get data from the final run of  a series of restarts.
-
+# Returns true if this run  has not been restarted, false if it has. This
+# allows one to get data from the final run of  a series of restarts.
 def no_restarts
   raise NoRunnerError unless @runner
   !(@runner.runs.find{|run| run.restart_id == @id})
 end
-
 
 def restart_chain
   if @restart_id
@@ -706,11 +675,6 @@ def restart_chain
   end
   return chain
 end
-
-
-
-
-
 
 def get_status
 #   eputs 'Checking Status'
@@ -766,7 +730,6 @@ def get_status
     end
   end
 end
-
 
   def self.modify_job_script(runner, runs_in, script)
     if CODE_OPTIONS[:gs2] and CODE_OPTIONS[:gs2][:list]
@@ -849,7 +812,6 @@ def recheck
   end
 end
 
-
 def generate_input_file(&block)
   raise CRFatal("No Input Module File Given or Module Corrupted") unless 
         methods.include? (:input_file_text)
@@ -910,7 +872,6 @@ def generate_input_file(&block)
   ########
 end
 
-
 def write_input_file
   File.open(@run_name + ".in", 'w'){|file| file.puts input_file_text}
 end
@@ -937,7 +898,6 @@ def actual_number_of_processors
   raise "Please specify the processor layout using the -n or (n:) option" unless @nprocs
   @nprocs.split('x').map{|n| n.to_i}.inject(1){|ntot, n| ntot*n}
 end
-
 alias :anop :actual_number_of_processors
 
 def approximate_grid_size
@@ -948,7 +908,6 @@ def approximate_grid_size
     @ntheta * (2 * @ngauss + @ntheta/2).to_i * @negrid * 2 * @nspec
   end
 end
-
 alias :agridsze :approximate_grid_size
 
 # Gives a guess as to the maximum number of meshpoints which
@@ -964,16 +923,11 @@ end
 def estimated_nodes
   parallelizable_meshpoints / max_ppn
 end
-
 alias :estnod :estimated_nodes
-
-
-
 
 def parameter_string
     return "#{@run_name}.in"
 end
-
 
 def self.list_code_commands
   puts (methods - Run.methods).sort
@@ -1025,9 +979,7 @@ def self.defaults_file_header
 EOF1
 end
 
-
 # Customize this method from Run::FortranNamelist by saying when diagnostics are not switched on.
-
 #def namelist_text(namelist, enum = nil)
   #hash = rcp.namelists[namelist]
   #text = ""
@@ -1070,7 +1022,6 @@ end
 #   save_namelists
 # end
 
-
 def update_physics_parameters_from_miller_input_file(file)
   hash = self.class.parse_input_file(file)
   hash[:parameters].each do |var, val|
@@ -1099,14 +1050,16 @@ def update_physics_parameters_from_miller_input_file(file)
   end
 end
 
-
-
 def renew_info_file
   Dir.chdir(@directory){make_info_file("#@run_name.in")}
 end
 
-# This method overrides a method defined in heuristic_run_methods.rb in the CodeRunner source. It is called when CodeRunner cannot find any of its own files in the folder being analysed. It takes a GS2 input file and generates a CodeRunner info file. This means that GS2 runs which were not run using CodeRunner can nonetheless be analysed by it. In order for it to be called the -H flag must be specified on the command line.
-
+# This method overrides a method defined in heuristic_run_methods.rb in the
+# CodeRunner source. It is called when CodeRunner cannot find any of its own
+# files in the folder being analysed. It takes a GS2 input file and generates a
+# CodeRunner info file. This means that GS2 runs which were not run using
+# CodeRunner can nonetheless be analysed by it. In order for it to be called
+# the -H flag must be specified on the command line.
 def run_heuristic_analysis
   ep 'run_heuristic_analysis', Dir.pwd
   infiles = Dir.entries.grep(/^[^\.].*\.in$/)
@@ -1295,7 +1248,6 @@ Gs2BoxNtRun = Gs2CycloneRun = Gs2BoxCollisionalRun = Gs2Jet42982Run = Gs2ArtunRu
 end # class CodeRunner
 
 # ep CodeRunner::Gs2CycloneRun.ancestors
-
 
 class Float
       def <=>(other) # necessary because of netcdf quirks
