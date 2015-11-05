@@ -1241,6 +1241,51 @@ folder = File.dirname(File.expand_path(__FILE__)) # i.e. the directory this file
 
   end
 
+  def change_id(new_id)
+    # Change names for GS2 output files
+    Dir.chdir(@directory) do
+      dir_entries =  Dir.entries()
+      dir_entries.each do |f|
+        if f.include? 'v_'
+          new_name = f.sub "id_#{@id}", "id_#{new_id}"
+          `mv "#{f}" "#{new_name}"`
+          next
+        end
+        if (f.include? 'v_' or f.include? 'gs2.')
+          new_name = f.sub "gs2.#{@id}", "gs2.#{new_id}"
+          `mv "#{f}" "#{new_name}"`
+          next
+        end
+      end
+    end
+
+    # Change names for GS2 restart files
+    Dir.chdir(@directory + '/' + @restart_dir) do
+      dir_entries =  Dir.entries()
+      dir_entries.each do |f|
+        if f.include? 'v_'
+          new_name = f.sub "id_#{@id}", "id_#{new_id}"
+          `mv "#{f}" "#{new_name}"`
+        end
+      end
+    end
+
+    new_run_dir = @directory.sub "id_#{@id}", "id_#{new_id}"
+    `mv "#{@directory}" "#{new_run_dir}"`
+    @directory = new_run_dir
+
+    # Rename variables which go in info and results file
+    @run_name.sub! "id_#{@id}", "id_#{new_id}"
+    @restart_file.sub! "id_#{@id}", "id_#{new_id}"
+    @output_file.sub! "gs2.#{@id}", "gs2.#{new_id}"
+    @error_file.sub! "gs2.#{@id}", "gs2.#{new_id}"
+
+    # Change instance variable and write info and results files again
+    @id = new_id
+    write_results
+    write_info
+  end
+
 end # class GS2
   # For backwards compatibility
 
