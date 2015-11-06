@@ -1259,15 +1259,19 @@ folder = File.dirname(File.expand_path(__FILE__)) # i.e. the directory this file
       end
     end
 
-    # Change names for GS2 restart files
-    Dir.chdir(@directory + '/' + @restart_dir) do
-      dir_entries =  Dir.entries()
-      dir_entries.each do |f|
-        if f.include? 'v_'
-          new_name = f.sub "id_#{@id}", "id_#{new_id}"
-          `mv "#{f}" "#{new_name}"`
+    begin
+      # Change names for GS2 restart files
+      Dir.chdir(@directory + '/' + @restart_dir) do
+        dir_entries =  Dir.entries()
+        dir_entries.each do |f|
+          if f.include? 'v_'
+            new_name = f.sub "id_#{@id}", "id_#{new_id}"
+            `mv "#{f}" "#{new_name}"`
+          end
         end
       end
+    rescue
+      eputs 'No restart files detected. Skipping...'
     end
 
     new_run_dir = @directory.sub "id_#{@id}", "id_#{new_id}"
