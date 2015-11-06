@@ -408,6 +408,7 @@ module GSLVectors
   end
 
   def es_heat_flux_by_kxy_over_time_gsl_vector(options)
+    raise "The write_fluxes_by_mode flag was not set." unless @write_fluxes_by_mode
     Dir.chdir(@directory) do
       kxy = options[:direction]
       #kxy_index = kxy + :_index
@@ -448,6 +449,7 @@ module GSLVectors
   #This function will output the heat flux as a function of kx or ky.
   #Default behaviour will be to average the heat flux over the time domain.
   def es_heat_flux_over_kxy_gsl_vector(options)
+    raise "The write_fluxes_by_mode flag was not set." unless @write_fluxes_by_mode
     Dir.chdir(@directory) do
       kxy = options[:direction]
       raise "Please provide species_index " unless options[:species_index]
@@ -717,7 +719,7 @@ module GSLVectors
       when :im
         phi_vector = complex_phi_vector.imag
       when :mag
-        _mag = true
+        #mag = true
         phi_vector = complex_phi_vector.abs2
       when :corr
         thetas = gsl_vector('theta_along_field_line', options)
@@ -1201,7 +1203,8 @@ module GSLMatrices
   end
   
   def es_heat_flux_over_ky_over_kx_gsl_matrix(options)
-  Dir.chdir(@directory) do
+    raise "The write_fluxes_by_mode flag was not set." unless @write_fluxes_by_mode
+    Dir.chdir(@directory) do
       raise "Heat flux spectrum makes no sense for single modes" if @grid_option == "single"
       options.convert_to_index(:t) if options[:t] or options[:t_element]
       options[:t_index] ||= list(:t).keys.max
