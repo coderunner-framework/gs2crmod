@@ -126,6 +126,7 @@ eval(%[
   :par_mom_flux_stav,
   :perp_mom_flux_stav,
   :phi2_zonal,
+  :prandtl_number,
   :run_time,
   :real_frequencies,
   :real_frequencies_by_ky,

@@ -387,6 +387,7 @@ def calculate_growth_rate(vector, options={})
       return "NaN" if length <= offset + 1
       growth_rate = GSL::Fit::linear(gsl_vector(:t).subvector(offset, length-offset), 0.5*GSL::Sf::log(vector.subvector(offset, length-offset)))[1]
 	end	
+    p 'HELLLOOASJDKFHASDF'
 	growth_rate
 end
 
@@ -691,24 +692,24 @@ def max_es_heat_amp(species_index)
 end
 
 def calculate_spectral_checks
-	kx = gsl_vector('kx')
-	ky = gsl_vector('ky')
-	ky_spec = gsl_vector('spectrum_over_ky')
-	kx_spec = gsl_vector('spectrum_over_kx')
-	kpar_spec = gsl_vector('spectrum_over_kpar', ky_index: ky_spec.max_index + 1, kx_index: 1)
-	
-	@spectrum_check = []
-	[kx_spec, ky_spec, kpar_spec].each do |spec|
-		begin
-			ends_max = [spec[0], spec[-1]].max + (10.0**(-9))
-			p ends_max 		
-			p spec.max
-			check = (Math.log(spec.max/ends_max)/Math.log(10)).round
-		rescue
-			check= -10
-		end
-		@spectrum_check.push check
-	end
+  kx = gsl_vector('kx')
+  ky = gsl_vector('ky')
+  ky_spec = gsl_vector('spectrum_over_ky')
+  kx_spec = gsl_vector('spectrum_over_kx')
+  kpar_spec = gsl_vector('spectrum_over_kpar', ky_index: ky_spec.max_index + 1, kx_index: 1)
+  
+  @spectrum_check = []
+  [kx_spec, ky_spec, kpar_spec].each do |spec|
+    begin
+      ends_max = [spec[0], spec[-1]].max + (10.0**(-9))
+      p ends_max 		
+      p spec.max
+      check = (Math.log(spec.max/ends_max)/Math.log(10)).round
+    rescue
+      check= -10
+    end
+    @spectrum_check.push check
+  end
 
   #Calculate peak kx, ky spectrum values and associated phi2 values
   @ky_spectrum_peak_idx = ky_spec.max_index 
@@ -749,6 +750,30 @@ def sc(min)
 	return @spectrum_check.min >= min
 end
 alias :csc :calculate_spectral_checks
+
+def calculate_prandtl_number
+  if @g_exb == 0
+    eputs 'g_exb = 0 therefore Prandtl number is undefined.'
+    return nil
+  elsif @nonlinear_mode=="off"
+    eputs 'Prandtl number only makes sense for a nonlinear run.'
+    return nil
+  elsif @local_eq.fortran_false?
+    eputs 'Prandtl number currently only calculated for Miller equilibrium.'
+    return nil
+  end
+
+  @prandtl_number = {}
+
+  @nspec.times do |i|
+    species_index = i + 1
+    @prandtl_number[species_index] = - (@rhoc/@qinp/@rmaj**2) * 
+                                       (eval("@tprim_#{species_index}")/@g_exb) * 
+                                       (@es_mom_flux_stav[species_index]/
+                                        @es_heat_flux_stav[species_index])
+  end
+  write_results
+end
 
 end
 end
