@@ -754,7 +754,7 @@ alias :csc :calculate_spectral_checks
 def calculate_prandtl_number
   
   @nspec.times do |i|
-    @prandtl_number[species_index] = nil
+    @prandtl_number[i+1] = nil
   end
   write_results
 
