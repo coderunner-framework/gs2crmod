@@ -752,6 +752,12 @@ end
 alias :csc :calculate_spectral_checks
 
 def calculate_prandtl_number
+  
+  @nspec.times do |i|
+    @prandtl_number[species_index] = nil
+  end
+  write_results
+
   if @g_exb == 0
     eputs 'g_exb = 0 therefore Prandtl number is undefined.'
     return nil
@@ -762,8 +768,6 @@ def calculate_prandtl_number
     eputs 'Prandtl number currently only calculated for Miller equilibrium.'
     return nil
   end
-
-  @prandtl_number = {}
 
   @nspec.times do |i|
     species_index = i + 1
@@ -777,4 +781,3 @@ end
 
 end
 end
-
