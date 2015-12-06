@@ -186,7 +186,7 @@ def calculate_saturation_time_index(show_graph = false)
 # 		GraphKit.autocreate(x: {data: t_vec}, y: {data: hflux}).gnuplot
 		
 		lomb = GSL::SpectralAnalysis::Lomb.alloc(t_vec.subvector(i, t_vec.size - i),  hflux.subvector(i, hflux.size - i))
-		fs, periodogram = lomb.calculate_periodogram(1.0, 4.0, [0]) #(1.0) #0.1 * hflux.size / ( hflux.size - i))
+		#fs, periodogram = lomb.calculate_periodogram(1.0, 4.0, [0]) #(1.0) #0.1 * hflux.size / ( hflux.size - i))
 # 		lomb.graphkit.gnuplot
 		
 # 		eputs 'Confidence that lowest frequency is not noise is: '
@@ -240,9 +240,6 @@ def calculate_saturation_time_index(show_graph = false)
 # 	
 # 	exit
 	
-	
-	
-	
 	return
 	
 	# Calculate a series of time averaged segments
@@ -272,6 +269,7 @@ alias :csti :calculate_saturation_time_index
 
 def calculate_frequencies
   @real_frequencies = FloatHash.new
+  @frequency_at_ky_at_kx ||= FloatHash.new
   omega_avg_narray = netcdf_file.var("omega_average").get('start' => [0, 0, 0, -1], 
                                                           'end' => [0, -1, -1, -1])
   omega_avg_narray.reshape!(*omega_avg_narray.shape.slice(1..2))
@@ -282,7 +280,7 @@ def calculate_frequencies
     list(:ky).values.sort.each_with_index do |kyv, i|
       @frequency_at_ky_at_kx[kyv] = FloatHash.new
       list(:kx).values.sort.each_with_index do |kxv, j|	
-        @frequency_at_ky_at_kx[kyv][kxv] = omega_avg_narray[i, j]
+        @frequency_at_ky_at_kx[kyv][kxv] = omega_avg_narray[j, i]
       end
       write_results
     end
@@ -371,24 +369,23 @@ end
 alias :cgrf :calculate_growth_rates_and_frequencies
 
 def calculate_growth_rate(vector, options={})
-	raise "This vector should be positive definite" if vector.min < 0.0
-	offset = 0
-	length = vector.length
+  raise "This vector should be positive definite" if vector.min < 0.0
+  offset = 0
+  length = vector.length
   while vector[offset] == 0.0
     offset+=1
     return 0.0 if offset == vector.length
   end
-	growth_rate = GSL::Fit::linear(gsl_vector(:t).subvector(offset, length-offset), 0.5*GSL::Sf::log(vector.subvector(offset, length - offset)))[1]
-	divisor = 1
-	while (growth_rate.to_s == "NaN")
-      #This corrects the growth rate if phi has grown all the way to NaN during the simulation
-      divisor *= 2
-      length = (vector.size.to_f / divisor.to_f).floor
-      return "NaN" if length <= offset + 1
-      growth_rate = GSL::Fit::linear(gsl_vector(:t).subvector(offset, length-offset), 0.5*GSL::Sf::log(vector.subvector(offset, length-offset)))[1]
-	end	
-    p 'HELLLOOASJDKFHASDF'
-	growth_rate
+  growth_rate = GSL::Fit::linear(gsl_vector(:t).subvector(offset, length-offset), 0.5*GSL::Sf::log(vector.subvector(offset, length - offset)))[1]
+  divisor = 1
+  while (growth_rate.to_s == "NaN")
+    #This corrects the growth rate if phi has grown all the way to NaN during the simulation
+    divisor *= 2
+    length = (vector.size.to_f / divisor.to_f).floor
+    return "NaN" if length <= offset + 1
+    growth_rate = GSL::Fit::linear(gsl_vector(:t).subvector(offset, length-offset), 0.5*GSL::Sf::log(vector.subvector(offset, length-offset)))[1]
+  end	
+  growth_rate
 end
 
 # Not needed for GS2 built after 16/06/2010
@@ -683,7 +680,7 @@ end
 
 def max_trans_phi
 	phivec = gsl_vector('phi2tot_over_time')
-	offset = 30
+	#offset = 30
 	phivec.subvector(20, phivec.size - 20).max
 end
 
@@ -692,7 +689,7 @@ def max_es_heat_amp(species_index)
 end
 
 def calculate_spectral_checks
-  kx = gsl_vector('kx')
+  #kx = gsl_vector('kx')
   ky = gsl_vector('ky')
   ky_spec = gsl_vector('spectrum_over_ky')
   kx_spec = gsl_vector('spectrum_over_kx')
