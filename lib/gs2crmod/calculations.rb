@@ -186,7 +186,7 @@ def calculate_saturation_time_index(show_graph = false)
 # 		GraphKit.autocreate(x: {data: t_vec}, y: {data: hflux}).gnuplot
 		
 		lomb = GSL::SpectralAnalysis::Lomb.alloc(t_vec.subvector(i, t_vec.size - i),  hflux.subvector(i, hflux.size - i))
-		#fs, periodogram = lomb.calculate_periodogram(1.0, 4.0, [0]) #(1.0) #0.1 * hflux.size / ( hflux.size - i))
+		fs, periodogram = lomb.calculate_periodogram(1.0, 4.0, [0]) #(1.0) #0.1 * hflux.size / ( hflux.size - i))
 # 		lomb.graphkit.gnuplot
 		
 # 		eputs 'Confidence that lowest frequency is not noise is: '

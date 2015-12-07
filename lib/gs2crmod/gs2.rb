@@ -1281,7 +1281,9 @@ folder = File.dirname(File.expand_path(__FILE__)) # i.e. the directory this file
 
     # Rename variables which go in info and results file
     @run_name.sub! "id_#{@id}", "id_#{new_id}"
-    @restart_file.sub! "id_#{@id}", "id_#{new_id}"
+    if @restart_file
+      @restart_file.sub! "id_#{@id}", "id_#{new_id}"
+    end
     @output_file.sub! "gs2.#{@id}", "gs2.#{new_id}"
     @error_file.sub! "gs2.#{@id}", "gs2.#{new_id}"
 
