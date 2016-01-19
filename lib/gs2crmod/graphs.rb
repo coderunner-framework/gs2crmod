@@ -171,7 +171,6 @@ GRAPHKIT_OPTIONS_HELP = {
     Rmaj: "The major radius in metres. This has no effect on the shape of the graph: it merely multiplies every length",
   n0: " The toroidal mode number of the longest y mode. In effect it is the number of periodic copies of the flux tube that will fit in the torus. Periodicity requires that n0 q  is also an integer. If you specify :n0 where this is not the case, q will automatically be adjusted until it is",
   rho_star: " The ratio of the reference Lamour radius to the GS2 normalising length a. Cannot be specified at the same time as n0. If specified, both n0 and q will be adjusted to ensure periodicity",
-  t_index: "The (1-based) time index",
   nakx: "The number of radial wave numbers to include in the plot. In effect, it is a low pass filter which reduces the resolution in the radial direction without changing the shape of the final surface. Minimum value is 4",
   naky: "The number of kys to include in the plot. In effect, it is a low pass filter which reduces the resolution in the y direction without changing the shape of the final surface. Minimum value is 4",
   gs2_coordinate_factor: "When set to 1, plot the graph in GS2 coordinates. When set to  0 plot the graph in real space. Can be set at any value between 0 and 1: the graph will smoothly distort between the two limits",
