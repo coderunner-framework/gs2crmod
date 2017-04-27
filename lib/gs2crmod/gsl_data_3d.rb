@@ -224,7 +224,11 @@ class CodeRunner::Gs2
 
 			end
 
-			arr[0, true, true, true] = 0.0 if options[:no_zonal]
+      #if options[:t_index]
+        arr[0, true, true, true] = 0.0 if options[:no_zonal]
+      #else
+        #arr[0, true, true] = 0.0 if options[:no_zonal]
+      #end
 			#arr = arr[options[:nakx] ? 0...options[:nakx] : true, options[:naky] ? 0...options[:naky] : true, true, true] if options[:nakx] or options[:naky]
 			return arr
 
@@ -374,6 +378,7 @@ class CodeRunner::Gs2
 		end
 		# Order is R0,Z0,a0,Rprim,Zprim,aprim
 		def geometric_factors_gsl_tensor(options)
+      #ep 'STARTING'
 			#ops = options.dup; ops.delete :phi
 		#ep ops; gets
 			case @equilibrium_option
@@ -385,7 +390,8 @@ class CodeRunner::Gs2
 				values = File.read(options[:geometry_file]||"#@directory/#@run_name.g").split(/\s*\n\s*/)
 				3.times{values.shift}
 				values = values.map{|str| str.split(/\s+/).map{|s| s.to_f}}.transpose
-				#ep values
+				#ep values[0]
+				#ep values[3]
 				shape = factors.shape
 				for i in 0...shape[0]
 						unless options[:interpolate_theta]
@@ -396,7 +402,7 @@ class CodeRunner::Gs2
 							opts = options.dup
 							opts[:interpolate_theta] = nil
 							theta_vec_short = gsl_vector(:theta, {})
-							interp = GSL::ScatterInterp.alloc(:linear, [values[0], values[i+1].to_gslv], true)
+							interp = GSL::ScatterInterp.alloc(:thin_plate_splines, [values[0], values[i+1].to_gslv], false)
 							for j in 0...theta_vec.size
 								factors[i,j] = interp.eval(theta_vec[j])
 							end

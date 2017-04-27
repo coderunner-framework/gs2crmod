@@ -97,8 +97,8 @@ VALUE gs2crmod_tensor_field_gsl_tensor(VALUE self, VALUE options)
 	/*cgsl_vector = RGET_CLASS(cgsl, "Vector");*/
 
 	Check_Type(options, T_HASH);
-	if(RTEST(CR_HKS(options, "field"))){
-		field = CR_HKS(options, "field");
+	if(RTEST(CR_HKS(options, "field_netcdf"))){
+		field = CR_HKS(options, "field_netcdf");
 		CR_CHECK_CLASS(field, cgsl_tensor);
 	}
 	else {
@@ -129,7 +129,7 @@ VALUE gs2crmod_tensor_field_gsl_tensor(VALUE self, VALUE options)
 
 	c_field = ALLOC_N(double, c_shape[0] * c_shape[1] * c_shape[2] * c_shape[3]);
 
-	/*printf("Allocated stuff\n");*/
+  /*printf("Allocated stuff\n");*/
 	for (j=0; j<c_shape[2]; j++) /*theta loop*/
 	{
 		for (i=0; i<c_shape[0]; i++) /*ky loop*/
@@ -293,7 +293,7 @@ VALUE gs2crmod_tensor_field_gsl_tensor(VALUE self, VALUE options)
 				3,
 				ary_ptr[0], ary_ptr[1], ary_ptr[2]);
 		field_real_space_new_narray = RFCALL_10_ON(field_real_space_new, "narray");
-		/*printf("Allocated");*/
+    /*printf("Allocated");*/
 		/*rb_p(shape_real_space_new);*/
 		for (i=0;i<c_shape_real_space_new[0];i++)
 		for (j=0;j<c_shape_real_space_new[1];j++)
@@ -344,6 +344,7 @@ VALUE gs2crmod_tensor_field_gsl_tensor(VALUE self, VALUE options)
 
 		field_real_space = field_real_space_new;
 	}
+  /*printf("Finished field_real_space_gsl_tensor\n");*/
 	/*rb_p(shape_real_space_new);*/
 	return field_real_space;
 }
